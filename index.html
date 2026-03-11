@@ -357,10 +357,118 @@ html,body{height:100%;overflow:hidden;background:var(--prune-dark);font-family:'
 .vt-dots span:nth-child(2){animation-delay:.2s}
 .vt-dots span:nth-child(3){animation-delay:.4s}
 @keyframes vt-dot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+  /* ══ ONBOARDING ══ */
+  #onboarding {
+    position:absolute;inset:0;z-index:400;
+    background:linear-gradient(170deg,#1E0630,#3B1152);
+    display:flex;flex-direction:column;align-items:center;
+    justify-content:center;padding:0 28px;
+    overflow-y:auto;
+  }
+  #onboarding.done{display:none}
+  .ob-step{display:none;flex-direction:column;align-items:center;width:100%}
+  .ob-step.active{display:flex}
+  .ob-input{
+    width:100%;background:rgba(255,255,255,0.08);
+    border:1.5px solid rgba(255,255,255,0.15);
+    border-radius:16px;padding:14px 18px;
+    font-size:16px;color:#fff;outline:none;
+    font-family:'DM Sans',sans-serif;
+    margin-bottom:12px;
+  }
+  .ob-input::placeholder{color:rgba(255,255,255,0.35)}
+  .ob-input:focus{border-color:rgba(201,148,58,0.6)}
+  .ob-btn{
+    width:100%;height:52px;border-radius:16px;
+    background:linear-gradient(135deg,#C9943A,#E8B85A);
+    border:none;color:#1E0630;font-size:16px;font-weight:700;
+    font-family:'DM Sans',sans-serif;cursor:pointer;
+    margin-bottom:12px;letter-spacing:.02em;
+  }
+  .ob-skip{font-size:13px;color:rgba(255,255,255,0.35);cursor:pointer;text-decoration:underline;margin-top:4px}
+  .ob-enfant-row{
+    width:100%;display:flex;gap:10px;margin-bottom:10px;align-items:center;
+  }
+  .ob-rm{
+    width:32px;height:32px;flex-shrink:0;border-radius:10px;
+    background:rgba(229,57,53,0.15);border:none;color:#ff6b6b;
+    font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .ob-dots{display:flex;gap:6px;margin-bottom:32px}
+  .ob-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2)}
+  .ob-dot.active{background:#C9943A;width:20px;border-radius:4px}
 </style>
 </head>
 <body>
 <div class="phone">
+
+<!-- ══ ONBOARDING ══ -->
+<div id="onboarding">
+
+  <!-- ÉTAPE 1 : Prénom -->
+  <div class="ob-step active" id="ob-step-1">
+    <div style="font-family:'Fraunces',serif;font-size:48px;font-style:italic;color:#fff;margin-bottom:4px">a</div>
+    <div style="font-family:'Fraunces',serif;font-size:26px;color:#fff;margin-bottom:4px">alim<span style="color:#C9943A">a</span></div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.4);letter-spacing:.1em;margin-bottom:40px">TON ASSISTANTE FAMILIALE</div>
+
+    <div class="ob-dots">
+      <div class="ob-dot active" id="dot-1"></div>
+      <div class="ob-dot" id="dot-2"></div>
+      <div class="ob-dot" id="dot-3"></div>
+    </div>
+
+    <div style="font-size:15px;color:rgba(255,255,255,0.6);text-align:center;margin-bottom:20px;line-height:1.6">
+      Comment tu t'appelles ?
+    </div>
+    <input id="ob-prenom" class="ob-input" type="text" placeholder="Ton prénom">
+    <button class="ob-btn" onclick="obGo(2)">Continuer →</button>
+  </div>
+
+  <!-- ÉTAPE 2 : Enfants -->
+  <div class="ob-step" id="ob-step-2">
+    <div style="font-size:36px;margin-bottom:12px">👨‍👩‍👧‍👦</div>
+    <div style="font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:6px;text-align:center">Ta famille</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:24px">Ajoute tes enfants — Alima s'en souviendra</div>
+
+    <div class="ob-dots">
+      <div class="ob-dot" id="dot2-1"></div>
+      <div class="ob-dot active" id="dot2-2"></div>
+      <div class="ob-dot" id="dot2-3"></div>
+    </div>
+
+    <div id="ob-enfants-list" style="width:100%;margin-bottom:12px"></div>
+
+    <div onclick="obAddEnfant()" style="width:100%;padding:12px;border:1.5px dashed rgba(255,255,255,0.2);border-radius:14px;text-align:center;color:rgba(255,255,255,0.4);cursor:pointer;font-size:13px;margin-bottom:16px">
+      + Ajouter un enfant
+    </div>
+
+    <button class="ob-btn" onclick="obGo(3)">Continuer →</button>
+    <div class="ob-skip" onclick="obGo(3)">Passer</div>
+  </div>
+
+  <!-- ÉTAPE 3 : Cycle -->
+  <div class="ob-step" id="ob-step-3">
+    <div style="font-size:36px;margin-bottom:12px">🌸</div>
+    <div style="font-family:'Fraunces',serif;font-size:22px;color:#fff;margin-bottom:6px;text-align:center">Ton cycle</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:24px;line-height:1.6">
+      Quand a commencé ton dernier cycle ?<br>
+      <span style="font-size:11px;opacity:.6">(Alima adaptera ses conseils à ta phase)</span>
+    </div>
+
+    <div class="ob-dots">
+      <div class="ob-dot" id="dot3-1"></div>
+      <div class="ob-dot" id="dot3-2"></div>
+      <div class="ob-dot active" id="dot3-3"></div>
+    </div>
+
+    <input id="ob-cycle" class="ob-input" type="date" style="color-scheme:dark">
+    <button class="ob-btn" onclick="obFinish()">Commencer ✨</button>
+    <div class="ob-skip" onclick="obFinish()">Je ne sais pas / Passer</div>
+  </div>
+
+</div>
+
 
 <!-- ── STATUS BAR ── -->
 <div class="status-bar">
@@ -1582,15 +1690,103 @@ function renderProfilEnfants() {
 }
 
 // Charger profil au démarrage
+let obEnfants = [];
 (function loadProfile() {
   try {
     const saved = localStorage.getItem('alima_profile');
     if (saved) {
       profile = JSON.parse(saved);
       applyProfileFull();
+      // Pas d'onboarding — profil déjà là
+      document.getElementById('onboarding').classList.add('done');
+    } else {
+      // Nouvelle utilisatrice — lancer l'onboarding
+      obInit();
     }
-  } catch(e) {}
+  } catch(e) {
+    obInit();
+  }
 })();
+
+// ── ONBOARDING ──
+function obInit() {
+  // Pré-remplir la date cycle avec aujourd'hui
+  const today = new Date().toISOString().split('T')[0];
+  const cycleEl = document.getElementById('ob-cycle');
+  if (cycleEl) cycleEl.value = today;
+  obRenderEnfants();
+}
+
+function obGo(step) {
+  if (step === 2) {
+    const prenom = (document.getElementById('ob-prenom').value || '').trim();
+    if (!prenom) {
+      const inp = document.getElementById('ob-prenom');
+      inp.style.borderColor = '#C9943A';
+      inp.focus();
+      return;
+    }
+  }
+  document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('ob-step-' + step);
+  if (el) el.classList.add('active');
+}
+
+function obAddEnfant() {
+  obEnfants.push({prenom:'', age:''});
+  obRenderEnfants();
+}
+
+function obRemoveEnfant(i) {
+  obEnfants.splice(i, 1);
+  obRenderEnfants();
+}
+
+function obRenderEnfants() {
+  const c = document.getElementById('ob-enfants-list');
+  if (!c) return;
+  const emojis = ['👧','👦','👧🏾','👦🏾'];
+  c.innerHTML = '';
+  obEnfants.forEach((e, i) => {
+    const row = document.createElement('div');
+    row.className = 'ob-enfant-row';
+    row.innerHTML = `
+      <span style="font-size:22px">${emojis[i]||'🧒'}</span>
+      <input data-ob-name="${i}" type="text" class="ob-input" value="${e.prenom}" placeholder="Prénom" style="flex:1;margin-bottom:0">
+      <input data-ob-age="${i}" type="number" class="ob-input" value="${e.age}" placeholder="Âge" min="0" max="18" style="width:68px;margin-bottom:0;text-align:center">
+      <button class="ob-rm" onclick="obRemoveEnfant(${i})">✕</button>`;
+    c.appendChild(row);
+  });
+  // Si aucun enfant, afficher un champ vide par défaut
+  if (obEnfants.length === 0) {
+    const hint = document.createElement('div');
+    hint.style = 'width:100%;text-align:center;color:rgba(255,255,255,0.25);font-size:13px;padding:8px 0';
+    hint.textContent = 'Aucun enfant pour l\'instant';
+    c.appendChild(hint);
+  }
+}
+
+function obFinish() {
+  const prenom = (document.getElementById('ob-prenom').value || '').trim() || 'Toi';
+  const cycleStart = document.getElementById('ob-cycle').value || null;
+
+  // Récupérer enfants
+  const enfants = [];
+  obEnfants.forEach((e, i) => {
+    const nameEl = document.querySelector(`[data-ob-name="${i}"]`);
+    const ageEl  = document.querySelector(`[data-ob-age="${i}"]`);
+    const p = (nameEl ? nameEl.value.trim() : e.prenom) || ('Enfant '+(i+1));
+    const a = parseInt(ageEl ? ageEl.value : e.age) || 0;
+    enfants.push({prenom: p, age: a});
+  });
+
+  profile = {prenom, enfants, cycleStart};
+  try { localStorage.setItem('alima_profile', JSON.stringify(profile)); } catch(err) {}
+
+  // Fermer onboarding
+  document.getElementById('onboarding').classList.add('done');
+  applyProfileFull();
+}
 </script>
 
 <!-- ══ MODAL ÉDITION PROFIL ══ -->
