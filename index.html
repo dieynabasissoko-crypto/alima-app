@@ -525,10 +525,11 @@ html,body{height:100%;overflow:hidden;background:var(--prune-dark);font-family:'
     <div class="hero">
       <div class="hero-top">
         <div class="avatar-parent">👩🏾</div>
-        <div>
+        <div style="flex:1">
           <div class="hero-name" id="profilPrenom">Aminata</div>
-          <div class="hero-sub" id="profilSub">Maman · Professionnelle · En phase folliculaire</div>
+          <div class="hero-sub" id="profilSub">Maman · Professionnelle</div>
         </div>
+        <div onclick="openEditProfil()" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0">✏️</div>
       </div>
       <!-- Raccourci cycle -->
       <div class="cycle-strip-btn" onclick="nav('cycle')">
@@ -1436,6 +1437,197 @@ function updateHome() {
   updateHome();
   buildStrip(); renderAgenda(); renderNotes();
 })();
+
+// ── ÉDITION PROFIL ──
+function openEditProfil() {
+  const p = profile || {prenom:'Aminata', enfants:[{prenom:'Yasmine',age:7},{prenom:'Marème',age:4}], cycleStart:null};
+  document.getElementById('ep-prenom').value = p.prenom || '';
+  // Date cycle
+  const cycleEl = document.getElementById('ep-cycle');
+  if (p.cycleStart) {
+    cycleEl.value = p.cycleStart;
+  } else {
+    // Calculer la date de début à partir de CYCLE_DAY
+    const d = new Date(); d.setDate(d.getDate() - (CYCLE_DAY - 1));
+    cycleEl.value = d.toISOString().split('T')[0];
+  }
+  epRenderEnfants(p.enfants || []);
+  document.getElementById('editProfilModal').style.display = '';
+}
+
+function closeEditProfil() {
+  document.getElementById('editProfilModal').style.display = 'none';
+}
+
+let epEnfants = [];
+
+function epRenderEnfants(list) {
+  epEnfants = list.map(e => ({...e}));
+  const c = document.getElementById('ep-enfants');
+  c.innerHTML = '';
+  const emojis = ['👧','👦','👧🏾','👦🏾'];
+  epEnfants.forEach((e, i) => {
+    const div = document.createElement('div');
+    div.style = 'background:#fff;border:1.5px solid rgba(59,17,82,0.1);border-radius:14px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px';
+    div.innerHTML = `
+      <div style="font-size:22px">${emojis[i]||'🧒'}</div>
+      <input data-ep-name="${i}" type="text" value="${e.prenom||''}" placeholder="Prénom"
+        style="flex:1;background:none;border:none;outline:none;font-size:15px;color:#1E0630;font-family:'DM Sans',sans-serif">
+      <input data-ep-age="${i}" type="number" value="${e.age||''}" placeholder="Âge" min="0" max="18"
+        style="width:56px;background:rgba(59,17,82,0.05);border:none;border-radius:8px;padding:6px 8px;font-size:14px;color:#1E0630;font-family:'DM Sans',sans-serif;outline:none;text-align:center">
+      <div onclick="epRemoveEnfant(${i})" style="width:28px;height:28px;border-radius:8px;background:rgba(229,57,53,0.08);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:#E53935">✕</div>`;
+    c.appendChild(div);
+  });
+}
+
+function epAddEnfant() {
+  epEnfants.push({prenom:'', age:''});
+  epRenderEnfants(epEnfants);
+}
+
+function epRemoveEnfant(i) {
+  epEnfants.splice(i, 1);
+  epRenderEnfants(epEnfants);
+}
+
+function saveEditProfil() {
+  const prenom = document.getElementById('ep-prenom').value.trim() || 'Toi';
+  const cycleStart = document.getElementById('ep-cycle').value || null;
+
+  // Récupérer les valeurs des inputs enfants
+  const enfants = epEnfants.map((e, i) => {
+    const nameEl = document.querySelector(`[data-ep-name="${i}"]`);
+    const ageEl  = document.querySelector(`[data-ep-age="${i}"]`);
+    return {
+      prenom: (nameEl ? nameEl.value.trim() : e.prenom) || ('Enfant '+(i+1)),
+      age: parseInt(ageEl ? ageEl.value : e.age) || 0
+    };
+  }).filter(e => e.prenom);
+
+  profile = { prenom, enfants, cycleStart };
+  try { localStorage.setItem('alima_profile', JSON.stringify(profile)); } catch(err) {}
+
+  // Recalculer CYCLE_DAY
+  if (cycleStart) {
+    const start = new Date(cycleStart + 'T00:00:00');
+    const now = new Date();
+    const diff = Math.floor((now - start) / 86400000) + 1;
+    // On ne peut pas réassigner const, on met à jour via la logique
+    window._cycleDay = Math.max(1, Math.min(28, diff));
+  }
+
+  closeEditProfil();
+  applyProfileFull();
+}
+
+function applyProfileFull() {
+  if (!profile) return;
+  const { prenom, enfants, cycleStart } = profile;
+
+  // Recalculer CYCLE_DAY si cycleStart disponible
+  let cycleDay = CYCLE_DAY;
+  if (cycleStart) {
+    const start = new Date(cycleStart + 'T00:00:00');
+    const diff = Math.floor((new Date() - start) / 86400000) + 1;
+    cycleDay = Math.max(1, Math.min(28, diff));
+  }
+
+  // Mettre à jour le profil affiché
+  const pp = document.getElementById('profilPrenom'); if(pp) pp.textContent = prenom;
+  const hn = document.getElementById('homePrenom'); if(hn) hn.textContent = prenom;
+
+  // Mettre à jour les filtres agenda avec les vrais prénoms
+  if (enfants && enfants.length) {
+    const fc = document.querySelectorAll('.filter-chip');
+    // Mettre à jour le filtre enfant 1
+    if (enfants[0] && fc[1]) {
+      fc[1].textContent = '👧 ' + enfants[0].prenom;
+      fc[1].setAttribute('onclick', `setAFilter(this,'${enfants[0].prenom.toLowerCase()}')`);
+    }
+    if (enfants[1] && fc[2]) {
+      fc[2].textContent = '👶 ' + enfants[1].prenom;
+      fc[2].setAttribute('onclick', `setAFilter(this,'${enfants[1].prenom.toLowerCase()}')`);
+    }
+  }
+
+  updateHome();
+  if (document.getElementById('screen-profil').classList.contains('active')) {
+    // re-render les cards enfants dans profil
+    renderProfilEnfants();
+  }
+}
+
+function renderProfilEnfants() {
+  if (!profile || !profile.enfants) return;
+  const scroll = document.querySelector('.children-scroll');
+  if (!scroll) return;
+  const emojis = ['👧','👦','👧🏾','👦🏾'];
+  // Reconstruire les cards
+  const addBtn = scroll.querySelector('.add-child');
+  // Supprimer les anciennes cards
+  scroll.querySelectorAll('.child-card').forEach(c => c.remove());
+  profile.enfants.forEach((e, i) => {
+    const card = document.createElement('div');
+    card.className = 'child-card';
+    card.innerHTML = `
+      <div class="child-top">
+        <div class="child-avatar">${emojis[i]||'🧒'}</div>
+        <div>
+          <div class="child-name">${e.prenom}</div>
+          <div class="child-age">${e.age} ans</div>
+        </div>
+      </div>`;
+    scroll.insertBefore(card, addBtn);
+  });
+}
+
+// Charger profil au démarrage
+(function loadProfile() {
+  try {
+    const saved = localStorage.getItem('alima_profile');
+    if (saved) {
+      profile = JSON.parse(saved);
+      applyProfileFull();
+    }
+  } catch(e) {}
+})();
 </script>
+
+<!-- ══ MODAL ÉDITION PROFIL ══ -->
+<div id="editProfilModal" style="display:none;position:absolute;inset:0;z-index:300;background:rgba(20,6,36,0.7);backdrop-filter:blur(4px);overflow-y:auto">
+  <div style="background:#FAF8F2;border-radius:28px 28px 0 0;position:absolute;bottom:0;left:0;right:0;max-height:92%;overflow-y:auto;padding:24px 22px 40px">
+    <!-- Handle -->
+    <div style="width:40px;height:4px;background:rgba(59,17,82,0.15);border-radius:4px;margin:0 auto 20px"></div>
+    <div style="font-family:'Fraunces',serif;font-size:20px;color:#1E0630;margin-bottom:20px">Mon profil</div>
+
+    <!-- Prénom -->
+    <div style="margin-bottom:18px">
+      <div style="font-size:11px;color:#9A80AA;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Mon prénom</div>
+      <input id="ep-prenom" type="text" placeholder="Ton prénom"
+        style="width:100%;background:#fff;border:1.5px solid rgba(59,17,82,0.12);border-radius:14px;padding:12px 16px;font-size:15px;color:#1E0630;font-family:'DM Sans',sans-serif;outline:none">
+    </div>
+
+    <!-- Cycle -->
+    <div style="margin-bottom:22px">
+      <div style="font-size:11px;color:#9A80AA;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Date de début de mon dernier cycle (J1)</div>
+      <input id="ep-cycle" type="date"
+        style="width:100%;background:#fff;border:1.5px solid rgba(59,17,82,0.12);border-radius:14px;padding:12px 16px;font-size:15px;color:#1E0630;font-family:'DM Sans',sans-serif;outline:none">
+    </div>
+
+    <!-- Enfants -->
+    <div style="font-size:11px;color:#9A80AA;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Mes enfants</div>
+    <div id="ep-enfants"></div>
+
+    <!-- Ajouter enfant -->
+    <div onclick="epAddEnfant()" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px dashed rgba(59,17,82,0.15);border-radius:14px;cursor:pointer;margin-bottom:24px">
+      <div style="width:32px;height:32px;border-radius:10px;background:rgba(59,17,82,0.07);display:flex;align-items:center;justify-content:center;font-size:18px">+</div>
+      <span style="font-size:13px;color:#9A80AA">Ajouter un enfant</span>
+    </div>
+
+    <!-- Boutons -->
+    <button onclick="saveEditProfil()" style="width:100%;height:50px;border-radius:16px;background:linear-gradient(135deg,#3B1152,#5A1E80);border:none;color:#fff;font-size:16px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;margin-bottom:10px">Enregistrer</button>
+    <div onclick="closeEditProfil()" style="text-align:center;font-size:13px;color:#9A80AA;cursor:pointer;padding:8px">Annuler</div>
+  </div>
+</div>
 </body>
 </html>
