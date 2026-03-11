@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Alima">
+<meta name="theme-color" content="#3B1152">
+<title>Alima</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --prune:#3B1152;--prune-dark:#1E0630;--gold:#C9943A;--gold-light:#E8B85A;
+  --cream:#FAF8F2;--sand:#F0EAF8;--light:#9A80AA;--mid:#52366A;
+  --c-event:#3B1152;--c-rappel:#C9943A;--c-recurrent:#2E7D6B;--c-tache:#5C6BC0;
+  --folliculaire:#27AE60;--menstruelle:#C0392B;--ovulatoire:#F39C12;--luteale:#8E44AD;
+}
+html,body{height:100%;overflow:hidden;background:var(--prune-dark);font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center}
+.phone{width:390px;height:844px;background:var(--cream);border-radius:48px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 40px 100px rgba(0,0,0,.7)}
+.status-bar{height:44px;flex-shrink:0;background:var(--cream);display:flex;align-items:center;justify-content:space-between;padding:0 28px}
+.status-time{font-size:15px;font-weight:500;color:var(--prune-dark)}
+.status-icons{font-size:12px;color:var(--light);display:flex;gap:6px}
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden}
+.screen.active{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes vanish{0%{opacity:1;transform:translateX(0);max-height:80px;margin-bottom:8px}100%{opacity:0;transform:translateX(40px);max-height:0;margin-bottom:0;padding:0}}
+.item.vanish{animation:vanish .35s ease forwards}
+/* NAV */
+.bottom-nav{position:absolute;bottom:0;left:0;right:0;height:80px;background:rgba(250,248,242,.96);backdrop-filter:blur(12px);border-top:1px solid rgba(59,17,82,.07);display:flex;align-items:center;justify-content:space-around;padding:0 10px 14px;z-index:50}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 14px;border-radius:14px;transition:all .15s}
+.nav-item.active{background:var(--sand)}
+.nav-icon{font-size:22px}
+.nav-label{font-size:10px;color:var(--light);font-weight:500}
+.nav-item.active .nav-label{color:var(--prune)}
+/* SCROLL */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+/* LOGO */
+.logo-mark{width:72px;height:72px;border-radius:22px;background:linear-gradient(150deg,#2A0A45,var(--prune));box-shadow:0 10px 32px rgba(30,6,48,.4),0 0 0 1px rgba(232,184,90,.18);display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:14px}
+.logo-a{font-family:'Fraunces',serif;font-size:36px;font-style:italic;color:#fff;position:relative;z-index:1;margin-top:4px}
+.logo-dots{position:absolute;inset:0}
+.logo-dots span{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--gold-light)}
+.logo-dots span:nth-child(1){top:10px;left:50%;transform:translateX(-50%);width:6px;height:6px}
+.logo-dots span:nth-child(2){top:13px;right:16px;opacity:.85}
+.logo-dots span:nth-child(3){top:22px;right:10px;opacity:.65;width:4px;height:4px}
+.logo-dots span:nth-child(4){top:13px;left:16px;opacity:.85}
+.logo-dots span:nth-child(5){top:22px;left:10px;opacity:.55;width:4px;height:4px}
+.logo-wordmark{font-family:'Fraunces',serif;font-size:28px;color:var(--prune-dark)}
+.logo-wordmark span{color:var(--gold)}
+.mini-logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(150deg,#2A0A45,var(--prune));display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:16px;font-style:italic;color:#fff;flex-shrink:0;box-shadow:0 2px 8px rgba(42,10,61,.3),0 0 0 1px rgba(232,184,90,.15);position:relative}
+.mini-logo::after{content:'';position:absolute;top:5px;right:6px;width:4px;height:4px;border-radius:50%;background:var(--gold-light)}
+/* PAGE TITLE */
+.page-title{font-family:'Fraunces',serif;font-size:22px;color:var(--prune-dark)}
+.page-title span{color:var(--gold)}
+/* SECTION */
+.section-title{font-size:11px;font-weight:600;color:var(--light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:rgba(59,17,82,.08)}
+/* FILTERS */
+.filter-bar{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:14px;margin:0 -22px;padding-left:22px;padding-right:22px}
+.filter-bar::-webkit-scrollbar{display:none}
+.filter-chip{white-space:nowrap;padding:5px 13px;border-radius:20px;font-size:12px;border:1px solid rgba(59,17,82,.1);background:#fff;color:var(--mid);cursor:pointer;transition:all .15s;flex-shrink:0}
+.filter-chip.active{background:var(--prune);color:#fff;border-color:var(--prune)}
+/* AGENDA ITEM */
+.item{background:#fff;border-radius:16px;padding:13px 15px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;box-shadow:0 1px 8px rgba(42,10,61,.05);cursor:pointer;position:relative;overflow:hidden;animation:fadeUp .3s ease both}
+.item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.item.type-event::before{background:var(--c-event)}.item.type-rappel::before{background:var(--c-rappel)}.item.type-recurrent::before{background:var(--c-recurrent)}.item.type-tache::before{background:var(--c-tache)}
+.item-icon{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.item.type-event .item-icon{background:rgba(59,17,82,.07)}.item.type-rappel .item-icon{background:rgba(201,148,58,.1)}.item.type-recurrent .item-icon{background:rgba(46,125,107,.1)}.item.type-tache .item-icon{background:rgba(92,107,192,.1)}
+.item-body{flex:1;min-width:0}
+.item-title{font-size:14px;font-weight:500;color:var(--prune-dark);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-meta{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--light)}
+.item-time{font-weight:500;color:var(--mid)}
+.item-tag{padding:2px 8px;border-radius:8px;font-size:10.5px;font-weight:500}
+.tag-yasmine{background:rgba(59,17,82,.07);color:var(--prune)}.tag-marème{background:rgba(201,148,58,.1);color:var(--gold)}.tag-pro{background:rgba(92,107,192,.1);color:#5C6BC0}
+.item-check{width:22px;height:22px;border-radius:7px;border:1.5px solid rgba(59,17,82,.15);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;margin-top:7px;font-size:13px;color:#fff}
+.item.type-event .item-check.checked{background:var(--c-event);border-color:var(--c-event)}
+.item.type-rappel .item-check.checked{background:var(--c-rappel);border-color:var(--c-rappel)}
+.item.type-recurrent .item-check.checked{background:var(--c-recurrent);border-color:var(--c-recurrent)}
+.item.type-tache .item-check.checked{background:var(--c-tache);border-color:var(--c-tache)}
+.date-section{margin-bottom:18px}
+.date-label{font-size:11px;font-weight:600;color:var(--light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.date-label::after{content:'';flex:1;height:1px;background:rgba(59,17,82,.07)}
+.date-label.today{color:var(--gold)}
+.done-toggle{text-align:center;padding:10px 0 4px;font-size:12px;color:var(--light);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.done-section .item{opacity:.42}.done-section .item-title{text-decoration:line-through}
+/* VIEW SWITCH */
+.view-switch{display:flex;background:#fff;border-radius:12px;padding:3px;border:1px solid rgba(59,17,82,.08)}
+.view-btn{padding:6px 16px;border-radius:9px;font-size:12.5px;font-weight:500;color:var(--light);cursor:pointer;transition:all .18s}
+.view-btn.active{background:var(--prune);color:#fff;box-shadow:0 2px 8px rgba(59,17,82,.25)}
+/* DAYS STRIP */
+.days-strip{display:none;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:14px;margin:0 -22px;padding-left:22px;padding-right:22px}
+.days-strip::-webkit-scrollbar{display:none}
+.days-strip.visible{display:flex}
+.day-pill{display:flex;flex-direction:column;align-items:center;min-width:46px;padding:8px 6px;border-radius:14px;cursor:pointer;transition:all .15s}
+.day-pill.active{background:var(--prune);box-shadow:0 3px 10px rgba(59,17,82,.25)}
+.day-pill .day-name{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--light);margin-bottom:4px}
+.day-pill.active .day-name{color:rgba(255,255,255,.6)}
+.day-pill .day-num{font-family:'Fraunces',serif;font-size:18px;color:var(--prune-dark)}
+.day-pill.active .day-num{color:#fff}
+.day-pill .day-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);margin-top:4px;opacity:0}
+.day-pill.has-events .day-dot{opacity:1}
+.day-pill.active .day-dot{background:rgba(255,255,255,.6)}
+/* NOTES */
+.masonry{column-count:2;column-gap:10px}
+.card{break-inside:avoid;border-radius:18px;padding:14px 14px 12px;margin-bottom:10px;cursor:pointer;transition:transform .18s;animation:fadeUp .3s ease both}
+.card:active{transform:scale(.97)}
+.card.cat-yasmine{background:#EDE0F7}.card.cat-marème{background:#FDF0D8}.card.cat-perso{background:#E0F0EC}.card.cat-pro{background:#E0E8F7}.card.cat-courses{background:#F7E8E0}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.card-cat{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--mid);opacity:.7;display:flex;align-items:center;gap:4px}
+.card-title{font-family:'Fraunces',serif;font-size:14px;color:var(--prune-dark);margin-bottom:6px;line-height:1.35}
+.card-body{font-size:12.5px;color:var(--mid);line-height:1.55;opacity:.85}
+.card-date{font-size:10px;color:var(--light);margin-top:8px;opacity:.7}
+.check-list{display:flex;flex-direction:column;gap:5px;margin-top:2px}
+.check-item{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:var(--mid);line-height:1.4}
+.check-box{width:15px;height:15px;border-radius:5px;flex-shrink:0;border:1.5px solid rgba(59,17,82,.2);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:1px;transition:all .15s;font-size:9px;color:#fff}
+.check-box.checked{background:var(--prune);border-color:var(--prune)}
+.check-item.done .check-label{text-decoration:line-through;opacity:.45}
+.voice-bar{display:flex;align-items:center;gap:8px;margin-top:4px}
+.voice-play{width:28px;height:28px;border-radius:50%;background:var(--prune);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;cursor:pointer;flex-shrink:0}
+.voice-wave{flex:1;height:24px;display:flex;align-items:center;gap:2px}
+.wave-bar{flex:1;border-radius:2px;background:rgba(59,17,82,.2)}
+.voice-dur{font-size:11px;color:var(--light)}
+.card-photo{width:100%;border-radius:10px;overflow:hidden;margin-bottom:8px;aspect-ratio:4/3;background:rgba(59,17,82,.08);display:flex;align-items:center;justify-content:center;font-size:28px}
+/* MODAL */
+.modal-bg{position:absolute;inset:0;background:rgba(19,10,28,.5);backdrop-filter:blur(4px);display:none;align-items:flex-end;z-index:100}
+.modal-bg.open{display:flex}
+.modal{width:100%;background:var(--cream);border-radius:28px 28px 0 0;padding:20px 22px 40px}
+.modal-handle{width:36px;height:4px;border-radius:2px;background:rgba(59,17,82,.15);margin:0 auto 18px}
+.modal-title{font-family:'Fraunces',serif;font-size:18px;color:var(--prune-dark);margin-bottom:16px}
+.type-options{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.type-opt{display:flex;flex-direction:column;align-items:center;gap:5px;background:#fff;border-radius:14px;padding:12px 6px;border:1.5px solid rgba(59,17,82,.08);cursor:pointer;transition:all .15s}
+.type-opt.active{border-color:var(--prune);background:var(--sand)}
+.type-opt-icon{font-size:22px}.type-opt-label{font-size:10.5px;color:var(--mid);text-align:center}
+.cat-options{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
+.cat-opt{padding:6px 13px;border-radius:20px;font-size:12px;border:1px solid rgba(59,17,82,.1);background:#fff;color:var(--mid);cursor:pointer;transition:all .15s}
+.cat-opt.active{background:var(--prune);color:#fff}
+.modal-textarea{width:100%;background:#fff;border:1.5px solid rgba(59,17,82,.1);border-radius:14px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--prune-dark);resize:none;outline:none;line-height:1.6;min-height:80px}
+.modal-actions{display:flex;gap:10px;margin-top:14px}
+.btn-cancel{flex:1;padding:13px;border-radius:14px;background:#fff;border:1.5px solid rgba(59,17,82,.1);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--light);cursor:pointer}
+.btn-save{flex:2;padding:13px;border-radius:14px;background:linear-gradient(145deg,var(--prune),#5A2578);border:none;font-family:'DM Sans',sans-serif;font-size:14px;color:#fff;cursor:pointer}
+/* CHAT */
+.messages{flex:1;overflow-y:auto;overflow-x:hidden;padding:18px 18px 10px;scrollbar-width:none;display:flex;flex-direction:column;gap:10px}
+.messages::-webkit-scrollbar{display:none}
+.msg-alima{display:flex;gap:8px;align-items:flex-end;animation:fadeUp .3s ease both}
+.msg-avatar{width:26px;height:26px;border-radius:8px;flex-shrink:0;background:linear-gradient(150deg,#2A0A45,var(--prune));display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:13px;font-style:italic;color:#fff;box-shadow:0 2px 6px rgba(42,10,61,.2),0 0 0 1px rgba(232,184,90,.12);position:relative}
+.msg-avatar::after{content:'';position:absolute;top:3px;right:4px;width:3px;height:3px;border-radius:50%;background:var(--gold-light)}
+.bubble-alima{background:#fff;border-radius:16px 16px 16px 3px;padding:11px 15px;max-width:82%;font-size:14px;color:var(--prune-dark);line-height:1.65;box-shadow:0 1px 8px rgba(42,10,61,.06)}
+.msg-user{display:flex;justify-content:flex-end;animation:fadeUp .3s ease both}
+.bubble-user{background:var(--prune);border-radius:16px 16px 3px 16px;padding:11px 15px;max-width:82%;font-size:14px;color:#fff;line-height:1.65;box-shadow:0 3px 14px rgba(59,17,82,.25)}
+.typing{display:none;gap:8px;align-items:flex-end}
+.typing.visible{display:flex}
+.typing-bubble{background:#fff;border-radius:16px 16px 16px 3px;padding:13px 16px;box-shadow:0 1px 8px rgba(42,10,61,.06);display:flex;gap:4px;align-items:center}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--light);animation:bounce 1.2s ease infinite}
+.typing-dot:nth-child(2){animation-delay:.18s}.typing-dot:nth-child(3){animation-delay:.36s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-5px);opacity:1}}
+.input-bar{padding:10px 16px 90px;background:var(--cream);border-top:1px solid rgba(59,17,82,.05);display:flex;align-items:flex-end;gap:9px;flex-shrink:0}
+.input-wrap{flex:1;background:#fff;border-radius:22px;border:1.5px solid rgba(59,17,82,.08);display:flex;align-items:flex-end;gap:6px;padding:10px 10px 10px 16px;transition:border-color .2s}
+.input-wrap:focus-within{border-color:rgba(59,17,82,.2)}
+.input-field{flex:1;background:none;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--prune-dark);resize:none;max-height:90px;line-height:1.5;scrollbar-width:none}
+.input-field::placeholder{color:var(--light)}
+.mic-btn{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:var(--sand);border:none;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer}
+.mic-btn.recording{background:#E53935;animation:pulse 1s ease infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(229,57,53,.35)}50%{box-shadow:0 0 0 7px rgba(229,57,53,0)}}
+.send-btn{width:44px;height:44px;border-radius:14px;flex-shrink:0;background:linear-gradient(145deg,var(--prune),#5A2578);border:none;color:#fff;font-size:20px;cursor:pointer;box-shadow:0 4px 14px rgba(59,17,82,.35);display:flex;align-items:center;justify-content:center}
+/* PROFIL */
+.hero{background:linear-gradient(160deg,var(--prune-dark),var(--prune));padding:24px 22px 28px;position:relative;overflow:hidden;flex-shrink:0}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(232,184,90,.12) 0%,transparent 70%);border-radius:50%}
+.hero-top{display:flex;align-items:center;gap:14px;margin-bottom:18px;position:relative;z-index:1}
+.avatar-parent{width:58px;height:58px;border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.15),rgba(255,255,255,.05));border:1.5px solid rgba(232,184,90,.3);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.hero-name{font-family:'Fraunces',serif;font-size:22px;color:#fff}
+.hero-sub{font-size:12px;color:rgba(255,255,255,.45);margin-top:2px}
+.cycle-strip-btn{background:rgba(255,255,255,.07);border:1px solid rgba(232,184,90,.2);border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:10px;position:relative;z-index:1;cursor:pointer;transition:background .15s}
+.cycle-strip-btn:hover{background:rgba(255,255,255,.12)}
+.cycle-phase-name{font-size:13px;font-weight:500;color:var(--gold-light)}
+.cycle-detail-txt{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
+.cycle-badge{background:rgba(232,184,90,.2);color:var(--gold-light);font-size:11px;font-weight:600;padding:4px 10px;border-radius:10px}
+.children-scroll{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;margin:0 -22px;padding:0 22px 4px}
+.children-scroll::-webkit-scrollbar{display:none}
+.child-card{min-width:200px;background:#fff;border-radius:20px;padding:16px;flex-shrink:0;box-shadow:0 2px 12px rgba(42,10,61,.07);cursor:pointer;animation:fadeUp .3s ease both}
+.child-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.child-avatar{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.child-avatar.yasmine{background:#EDE0F7}.child-avatar.marème{background:#FDF0D8}
+.child-name{font-family:'Fraunces',serif;font-size:16px;color:var(--prune-dark)}
+.child-age{font-size:11px;color:var(--light);margin-top:1px}
+.child-tags{display:flex;gap:6px;flex-wrap:wrap}
+.child-tag{font-size:11px;padding:3px 9px;border-radius:8px;background:var(--sand);color:var(--mid);font-weight:500}
+.child-rows{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.child-row{display:flex;align-items:flex-start;gap:8px}
+.child-row-icon{font-size:13px;margin-top:1px;flex-shrink:0}
+.child-row-text{font-size:12px;color:var(--mid);line-height:1.4}
+.child-row-text strong{color:var(--prune-dark);font-weight:500}
+.add-child{min-width:140px;border-radius:20px;border:2px dashed rgba(59,17,82,.15);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;padding:24px 12px;flex-shrink:0}
+.settings-card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(42,10,61,.06);margin-bottom:12px}
+.setting-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid rgba(59,17,82,.05);cursor:pointer;transition:background .12s}
+.setting-row:last-child{border-bottom:none}
+.setting-row:hover{background:var(--sand)}
+.setting-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.bg-purple{background:#EDE0F7}.bg-gold{background:#FDF0D8}.bg-green{background:#E0F0EC}.bg-blue{background:#E0E8F7}.bg-red{background:#FCE8E8}
+.setting-body{flex:1}
+.setting-label{font-size:14px;color:var(--prune-dark);font-weight:500}
+.setting-sub{font-size:11.5px;color:var(--light);margin-top:1px}
+.setting-right{display:flex;align-items:center;gap:8px}
+.chevron{font-size:14px;color:var(--light)}
+.toggle{width:38px;height:22px;border-radius:11px;background:var(--light);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--prune)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(16px)}
+.sub-card{background:linear-gradient(135deg,var(--prune-dark),var(--prune));border-radius:18px;padding:18px;margin-bottom:12px;box-shadow:0 4px 20px rgba(42,10,61,.25)}
+.sub-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sub-name{font-family:'Fraunces',serif;font-size:18px;color:#fff}
+.sub-badge{background:rgba(232,184,90,.2);color:var(--gold-light);font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px}
+.sub-desc{font-size:12px;color:rgba(255,255,255,.45);margin-bottom:14px;line-height:1.5}
+.sub-btn{background:var(--gold);color:var(--prune-dark);border:none;border-radius:12px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;width:100%}
+/* CYCLE */
+.back-btn{width:34px;height:34px;border-radius:10px;background:#fff;border:1px solid rgba(59,17,82,.1);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--mid);flex-shrink:0}
+.wheel-wrap{position:relative;width:220px;height:220px;margin-bottom:12px}
+.wheel-wrap canvas{position:absolute;top:0;left:0}
+.wheel-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none}
+.wheel-day{font-family:'Fraunces',serif;font-size:34px;color:var(--prune-dark);line-height:1}
+.wheel-sub{font-size:11px;color:var(--light);margin-top:2px}
+.wheel-phase{font-size:12px;font-weight:600;margin-top:4px}
+.phase-tabs{display:flex;gap:6px;margin:0 22px 16px}
+.phase-tab{flex:1;padding:8px 4px;border-radius:14px;text-align:center;cursor:pointer;border:1.5px solid transparent;transition:all .18s;background:#fff}
+.phase-tab .tab-icon{font-size:15px;margin-bottom:3px}
+.phase-tab .tab-name{font-size:10px;color:var(--light);font-weight:500}
+.phase-tab .tab-days{font-size:9px;color:var(--light);opacity:.7;margin-top:1px}
+.phase-tab.active-menstruelle{border-color:var(--menstruelle);background:#FDF0EF}
+.phase-tab.active-folliculaire{border-color:var(--folliculaire);background:#EBF9F1}
+.phase-tab.active-ovulatoire{border-color:var(--ovulatoire);background:#FEF9EC}
+.phase-tab.active-luteale{border-color:var(--luteale);background:#F5EEF8}
+.phase-tab.active-menstruelle .tab-name{color:var(--menstruelle)}
+.phase-tab.active-folliculaire .tab-name{color:var(--folliculaire)}
+.phase-tab.active-ovulatoire .tab-name{color:var(--ovulatoire)}
+.phase-tab.active-luteale .tab-name{color:var(--luteale)}
+.phase-card-wrap{margin:0 22px 16px;border-radius:20px;padding:16px;animation:fadeUp .3s ease}
+.phase-card-wrap.menstruelle{background:#FDF0EF}.phase-card-wrap.folliculaire{background:#EBF9F1}.phase-card-wrap.ovulatoire{background:#FEF9EC}.phase-card-wrap.luteale{background:#F5EEF8}
+.phase-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.phase-emoji{font-size:26px}
+.phase-card-title{font-family:'Fraunces',serif;font-size:17px}
+.phase-card-title.menstruelle{color:var(--menstruelle)}.phase-card-title.folliculaire{color:var(--folliculaire)}.phase-card-title.ovulatoire{color:var(--ovulatoire)}.phase-card-title.luteale{color:var(--luteale)}
+.phase-card-sub{font-size:11px;color:var(--light);margin-top:2px}
+.phase-desc{font-size:13px;color:var(--mid);line-height:1.65;margin-bottom:12px;font-style:italic}
+.sugg-group{margin-bottom:12px}
+.sugg-group-title{font-size:10px;font-weight:600;color:var(--light);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.sugg-list{display:flex;flex-direction:column;gap:6px}
+.sugg-item{display:flex;align-items:flex-start;gap:8px;background:rgba(255,255,255,.65);border-radius:11px;padding:9px 11px}
+.sugg-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+.sugg-text{font-size:12.5px;color:var(--prune-dark);line-height:1.5}
+.sugg-text em{color:var(--light);font-style:normal;font-size:11.5px;display:block;margin-top:1px}
+.alert-card{background:#fff;border-radius:14px;padding:13px 14px;margin-bottom:8px;box-shadow:0 1px 8px rgba(42,10,61,.05);display:flex;gap:10px;align-items:flex-start;border-left:3px solid transparent}
+.alert-card.warn{border-left-color:var(--gold)}.alert-card.soft{border-left-color:var(--folliculaire)}.alert-card.info{border-left-color:var(--luteale)}
+.alert-icon{font-size:17px;flex-shrink:0;margin-top:1px}
+.alert-text{font-size:12.5px;color:var(--prune-dark);line-height:1.55}
+.alert-action{font-size:12px;color:var(--prune);font-weight:500;margin-top:6px;cursor:pointer;display:inline-block}
+/* HOME */
+.home-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 28px 48px}
+.home-greeting{font-size:15px;color:var(--light);text-align:center;line-height:1.65;margin-bottom:28px}
+.home-greeting strong{color:var(--mid);font-weight:500}
+.home-input-wrap{width:100%;background:#fff;border-radius:26px;border:1.5px solid rgba(59,17,82,.1);display:flex;align-items:center;gap:10px;padding:13px 16px;box-shadow:0 4px 20px rgba(59,17,82,.07);cursor:text;transition:border-color .2s}
+.home-input-wrap:focus-within{border-color:rgba(59,17,82,.22)}
+.home-input{flex:1;background:none;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:14.5px;color:var(--prune-dark)}
+.home-input::placeholder{color:var(--light)}
+.brain-summary{margin-top:18px;width:100%;display:flex;flex-direction:column;gap:7px}
+.brain-label{font-size:10.5px;color:var(--light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;padding-left:2px}
+.brain-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.7);border-radius:14px;padding:9px 14px;cursor:pointer;transition:background .15s;border:1px solid rgba(59,17,82,.05)}
+.brain-row:hover{background:#fff}
+.brain-icon{font-size:14px;flex-shrink:0}
+.brain-text{font-size:13px;color:var(--mid);flex:1;line-height:1.4}
+.brain-text strong{color:var(--prune-dark);font-weight:500}
+.brain-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0}
+.home-chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:18px}
+.chip{background:rgba(255,255,255,.8);border:1px solid rgba(59,17,82,.1);border-radius:20px;padding:6px 13px;font-size:12.5px;color:var(--mid);cursor:pointer;transition:all .15s}
+.chip:hover{background:var(--prune);color:#fff}
+/* FAB */
+.fab{position:absolute;bottom:90px;right:22px;width:52px;height:52px;border-radius:16px;background:linear-gradient(145deg,var(--prune),#5A2578);display:flex;align-items:center;justify-content:center;font-size:26px;color:#fff;cursor:pointer;box-shadow:0 6px 20px rgba(59,17,82,.4);z-index:10}
+
+/* ── VIDE-TÊTE ── */
+.vt-btn{
+  position:absolute;right:18px;bottom:96px;z-index:60;
+  width:52px;height:52px;border-radius:18px;
+  background:linear-gradient(145deg,var(--prune),#5A1E80);
+  box-shadow:0 6px 24px rgba(30,6,48,.45),0 0 0 1px rgba(232,184,90,.25);
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:22px;transition:transform .15s,box-shadow .15s;
+}
+.vt-btn:active{transform:scale(.93)}
+.vt-btn .vt-pulse{
+  position:absolute;inset:-4px;border-radius:22px;
+  border:1.5px solid rgba(201,148,58,.3);
+  animation:vt-ping 2.5s ease infinite;
+}
+@keyframes vt-ping{0%{opacity:.6;transform:scale(1)}70%{opacity:0;transform:scale(1.18)}100%{opacity:0}}
+
+.vt-overlay{
+  position:absolute;inset:0;background:rgba(14,3,24,.7);
+  backdrop-filter:blur(6px);z-index:90;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.vt-overlay.open{opacity:1;pointer-events:all}
+
+.vt-sheet{
+  position:absolute;bottom:0;left:0;right:0;
+  background:var(--cream);border-radius:26px 26px 0 0;
+  padding:0 0 32px;z-index:91;
+  transform:translateY(100%);transition:transform .32s cubic-bezier(.32,1,.48,1);
+}
+.vt-overlay.open .vt-sheet{transform:translateY(0)}
+
+.vt-handle{width:36px;height:4px;border-radius:2px;background:rgba(59,17,82,.15);margin:12px auto 0}
+.vt-sheet-title{font-family:'Fraunces',serif;font-size:20px;color:var(--prune-dark);padding:14px 22px 4px;font-weight:400}
+.vt-sheet-sub{font-size:12.5px;color:var(--light);padding:0 22px 14px;line-height:1.5}
+.vt-textarea{
+  width:calc(100% - 44px);margin:0 22px;
+  min-height:100px;max-height:180px;
+  background:rgba(59,17,82,.04);border:1.5px solid rgba(59,17,82,.1);
+  border-radius:16px;padding:14px 16px;
+  font-family:'DM Sans',sans-serif;font-size:15px;color:var(--prune-dark);
+  resize:none;outline:none;line-height:1.6;
+}
+.vt-textarea:focus{border-color:rgba(59,17,82,.3)}
+.vt-textarea::placeholder{color:var(--light)}
+.vt-actions{display:flex;gap:10px;padding:12px 22px 0;align-items:center}
+.vt-mic{width:44px;height:44px;border-radius:14px;border:1.5px solid rgba(59,17,82,.15);background:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.vt-mic.rec{background:rgba(192,57,43,.08);border-color:rgba(192,57,43,.3);animation:vt-rec .8s ease infinite alternate}
+@keyframes vt-rec{from{box-shadow:0 0 0 0 rgba(192,57,43,.2)}to{box-shadow:0 0 0 6px rgba(192,57,43,.0)}}
+.vt-send{flex:1;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--prune),#5A1E80);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s}
+.vt-send:disabled{opacity:.5}
+
+/* Résultats */
+.vt-results{padding:0 22px;margin-top:14px}
+.vt-result-title{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--light);margin-bottom:10px;font-weight:500}
+.vt-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 12px;margin-bottom:8px;
+  background:#fff;border-radius:14px;
+  border:1px solid rgba(59,17,82,.08);
+  box-shadow:0 2px 8px rgba(59,17,82,.05);
+}
+.vt-item-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.vt-item-body{flex:1}
+.vt-item-text{font-size:13.5px;color:var(--prune-dark);font-weight:500;line-height:1.35}
+.vt-item-cat{font-size:11px;color:var(--light);margin-top:2px}
+.vt-item-del{font-size:16px;color:var(--light);cursor:pointer;padding:2px 4px;flex-shrink:0}
+.vt-confirm{
+  width:calc(100% - 44px);margin:14px 22px 0;height:48px;
+  border-radius:16px;background:linear-gradient(135deg,var(--prune),#5A1E80);
+  color:#fff;border:none;font-size:15px;font-weight:600;
+  cursor:pointer;font-family:'DM Sans',sans-serif;
+  box-shadow:0 4px 16px rgba(59,17,82,.3);
+}
+.vt-loading{text-align:center;padding:20px;color:var(--light);font-size:14px}
+.vt-dots span{display:inline-block;animation:vt-dot 1.2s ease infinite}
+.vt-dots span:nth-child(2){animation-delay:.2s}
+.vt-dots span:nth-child(3){animation-delay:.4s}
+@keyframes vt-dot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* ── ONBOARDING ── */
+#onboarding{
+  position:absolute;inset:0;z-index:200;
+  background:var(--prune-dark);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+#onboarding.done{display:none}
+
+.ob-step{display:none;flex-direction:column;height:100%;padding:0}
+.ob-step.active{display:flex}
+
+/* Header */
+.ob-header{
+  padding:50px 28px 0;flex-shrink:0;
+}
+.ob-logo-row{display:flex;align-items:center;gap:12px;margin-bottom:40px}
+.ob-logo-mark{
+  width:44px;height:44px;border-radius:13px;
+  background:linear-gradient(145deg,#2A0A45,var(--prune));
+  border:1px solid rgba(232,184,90,.25);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;font-size:22px;font-style:italic;color:#fff;padding-top:3px;
+  position:relative;
+}
+.ob-logo-mark::before{content:'·';position:absolute;top:4px;right:7px;font-size:10px;color:var(--gold-light)}
+.ob-wordmark{font-family:'Fraunces',serif;font-size:22px;color:#fff}
+.ob-wordmark span{color:var(--gold)}
+
+.ob-step-badge{
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:16px;font-weight:500;
+}
+.ob-title{
+  font-family:'Fraunces',serif;font-size:28px;font-weight:400;
+  color:#fff;line-height:1.25;margin-bottom:10px;
+}
+.ob-title em{color:var(--gold);font-style:italic}
+.ob-sub{font-size:14px;color:rgba(255,255,255,.45);line-height:1.65;margin-bottom:0}
+
+/* Body */
+.ob-body{flex:1;padding:28px 28px 0;overflow-y:auto}
+
+/* Inputs */
+.ob-label{font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px}
+.ob-input{
+  width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);
+  border-radius:16px;padding:14px 18px;
+  font-family:'DM Sans',sans-serif;font-size:17px;color:#fff;outline:none;
+  transition:border-color .2s;
+}
+.ob-input:focus{border-color:rgba(201,148,58,.5)}
+.ob-input::placeholder{color:rgba(255,255,255,.2)}
+
+/* Enfants */
+.ob-enfants{display:flex;flex-direction:column;gap:14px;margin-bottom:8px}
+.ob-enfant-card{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;padding:16px;
+}
+.ob-enfant-num{font-size:11px;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;font-weight:500}
+.ob-row{display:grid;grid-template-columns:1fr 100px;gap:10px}
+.ob-input-sm{
+  background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);
+  border-radius:12px;padding:11px 14px;
+  font-family:'DM Sans',sans-serif;font-size:15px;color:#fff;outline:none;width:100%;
+  transition:border-color .2s;
+}
+.ob-input-sm:focus{border-color:rgba(201,148,58,.5)}
+.ob-input-sm::placeholder{color:rgba(255,255,255,.2)}
+
+/* Compteur enfants */
+.ob-nb-row{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.ob-nb-btn{
+  width:40px;height:40px;border-radius:12px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.ob-nb-val{font-size:28px;font-family:'Fraunces',serif;color:#fff;min-width:32px;text-align:center}
+
+/* Bouton suite */
+.ob-footer{padding:20px 28px 36px;flex-shrink:0}
+.ob-btn{
+  width:100%;height:52px;border-radius:18px;
+  background:linear-gradient(135deg,var(--prune),#5A1E80);
+  border:none;color:#fff;font-size:16px;font-weight:600;
+  font-family:'DM Sans',sans-serif;cursor:pointer;
+  box-shadow:0 6px 24px rgba(59,17,82,.5);
+  transition:opacity .15s,transform .1s;
+}
+.ob-btn:active{transform:scale(.98);opacity:.9}
+.ob-btn:disabled{opacity:.4;cursor:default}
+
+/* Progress dots */
+.ob-dots{display:flex;gap:6px;justify-content:center;margin-bottom:20px}
+.ob-dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.15);transition:all .3s}
+.ob-dot.active{width:20px;background:var(--gold)}
+
+/* Step 3 — recap */
+.ob-recap{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;padding:20px;margin-top:8px;
+}
+.ob-recap-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.ob-recap-row:last-child{margin-bottom:0}
+.ob-recap-icon{font-size:22px;width:36px;text-align:center}
+.ob-recap-text{font-size:14px;color:rgba(255,255,255,.7);line-height:1.4}
+.ob-recap-text strong{color:#fff}
+</style>
+</head>
+<body>
+<div class="phone">
+
+<!-- ══ ONBOARDING ══ -->
+<div id="onboarding">
+
+  <!-- STEP 1 : Prénom -->
+  <div class="ob-step active" id="ob-step-1">
+    <div class="ob-header">
+      <div class="ob-logo-row">
+        <div class="ob-logo-mark">a</div>
+        <div class="ob-wordmark">alim<span>a</span></div>
+      </div>
+      <div class="ob-step-badge">Bienvenue</div>
+      <div class="ob-title">Je suis <em>Alima</em>,<br>ton assistante familiale</div>
+      <div class="ob-sub">Je connais ta famille, ton travail et ton rythme. Pour commencer, comment tu t'appelles ?</div>
+    </div>
+    <div class="ob-body">
+      <div style="margin-top:32px">
+        <div class="ob-label">Ton prénom</div>
+        <input class="ob-input" id="obPrenom" type="text" placeholder="Ex : Fatou, Aïcha, Marie…" 
+          oninput="checkStep1()" onkeydown="if(event.key==='Enter')goStep(2)">
+      </div>
+    </div>
+    <div class="ob-footer">
+      <div class="ob-dots"><div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
+      <button class="ob-btn" id="ob-btn-1" onclick="goStep(2)" disabled>Continuer →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 : Enfants -->
+  <div class="ob-step" id="ob-step-2">
+    <div class="ob-header">
+      <div class="ob-logo-row">
+        <div class="ob-logo-mark">a</div>
+        <div class="ob-wordmark">alim<span>a</span></div>
+      </div>
+      <div class="ob-step-badge">Ta famille</div>
+      <div class="ob-title">Parle-moi de<br>tes <em>enfants</em></div>
+      <div class="ob-sub">Je vais pouvoir anticiper leurs besoins et t'aider à tout gérer.</div>
+    </div>
+    <div class="ob-body">
+      <div class="ob-nb-row">
+        <button class="ob-nb-btn" onclick="setNbEnfants(-1)">−</button>
+        <div class="ob-nb-val" id="obNbVal">1</div>
+        <button class="ob-nb-btn" onclick="setNbEnfants(1)">+</button>
+        <div style="font-size:14px;color:rgba(255,255,255,.4)">enfant(s)</div>
+      </div>
+      <div class="ob-enfants" id="obEnfantsFields"></div>
+    </div>
+    <div class="ob-footer">
+      <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot active"></div><div class="ob-dot"></div></div>
+      <button class="ob-btn" id="ob-btn-2" onclick="goStep(3)">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 : Confirmation -->
+  <div class="ob-step" id="ob-step-3">
+    <div class="ob-header">
+      <div class="ob-logo-row">
+        <div class="ob-logo-mark">a</div>
+        <div class="ob-wordmark">alim<span>a</span></div>
+      </div>
+      <div class="ob-step-badge">C'est parti !</div>
+      <div class="ob-title">Je suis prête à<br>t'<em>aider</em> 🤍</div>
+      <div class="ob-sub">Voilà ce que j'ai retenu. Tu pourras tout modifier dans ton Profil.</div>
+    </div>
+    <div class="ob-body">
+      <div class="ob-recap" id="obRecap"></div>
+    </div>
+    <div class="ob-footer">
+      <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot active"></div></div>
+      <button class="ob-btn" onclick="finishOnboarding()">Ouvrir Alima →</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="status-bar">
+  <span class="status-time">9:41</span>
+  <div class="status-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+</div>
+
+<!-- ═══ ACCUEIL ═══ -->
+<div class="screen active" id="screen-home">
+  <div class="home-body">
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:28px">
+      <div class="logo-mark"><div class="logo-dots"><span></span><span></span><span></span><span></span><span></span></div><div class="logo-a">a</div></div>
+      <div class="logo-wordmark">alim<span>a</span></div>
+    </div>
+    <div class="home-greeting" id="homeGreeting">Bonjour Aminata 🤍<br><strong>Comment je peux t'aider aujourd'hui ?</strong></div>
+    <div class="home-input-wrap" onclick="document.getElementById('homeInput').focus()">
+      <span style="font-size:17px;color:var(--light)">🎙</span>
+      <input class="home-input" id="homeInput" type="text" placeholder="Demande quelque chose à Alima…" onkeydown="if(event.key==='Enter'){goChat(this.value);this.value=''}">
+    </div>
+    <div class="brain-summary">
+      <div class="brain-label">Ce qu'Alima retient</div>
+      <div class="brain-row" onclick="goChat('Rappelle-moi mes rappels du jour')"><span class="brain-icon">⏰</span><span class="brain-text"><strong>2 rappels</strong> aujourd'hui — école 16h30, médicaments soir</span><div class="brain-dot"></div></div>
+      <div class="brain-row" onclick="goChat('Le contrôle de maths de Yasmine')"><span class="brain-icon">📚</span><span class="brain-text"><strong>Yasmine</strong> · contrôle maths vendredi</span><div class="brain-dot"></div></div>
+      <div class="brain-row" onclick="goChat('Ma réunion de lundi')"><span class="brain-icon">💼</span><span class="brain-text"><strong>Réunion</strong> lundi 10h — ordre du jour à préparer</span><div class="brain-dot"></div></div>
+    </div>
+    <div onclick="nav('cycle')" style="width:100%;background:linear-gradient(135deg,#2A0A45,var(--prune));border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-top:12px;box-shadow:0 4px 16px rgba(42,10,61,.25);position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:radial-gradient(circle,rgba(232,184,90,.15),transparent 70%);border-radius:50%"></div>
+      <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.1);border:1px solid rgba(232,184,90,.25);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🌸</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500;color:var(--gold-light)">Phase folliculaire · Jour 8</div>
+        <div style="font-size:11.5px;color:rgba(255,255,255,.5);margin-top:2px;line-height:1.45">Bonne énergie — moment idéal pour planifier et lancer</div>
+      </div>
+      <div style="font-size:16px;color:rgba(255,255,255,.35)">›</div>
+    </div>
+    <div class="home-chips">
+      <div class="chip" onclick="goChat('Mon agenda')">📅 Agenda</div>
+      <div class="chip" onclick="goChat('Note rapide')">📝 Note</div>
+      <div class="chip" onclick="goChat('Créer un rappel')">⏰ Rappel</div>
+      <div class="chip" onclick="goChat('Les enfants')">👧 Enfants</div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="nav('home')"><div class="nav-icon">💬</div><div class="nav-label">Alima</div></div>
+    <div class="nav-item" onclick="nav('agenda')"><div class="nav-icon">📅</div><div class="nav-label">Agenda</div></div>
+    <div class="nav-item" onclick="nav('notes')"><div class="nav-icon">📝</div><div class="nav-label">Notes</div></div>
+    <div class="nav-item" onclick="nav('profil')"><div class="nav-icon">👤</div><div class="nav-label">Profil</div></div>
+  </div>
+</div>
+
+<!-- ═══ CHAT ═══ -->
+<div class="screen" id="screen-chat">
+  <div style="padding:10px 20px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(59,17,82,.06);flex-shrink:0">
+    <div class="mini-logo">a</div>
+    <div style="flex:1">
+      <div style="font-family:'Fraunces',serif;font-size:15px;color:var(--prune-dark)">alim<span style="color:var(--gold)">a</span></div>
+      <div style="font-size:11px;color:var(--light);display:flex;align-items:center;gap:4px"><div style="width:5px;height:5px;border-radius:50%;background:#5CB85C"></div>disponible · <span style="color:var(--gold);cursor:pointer" onclick="nav('cycle')">🌸 J8</span></div>
+    </div>
+    <span style="font-size:13px;color:var(--light);cursor:pointer;padding:4px 8px" onclick="nav('home')">← Accueil</span>
+  </div>
+  <div class="messages" id="messages">
+    <div class="typing" id="typing">
+      <div class="msg-avatar">a</div>
+      <div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+    </div>
+  </div>
+  <div class="input-bar">
+    <div class="input-wrap">
+      <textarea class="input-field" id="chatInput" placeholder="Écris à Alima…" rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,90)+'px'"></textarea>
+      <button class="mic-btn" onclick="this.classList.toggle('recording');this.textContent=this.classList.contains('recording')?'⏹':'🎙'">🎙</button>
+    </div>
+    <button class="send-btn" onclick="sendChat()">↑</button>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="nav('home')"><div class="nav-icon">💬</div><div class="nav-label">Alima</div></div>
+    <div class="nav-item" onclick="nav('agenda')"><div class="nav-icon">📅</div><div class="nav-label">Agenda</div></div>
+    <div class="nav-item" onclick="nav('notes')"><div class="nav-icon">📝</div><div class="nav-label">Notes</div></div>
+    <div class="nav-item" onclick="nav('profil')"><div class="nav-icon">👤</div><div class="nav-label">Profil</div></div>
+  </div>
+</div>
+
+<!-- ═══ AGENDA ═══ -->
+<div class="screen" id="screen-agenda">
+  <div style="padding:8px 22px 0;flex-shrink:0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="page-title">agenda<span>.</span></div>
+      <div class="view-switch">
+        <div class="view-btn active" id="btnListe" onclick="switchView('liste')">Liste</div>
+        <div class="view-btn" id="btnJour" onclick="switchView('jour')">Jours</div>
+      </div>
+    </div>
+    <div class="days-strip" id="daysStrip"></div>
+    <div class="filter-bar">
+      <div class="filter-chip active" onclick="setAFilter(this,'tous')">Tous</div>
+      <div class="filter-chip" onclick="setAFilter(this,'yasmine')" data-child="yasmine">👧 Yasmine</div>
+      <div class="filter-chip" onclick="setAFilter(this,'marème')" data-child="marème">👶 Marème</div>
+      <div class="filter-chip" onclick="setAFilter(this,'pro')">💼 Pro</div>
+      <div class="filter-chip" onclick="setAFilter(this,'rappel')">⏰ Rappels</div>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 22px 90px;scrollbar-width:none" id="agendaContent"></div>
+  <div class="fab" onclick="alert('Ajouter — à connecter')">+</div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="nav('home')"><div class="nav-icon">💬</div><div class="nav-label">Alima</div></div>
+    <div class="nav-item active"><div class="nav-icon">📅</div><div class="nav-label">Agenda</div></div>
+    <div class="nav-item" onclick="nav('notes')"><div class="nav-icon">📝</div><div class="nav-label">Notes</div></div>
+    <div class="nav-item" onclick="nav('profil')"><div class="nav-icon">👤</div><div class="nav-label">Profil</div></div>
+  </div>
+</div>
+
+<!-- ═══ NOTES ═══ -->
+<div class="screen" id="screen-notes">
+  <div style="padding:8px 22px 0;flex-shrink:0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="page-title">notes<span>.</span></div>
+    </div>
+    <div style="background:#fff;border-radius:16px;border:1.5px solid rgba(59,17,82,.08);display:flex;align-items:center;gap:8px;padding:9px 14px;margin-bottom:12px">
+      <span style="font-size:14px;color:var(--light)">🔍</span>
+      <input style="flex:1;background:none;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--prune-dark)" placeholder="Rechercher…" oninput="setNSearch(this.value)">
+    </div>
+    <div class="filter-bar">
+      <div class="filter-chip active" onclick="setNFilter(this,'tous')">Toutes</div>
+      <div class="filter-chip" onclick="setNFilter(this,'yasmine')">👧 Yasmine</div>
+      <div class="filter-chip" onclick="setNFilter(this,'marème')">👶 Marème</div>
+      <div class="filter-chip" onclick="setNFilter(this,'perso')">🌿 Perso</div>
+      <div class="filter-chip" onclick="setNFilter(this,'pro')">💼 Pro</div>
+      <div class="filter-chip" onclick="setNFilter(this,'courses')">🛒 Courses</div>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 16px 90px;scrollbar-width:none"><div class="masonry" id="masonry"></div></div>
+  <div class="fab" onclick="openNModal()">+</div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="nav('home')"><div class="nav-icon">💬</div><div class="nav-label">Alima</div></div>
+    <div class="nav-item" onclick="nav('agenda')"><div class="nav-icon">📅</div><div class="nav-label">Agenda</div></div>
+    <div class="nav-item active"><div class="nav-icon">📝</div><div class="nav-label">Notes</div></div>
+    <div class="nav-item" onclick="nav('profil')"><div class="nav-icon">👤</div><div class="nav-label">Profil</div></div>
+  </div>
+  <div class="modal-bg" id="noteModal" onclick="if(event.target===this)closeNModal()">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Nouvelle note</div>
+      <div class="type-options">
+        <div class="type-opt active" onclick="setNType(this,'texte')"><div class="type-opt-icon">📝</div><div class="type-opt-label">Texte</div></div>
+        <div class="type-opt" onclick="setNType(this,'checklist')"><div class="type-opt-icon">✅</div><div class="type-opt-label">Liste</div></div>
+        <div class="type-opt" onclick="setNType(this,'vocale')"><div class="type-opt-icon">🎙</div><div class="type-opt-label">Vocale</div></div>
+        <div class="type-opt" onclick="setNType(this,'photo')"><div class="type-opt-icon">📷</div><div class="type-opt-label">Photo</div></div>
+      </div>
+      <div class="cat-options">
+        <div class="cat-opt active" onclick="setNCat(this,'perso')">🌿 Perso</div>
+        <div class="cat-opt" onclick="setNCat(this,'yasmine')">👧 Yasmine</div>
+        <div class="cat-opt" onclick="setNCat(this,'marème')">👶 Marème</div>
+        <div class="cat-opt" onclick="setNCat(this,'pro')">💼 Pro</div>
+        <div class="cat-opt" onclick="setNCat(this,'courses')">🛒 Courses</div>
+      </div>
+      <textarea class="modal-textarea" id="noteText" placeholder="Écris ta note…"></textarea>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeNModal()">Annuler</button>
+        <button class="btn-save" onclick="saveNote()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PROFIL ═══ -->
+<div class="screen" id="screen-profil">
+  <div class="scroll">
+    <div class="hero">
+      <div class="hero-top">
+        <div class="avatar-parent">👩🏾</div>
+        <div style="flex:1"><div class="hero-name">Aminata</div><div class="hero-sub">2 enfants · Paris 13e</div></div>
+        <div style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;color:rgba(255,255,255,.7)">✏️</div>
+      </div>
+      <div class="cycle-strip-btn" onclick="nav('cycle')">
+        <span style="font-size:18px">🌸</span>
+        <div style="flex:1"><div class="cycle-phase-name">Phase folliculaire</div><div class="cycle-detail-txt">Jour 8 · Prochain cycle dans 20 jours</div></div>
+        <div class="cycle-badge">J8</div>
+        <span style="font-size:14px;color:rgba(255,255,255,.4)">›</span>
+      </div>
+    </div>
+    <div style="padding:20px 22px 0">
+      <div class="section-title">Ma famille</div>
+      <div class="children-scroll">
+        <div class="child-card">
+          <div class="child-top"><div class="child-avatar yasmine">👧🏾</div><div><div class="child-name">Yasmine</div><div class="child-age">7 ans · CE1</div></div></div>
+          <div class="child-tags"><span class="child-tag">🏊 Natation</span><span class="child-tag">📚 Lecture</span></div>
+          <div class="child-rows">
+            <div class="child-row"><span class="child-row-icon">🏫</span><div class="child-row-text"><strong>École Jules Ferry</strong> · 8h30–16h30</div></div>
+            <div class="child-row"><span class="child-row-icon">⚠️</span><div class="child-row-text"><strong>Allergie</strong> arachides</div></div>
+            <div class="child-row"><span class="child-row-icon">👩‍⚕️</span><div class="child-row-text">Dr Moreau · 01 42 00 00 00</div></div>
+            <div class="child-row"><span class="child-row-icon">🍽️</span><div class="child-row-text">Aime pâtes, riz au lait</div></div>
+          </div>
+        </div>
+        <div class="child-card" style="animation-delay:.08s">
+          <div class="child-top"><div class="child-avatar marème">👶🏾</div><div><div class="child-name">Marème</div><div class="child-age">4 ans · Maternelle</div></div></div>
+          <div class="child-tags"><span class="child-tag">🎨 Dessin</span><span class="child-tag">🎵 Musique</span></div>
+          <div class="child-rows">
+            <div class="child-row"><span class="child-row-icon">🏫</span><div class="child-row-text"><strong>École Pasteur</strong> · 8h45–16h15</div></div>
+            <div class="child-row"><span class="child-row-icon">💊</span><div class="child-row-text">Sirop si fièvre</div></div>
+            <div class="child-row"><span class="child-row-icon">👩‍⚕️</span><div class="child-row-text">Dr Moreau · 01 42 00 00 00</div></div>
+            <div class="child-row"><span class="child-row-icon">🍽️</span><div class="child-row-text">Végétarienne · aime bananes</div></div>
+          </div>
+        </div>
+        <div class="add-child"><div style="font-size:24px;color:var(--light)">+</div><div style="font-size:12px;color:var(--light);text-align:center">Ajouter un enfant</div></div>
+      </div>
+    </div>
+    <div style="padding:20px 22px 0">
+      <div class="section-title">Notifications</div>
+      <div class="settings-card">
+        <div class="setting-row"><div class="setting-icon bg-purple">🔔</div><div class="setting-body"><div class="setting-label">Rappels</div><div class="setting-sub">Avant chaque événement</div></div><div class="setting-right"><span style="font-size:12px;color:var(--light)">15 min</span><div class="chevron">›</div></div></div>
+        <div class="setting-row"><div class="setting-icon bg-gold">🌅</div><div class="setting-body"><div class="setting-label">Résumé du matin</div><div class="setting-sub">Alima résume ta journée</div></div><div class="setting-right"><div class="toggle on" onclick="this.classList.toggle('on')"></div></div></div>
+        <div class="setting-row"><div class="setting-icon bg-green">🌙</div><div class="setting-body"><div class="setting-label">Bilan du soir</div><div class="setting-sub">Ce qui reste demain</div></div><div class="setting-right"><div class="toggle" onclick="this.classList.toggle('on')"></div></div></div>
+        <div class="setting-row"><div class="setting-icon bg-purple">🌸</div><div class="setting-body"><div class="setting-label">Suggestions cycle</div><div class="setting-sub">Conseils selon ta phase</div></div><div class="setting-right"><div class="toggle on" onclick="this.classList.toggle('on')"></div></div></div>
+      </div>
+    </div>
+    <div style="padding:4px 22px 0">
+      <div class="section-title">Abonnement</div>
+      <div class="sub-card">
+        <div class="sub-top"><div class="sub-name">Essai gratuit</div><div class="sub-badge">3 mois offerts</div></div>
+        <div class="sub-desc">Il te reste <strong style="color:var(--gold-light)">67 jours</strong> d'essai. Après, 1,99 €/mois sans engagement.</div>
+        <button class="sub-btn">Gérer mon abonnement</button>
+      </div>
+    </div>
+    <div style="padding:4px 22px 100px">
+      <div class="section-title">Compte</div>
+      <div class="settings-card">
+        <div class="setting-row"><div class="setting-icon bg-blue">🔒</div><div class="setting-body"><div class="setting-label">Confidentialité</div></div><div class="chevron">›</div></div>
+        <div class="setting-row"><div class="setting-icon bg-green">📤</div><div class="setting-body"><div class="setting-label">Exporter mes données</div></div><div class="chevron">›</div></div>
+        <div class="setting-row"><div class="setting-icon bg-red">🚪</div><div class="setting-body"><div class="setting-label" style="color:#E53935">Se déconnecter</div></div><div class="chevron">›</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="nav('home')"><div class="nav-icon">💬</div><div class="nav-label">Alima</div></div>
+    <div class="nav-item" onclick="nav('agenda')"><div class="nav-icon">📅</div><div class="nav-label">Agenda</div></div>
+    <div class="nav-item" onclick="nav('notes')"><div class="nav-icon">📝</div><div class="nav-label">Notes</div></div>
+    <div class="nav-item active"><div class="nav-icon">👤</div><div class="nav-label">Profil</div></div>
+  </div>
+</div>
+
+<!-- ═══ CYCLE (sous-page) ═══ -->
+<div class="screen" id="screen-cycle">
+  <div style="padding:10px 22px 14px;flex-shrink:0;display:flex;align-items:center;gap:12px">
+    <div class="back-btn" onclick="nav('profil')">←</div>
+    <div class="page-title">mon cycle<span>.</span></div>
+  </div>
+  <div class="scroll">
+    <div style="padding:0 22px 16px;display:flex;flex-direction:column;align-items:center">
+      <div class="wheel-wrap">
+        <canvas id="wheelCanvas" width="220" height="220"></canvas>
+        <div class="wheel-center">
+          <div class="wheel-day">8</div>
+          <div class="wheel-sub">jour du cycle</div>
+          <div class="wheel-phase" id="wheelPhaseLabel" style="color:var(--folliculaire)">Folliculaire</div>
+        </div>
+      </div>
+    </div>
+    <div class="phase-tabs">
+      <div class="phase-tab" id="tab-menstruelle" onclick="selectPhase('menstruelle')"><div class="tab-icon">🌑</div><div class="tab-name">Menstruelle</div><div class="tab-days">J1–J5</div></div>
+      <div class="phase-tab active-folliculaire" id="tab-folliculaire" onclick="selectPhase('folliculaire')"><div class="tab-icon">🌱</div><div class="tab-name">Folliculaire</div><div class="tab-days">J6–J13</div></div>
+      <div class="phase-tab" id="tab-ovulatoire" onclick="selectPhase('ovulatoire')"><div class="tab-icon">✨</div><div class="tab-name">Ovulatoire</div><div class="tab-days">J14–J16</div></div>
+      <div class="phase-tab" id="tab-luteale" onclick="selectPhase('luteale')"><div class="tab-icon">🍂</div><div class="tab-name">Lutéale</div><div class="tab-days">J17–J28</div></div>
+    </div>
+    <div id="phaseCard"></div>
+    <div style="margin:0 22px 16px">
+      <div class="section-title">Cette semaine dans ton agenda</div>
+      <div class="alert-card soft"><div class="alert-icon">🌱</div><div><div class="alert-text">Tu es en phase folliculaire — ta <strong>réunion lundi</strong> est bien placée. Tu seras en pleine forme.</div><span class="alert-action" onclick="nav('agenda')">Voir l'agenda →</span></div></div>
+      <div class="alert-card warn"><div class="alert-icon">🍂</div><div><div class="alert-text">Ta phase lutéale commence <strong>dans 6 jours</strong>. Évite si possible les décisions lourdes en fin de semaine prochaine.</div><span class="alert-action" onclick="nav('agenda')">Voir l'agenda →</span></div></div>
+      <div class="alert-card info" style="margin-bottom:30px"><div class="alert-icon">💆🏾‍♀️</div><div><div class="alert-text">Aucune pause "soin de soi" cette semaine. Tu veux qu'Alima bloque <strong>30 minutes</strong> pour toi ?</div><span class="alert-action" onclick="goChat('Bloque 30 minutes pour moi cette semaine')">Demander à Alima →</span></div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ VIDE-TÊTE GLOBAL ══ -->
+<button class="vt-btn" id="vtBtn" onclick="openVT()">
+  <div class="vt-pulse"></div>
+  🧠
+</button>
+
+<div class="vt-overlay" id="vtOverlay" onclick="closeVTIfOutside(event)">
+  <div class="vt-sheet" id="vtSheet">
+    <div class="vt-handle"></div>
+    <div class="vt-sheet-title">Vide ta tête 🧠</div>
+    <div class="vt-sheet-sub">Tape tout ce qui t'occupe l'esprit — en vrac, sans ordre.<br>Alima trie pour toi.</div>
+
+    <div id="vtInput">
+      <textarea class="vt-textarea" id="vtText" placeholder="Ex: appeler la maîtresse, commander chaussures Marème, préparer réunion jeudi, acheter paracétamol..."></textarea>
+      <div class="vt-actions">
+        <button class="vt-mic" id="vtMic" onclick="toggleVTMic()">🎙</button>
+        <button class="vt-send" id="vtSendBtn" onclick="analyseVT()">Analyser avec Alima →</button>
+      </div>
+    </div>
+
+    <div id="vtResultsWrap" style="display:none">
+      <div class="vt-results">
+        <div class="vt-result-title">Alima a compris :</div>
+        <div id="vtItems"></div>
+      </div>
+      <button class="vt-confirm" onclick="confirmVT()">✓ Confirmer tout et classer</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /phone -->
+<script>
+// ── NAVIGATION ──
+function nav(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  if(id==='agenda'){buildStrip();renderAgenda();}
+  if(id==='notes')renderNotes();
+  if(id==='cycle'){drawWheel();renderPhaseCard(selPhase);}
+}
+
+
+// ── CONTEXTE FAMILLE ──
+// Calcul phase selon jour du cycle
+function getPhaseInfo(cycleDay) {
+  if (cycleDay <= 5)  return { phase:'menstruelle',  label:'menstruelle',  energie:'basse',        conseil:"Évite les décisions importantes et les tâches lourdes." };
+  if (cycleDay <= 13) return { phase:'folliculaire', label:'folliculaire', energie:'montante',      conseil:"Excellent moment pour planifier, lancer des projets, tenir des réunions." };
+  if (cycleDay <= 16) return { phase:'ovulatoire',   label:'ovulatoire',   energie:'peak',         conseil:"Moment idéal pour les prises de parole et les décisions importantes." };
+  return               { phase:'luteale',      label:'lutéale',      energie:'descendante',  conseil:"Privilégie les tâches de fond. Évite de surcharger l'agenda social ou de prise de décision." };
+}
+
+// Calcul phase à une date future (date string YYYY-MM-DD)
+function getPhaseAtDateStr(dateStr) {
+  const cycleStart = new Date(today); cycleStart.setDate(cycleStart.getDate() - 7); // J8 = today - 7
+  const target = new Date(dateStr + 'T00:00:00');
+  const diff = Math.floor((target - cycleStart) / (1000*60*60*24));
+  const dayInCycle = ((diff % 28) + 28) % 28 + 1;
+  return getPhaseInfo(dayInCycle);
+}
+
+function buildSystemPrompt() {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('fr-FR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const upcoming = aItems.filter(it => !it.done).slice(0,6).map(it=>`- ${it.title} (${it.date}${it.time?' à '+it.time:''})`).join('\n');
+  const isBonjour = now.getHours() < 10;
+
+  // Profil dynamique
+  const p = profile || { prenom: 'toi', enfants: [] };
+  const prenom = p.prenom || 'toi';
+  const enfantsStr = p.enfants && p.enfants.length
+    ? p.enfants.map(e => `- ${e.prenom}, ${e.age} ans`).join('\n')
+    : '(aucun enfant renseigné)';
+  const enfantTags = p.enfants && p.enfants.length
+    ? p.enfants.map(e => e.prenom.toLowerCase()).join('|') : '';
+  const actionCats = 'perso|pro|courses' + (enfantTags ? '|' + enfantTags : '');
+  const enfantsList = p.enfants && p.enfants.length
+    ? p.enfants.map(e => e.prenom.toLowerCase()).join(', ') : '';
+
+  // Cycle
+  const cycleDay = p.cycleStart
+    ? Math.max(1, Math.min(28, Math.round((now - new Date(p.cycleStart)) / 86400000) + 1))
+    : 8;
+  const phaseInfo = getPhaseInfo(cycleDay);
+
+  const bonjourNote = isBonjour
+    ? `\nC'est le matin : commence par un bonjour chaleureux, mentionne brièvement la phase du cycle (ex: "Bonjour ${prenom} 🤍 Tu es en phase ${phaseInfo.label.toLowerCase()} !"). Puis résumé concis de la journée.`
+    : '';
+
+  return `Tu es Alima, assistante familiale bienveillante pour ${prenom}, une maman qui travaille.
+
+FAMILLE :
+${enfantsStr}
+
+DATE : ${dateStr}
+
+CYCLE :
+- Phase : ${phaseInfo.label} (jour ${cycleDay}/28)
+- Énergie : ${phaseInfo.energie}
+- Conseil : ${phaseInfo.conseil}
+
+PROCHAINS ÉVÉNEMENTS :
+${upcoming || '(aucun)'}
+
+RÈGLES :
+- Réponds en français, chaleur et concision (2-3 phrases max sauf si demandé plus)
+- Appelle l'utilisatrice par son prénom : ${prenom}
+- Quand tu détectes une intention, agis et termine par :
+  ACTION:{"type":"add_event","title":"...","date":"YYYY-MM-DD","time":"HHhMM ou null","tags":[],"icon":"emoji"}
+  ou ACTION:{"type":"add_note","title":"...","body":"...","cat":"${actionCats}"}
+- Tags enfants : prénom en minuscules${enfantsList ? ' (' + enfantsList + ')' : ''}
+- ALERTE CYCLE : événement important en lutéale/menstruelle → signale avant d'agir
+- Ne mentionne le cycle QUE le matin ou si pertinent pour un événement
+- Jamais moralisatrice${bonjourNote}`;
+}
+
+// ── HISTORIQUE ──
+let chatHistory = [];
+
+// ── CHAT ──
+function goChat(msg) {
+  nav('chat');
+  if (msg) {
+    setTimeout(() => {
+      addU(msg);
+      callAlima(msg);
+    }, 80);
+  }
+}
+
+function sendChat() {
+  const i = document.getElementById('chatInput');
+  const t = i.value.trim();
+  if (!t) return;
+  addU(t);
+  i.value = ''; i.style.height = 'auto';
+  callAlima(t);
+}
+
+async function callAlima(userMsg) {
+  chatHistory.push({ role: 'user', content: userMsg });
+  showT();
+
+  try {
+    const resp = await fetch('/.netlify/functions/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: buildSystemPrompt(),
+        messages: chatHistory,
+      })
+    });
+
+    const data = await resp.json();
+    hideT();
+
+    if (data.error) {
+      addA("Désolée, je n'arrive pas à me connecter. Vérifie ta clé API 🤍");
+      return;
+    }
+
+    const raw = data.content?.[0]?.text || "Je n'ai pas compris, tu peux reformuler ?";
+
+    // Extraire ACTION si présente
+    const actionMatch = raw.match(/ACTION:(\{.*\})/);
+    const text = raw.replace(/ACTION:\{.*\}/, '').trim();
+
+    chatHistory.push({ role: 'assistant', content: raw });
+    addA(text);
+
+    if (actionMatch) {
+      try {
+        const action = JSON.parse(actionMatch[1]);
+        executeAction(action);
+      } catch(e) {}
+    }
+
+  } catch(err) {
+    hideT();
+    addA("Oups, problème de connexion. Réessaie dans un instant 🤍");
+  }
+}
+
+// ── EXÉCUTION ACTIONS ──
+function executeAction(action) {
+  if (action.type === 'add_event') {
+    const newItem = {
+      id: Date.now(),
+      date: action.date || fmt(today),
+      time: action.time || '',
+      title: action.title || 'Événement',
+      type: action.tags?.includes('pro') ? 'event' : action.time ? 'event' : 'tache',
+      icon: action.icon || '📅',
+      tags: action.tags || [],
+      done: false
+    };
+    aItems.push(newItem);
+    // Notif visuelle discrète
+    showActionToast(`✅ "${newItem.title}" ajouté à l'agenda`);
+  } else if (action.type === 'add_note') {
+    const newNote = {
+      id: Date.now(),
+      type: 'texte',
+      cat: action.cat || 'perso',
+      title: action.title || 'Note',
+      body: action.body || '',
+      date: "Aujourd'hui"
+    };
+    notes.unshift(newNote);
+    showActionToast(`📝 Note "${newNote.title}" ajoutée`);
+  }
+}
+
+function showActionToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:absolute;bottom:100px;left:50%;transform:translateX(-50%);background:var(--prune);color:#fff;padding:8px 16px;border-radius:20px;font-size:12.5px;white-space:nowrap;z-index:200;box-shadow:0 4px 16px rgba(59,17,82,.3);animation:fadeUp .3s ease';
+  t.textContent = msg;
+  document.querySelector('.phone').appendChild(t);
+  setTimeout(() => t.remove(), 2800);
+}
+
+
+
+function addU(t){const d=document.createElement('div');d.className='msg-user';d.innerHTML=`<div class="bubble-user">${t}</div>`;document.getElementById('messages').insertBefore(d,document.getElementById('typing'));sc();}
+function addA(t){const d=document.createElement('div');d.className='msg-alima';d.innerHTML=`<div class="msg-avatar">a</div><div class="bubble-alima">${t}</div>`;document.getElementById('messages').insertBefore(d,document.getElementById('typing'));sc();}
+function showT(){document.getElementById('typing').classList.add('visible');sc();}
+function hideT(){document.getElementById('typing').classList.remove('visible');}
+function sc(){setTimeout(()=>{const m=document.getElementById('messages');m.scrollTop=m.scrollHeight;},50);}
+
+// ── AGENDA ──
+const today=new Date();
+const D=o=>{const dt=new Date(today);dt.setDate(dt.getDate()+o);return dt;};
+const fmt=dt=>dt.toISOString().split('T')[0];
+const JJ=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+const MM=['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
+const aItems=[
+  {id:1,date:fmt(D(0)),time:'08h00',title:'École Yasmine',type:'recurrent',icon:'🏫',tags:['yasmine'],done:false},
+  {id:2,date:fmt(D(0)),time:'09h30',title:'Réunion équipe',type:'event',icon:'💼',tags:['pro'],done:false},
+  {id:3,date:fmt(D(0)),time:'16h30',title:'Récupérer les enfants',type:'recurrent',icon:'🚗',tags:['yasmine','marème'],done:false},
+  {id:4,date:fmt(D(0)),time:'19h00',title:'Révision maths Yasmine',type:'rappel',icon:'⏰',tags:['yasmine'],done:false},
+  {id:5,date:fmt(D(0)),time:'21h00',title:'Médicaments Marème',type:'rappel',icon:'💊',tags:['marème'],done:false},
+  {id:6,date:fmt(D(0)),time:'',title:'Commander fournitures',type:'tache',icon:'✅',tags:[],done:false},
+  {id:7,date:fmt(D(1)),time:'08h00',title:'École Yasmine',type:'recurrent',icon:'🏫',tags:['yasmine'],done:false},
+  {id:8,date:fmt(D(1)),time:'14h00',title:'Pédiatre Marème',type:'event',icon:'👩‍⚕️',tags:['marème'],done:false},
+  {id:9,date:fmt(D(2)),time:'10h00',title:'Call client',type:'event',icon:'📞',tags:['pro'],done:false},
+  {id:10,date:fmt(D(4)),time:'09h00',title:'Contrôle maths Yasmine',type:'event',icon:'📚',tags:['yasmine'],done:false},
+];
+let aView='liste',aFilter='tous',selDay=fmt(today),showDone=false,aId=200;
+function buildStrip(){const s=document.getElementById('daysStrip');s.innerHTML='';for(let i=0;i<14;i++){const dt=D(i);const k=fmt(dt);const has=aItems.some(it=>it.date===k);const p=document.createElement('div');p.className='day-pill'+(k===selDay?' active':'')+(has?' has-events':'');p.dataset.date=k;p.innerHTML=`<div class="day-name">${JJ[dt.getDay()]}</div><div class="day-num">${dt.getDate()}</div><div class="day-dot"></div>`;p.onclick=()=>{selDay=k;buildStrip();renderAgenda();};s.appendChild(p);}}
+function switchView(v){aView=v;document.getElementById('btnListe').classList.toggle('active',v==='liste');document.getElementById('btnJour').classList.toggle('active',v==='jour');document.getElementById('daysStrip').classList.toggle('visible',v==='jour');renderAgenda();}
+function setAFilter(el,f){aFilter=f;document.querySelectorAll('#screen-agenda .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderAgenda();}
+function renderAgenda(){const c=document.getElementById('agendaContent');c.innerHTML='';let data=aItems.filter(it=>{if(aFilter==='tous')return true;if(aFilter==='rappel')return it.type==='rappel';return it.tags.includes(aFilter);});if(aView==='liste')renderAListe(c,data);else renderAJour(c,data);}
+function renderAListe(c,data){const g={};data.forEach(it=>{if(!g[it.date])g[it.date]=[];g[it.date].push(it);});const s=Object.keys(g).sort();if(!s.length){c.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--light);font-size:14px">Rien ici 🌿</div>';return;}s.forEach((k,i)=>{const act=g[k].filter(it=>!it.done);const dn=g[k].filter(it=>it.done);const sec=document.createElement('div');sec.className='date-section';const dt=new Date(k+'T00:00:00');const isT=k===fmt(today),isTm=k===fmt(D(1));const lbl=isT?"Aujourd'hui":isTm?'Demain':JJ[dt.getDay()]+' '+dt.getDate()+' '+MM[dt.getMonth()];sec.innerHTML=`<div class="date-label${isT?' today':''}">${lbl}</div>`;act.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')).forEach((it,j)=>{const el=mkItem(it);el.style.animationDelay=(i*.04+j*.04)+'s';sec.appendChild(el);});appendDone(sec,dn);c.appendChild(sec);});}
+function renderAJour(c,data){const items=data.filter(it=>it.date===selDay);const dt=new Date(selDay+'T00:00:00');const isT=selDay===fmt(today);const lbl=document.createElement('div');lbl.className='date-label'+(isT?' today':'');lbl.textContent=isT?"Aujourd'hui":JJ[dt.getDay()]+' '+dt.getDate()+' '+MM[dt.getMonth()];c.appendChild(lbl);const act=items.filter(it=>!it.done);const dn=items.filter(it=>it.done);if(!act.length&&!dn.length){c.innerHTML+='<div style="text-align:center;padding:60px 20px;color:var(--light);font-size:14px">Rien ce jour 🌿</div>';return;}act.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')).forEach((it,i)=>{const el=mkItem(it);el.style.animationDelay=(i*.05)+'s';c.appendChild(el);});appendDone(c,dn);}
+function mkItem(it){const d=document.createElement('div');d.className=`item type-${it.type}`;d.dataset.id=it.id;const tags=it.tags.map(t=>`<span class="item-tag tag-${t}">${t}</span>`).join('');d.innerHTML=`<div class="item-icon">${it.icon}</div><div class="item-body"><div class="item-title">${it.title}</div><div class="item-meta">${it.time?`<span class="item-time">${it.time}</span>`:''}${tags}</div></div><div class="item-check${it.done?' checked':''}" onclick="toggleItem(event,${it.id})">${it.done?'✓':''}</div>`;return d;}
+function toggleItem(e,id){e.stopPropagation();const it=aItems.find(i=>i.id===id);if(!it)return;if(!it.done){const el=document.querySelector(`.item[data-id="${id}"]`);if(el){const c=el.querySelector('.item-check');if(c){c.classList.add('checked');c.textContent='✓';}el.classList.add('vanish');setTimeout(()=>{it.done=true;renderAgenda();},380);}}else{it.done=false;renderAgenda();}}
+function appendDone(c,dn){if(!dn.length)return;const t=document.createElement('div');t.className='done-toggle';t.innerHTML=`<span>${showDone?'▲':'▼'}</span> ${dn.length} fait${dn.length>1?'s':''}`;t.onclick=()=>{showDone=!showDone;renderAgenda();};c.appendChild(t);if(showDone){const s=document.createElement('div');s.className='done-section';dn.forEach(it=>s.appendChild(mkItem(it)));c.appendChild(s);}}
+
+// ── NOTES ──
+let notes=[
+  {id:1,type:'texte',cat:'yasmine',title:'Réunion parents Yasmine',body:'Apporter le carnet. Demander soutien maths.',date:"Aujourd'hui"},
+  {id:2,type:'checklist',cat:'courses',title:'Courses weekend',items:[{label:'Lait de soja',done:true},{label:'Pain de mie',done:true},{label:'Yaourts Marème',done:false},{label:'Bananes',done:false}],date:'Hier'},
+  {id:3,type:'vocale',cat:'perso',title:'Idée cadeau maman',duration:'0:42',date:'Lun 6 mars'},
+  {id:4,type:'texte',cat:'pro',title:'Points réunion lundi',body:'Budget Q2, roadmap, recrutement UX.',date:'Dim 5 mars'},
+  {id:5,type:'photo',cat:'marème',title:'Dessin Marème 🎨',emoji:'🖼️',date:'Sam 4 mars'},
+  {id:6,type:'checklist',cat:'yasmine',title:'Affaires sport Yasmine',items:[{label:'Chaussures',done:true},{label:'Tenue',done:false},{label:'Gourde',done:false}],date:'Ven 3 mars'},
+];
+let nFilter='tous',nSearch='',nType='texte',nCat='perso',nId=100;
+const CI={yasmine:'👧',marème:'👶',perso:'🌿',pro:'💼',courses:'🛒'};
+const CL={yasmine:'Yasmine',marème:'Marème',perso:'Perso',pro:'Pro',courses:'Courses'};
+function renderNotes(){const g=document.getElementById('masonry');g.innerHTML='';const data=notes.filter(n=>{if(nFilter!=='tous'&&n.cat!==nFilter)return false;if(nSearch){const q=nSearch.toLowerCase();return n.title.toLowerCase().includes(q)||(n.body||'').toLowerCase().includes(q)||(n.items||[]).some(i=>i.label.toLowerCase().includes(q));}return true;});if(!data.length){g.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--light);font-size:14px">Aucune note 🌿</div>';return;}data.forEach((n,i)=>{const c=mkCard(n);c.style.animationDelay=(i*.05)+'s';g.appendChild(c);});}
+function mkCard(n){const d=document.createElement('div');d.className=`card cat-${n.cat}`;const ti=n.type==='texte'?'📝':n.type==='checklist'?'✅':n.type==='vocale'?'🎙':'📷';let b='';if(n.type==='texte')b=`<div class="card-body">${n.body}</div>`;else if(n.type==='checklist'){const dn=n.items.filter(i=>i.done).length;b=`<div class="check-list">${n.items.map((it,idx)=>`<div class="check-item${it.done?' done':''}"><div class="check-box${it.done?' checked':''}" onclick="toggleNItem(event,${n.id},${idx})">${it.done?'✓':''}</div><span class="check-label">${it.label}</span></div>`).join('')}</div><div class="card-body" style="margin-top:6px;font-size:11px">${dn}/${n.items.length} faits</div>`;}else if(n.type==='vocale'){const bars=Array.from({length:16},(_,i)=>`<div class="wave-bar" style="height:${4+Math.sin(i*.8)*7+Math.random()*5}px"></div>`).join('');b=`<div class="voice-bar"><div class="voice-play">▶</div><div class="voice-wave">${bars}</div><span class="voice-dur">${n.duration}</span></div>`;}else b=`<div class="card-photo">${n.emoji||'🖼️'}</div>`;d.innerHTML=`<div class="card-header"><div class="card-cat"><span>${CI[n.cat]}</span>${CL[n.cat]}</div><span style="font-size:12px">${ti}</span></div><div class="card-title">${n.title}</div>${b}<div class="card-date">${n.date}</div>`;return d;}
+function toggleNItem(e,nid,idx){e.stopPropagation();const n=notes.find(x=>x.id===nid);if(n&&n.items){n.items[idx].done=!n.items[idx].done;renderNotes();}}
+function setNFilter(el,f){nFilter=f;document.querySelectorAll('#screen-notes .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderNotes();}
+function setNSearch(q){nSearch=q;renderNotes();}
+function openNModal(){document.getElementById('noteModal').classList.add('open');}
+function closeNModal(){document.getElementById('noteModal').classList.remove('open');document.getElementById('noteText').value='';}
+function setNType(el,t){nType=t;document.querySelectorAll('.type-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
+function setNCat(el,c){nCat=c;document.querySelectorAll('.cat-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
+function saveNote(){const t=document.getElementById('noteText').value.trim();if(!t)return;let n={id:nId++,cat:nCat,date:"Aujourd'hui"};if(nType==='checklist'){n.type='checklist';n.title='Ma liste';n.items=t.split('\n').filter(l=>l.trim()).map(l=>({label:l.trim(),done:false}));}else if(nType==='vocale'){n.type='vocale';n.title=t;n.duration='0:00';}else if(nType==='photo'){n.type='photo';n.title=t;n.emoji='🖼️';}else{const ls=t.split('\n');n.type='texte';n.title=ls[0];n.body=ls.slice(1).join(' ')||t;}notes.unshift(n);closeNModal();renderNotes();}
+
+// ── CYCLE ──
+const CP='folliculaire',CD=8;
+let selPhase='folliculaire';
+const PHASES={
+  menstruelle:{
+    emoji:'🌑',label:'Menstruelle',color:'#C0392B',
+    desc:"Ton corps se régénère. C'est une phase de retraite intérieure, pas de faiblesse.",
+    suggestions:{
+      '⚡ Mouvement & corps':[
+        {icon:'🧘🏾‍♀️',text:'Yoga doux ou stretching',note:'Pas de cardio intense, écoute ton corps'},
+        {icon:'🛁',text:'Bain chaud, bouillotte',note:'Soulage les crampes naturellement'},
+        {icon:'😴',text:'Dormir plus longtemps',note:'Ton corps se régénère la nuit'},
+        {icon:'🚶🏾‍♀️',text:'Marche douce en plein air',note:'Le mouvement léger aide les douleurs'},
+      ],
+      '🍽️ Alimentation':[
+        {icon:'🫀',text:'Fer & magnésium',note:'Lentilles, épinards, chocolat noir'},
+        {icon:'🫖',text:'Tisanes apaisantes',note:'Framboisier, gingembre, camomille'},
+        {icon:'🥑',text:'Aliments anti-inflammatoires',note:'Évite le sucre raffiné et le café'},
+      ],
+      '📋 Travail & agenda':[
+        {icon:'✍️',text:'Tâches solitaires et créatives',note:'Écriture, organisation, planification'},
+        {icon:'🚫',text:'Reporter les décisions importantes',note:"Ton esprit critique est plus acéré après"},
+        {icon:'📬',text:'Répondre aux mails en attente',note:'Tâches douces, pas de réunions majeures'},
+      ],
+    }
+  },
+  folliculaire:{
+    emoji:'🌱',label:'Folliculaire',color:'#27AE60',
+    desc:"Ton énergie remonte progressivement. C'est ta phase de lancement — fonce.",
+    suggestions:{
+      '⚡ Mouvement & corps':[
+        {icon:'🏃🏾‍♀️',text:'Cardio, running, danse',note:"Ton endurance est en hausse"},
+        {icon:'🧗🏾‍♀️',text:'Essayer un nouveau sport',note:'Ton cerveau aime la nouveauté maintenant'},
+        {icon:'🚴🏾‍♀️',text:'Vélo, natation, HIIT',note:'Tu récupères bien et vite'},
+      ],
+      '🍽️ Alimentation':[
+        {icon:'🥦',text:'Légumes crucifères',note:'Brocoli, chou — soutiennent les œstrogènes'},
+        {icon:'🫘',text:'Protéines légères',note:'Œufs, légumineuses, poisson'},
+        {icon:'🫐',text:'Antioxydants',note:'Baies, noix, graines de lin'},
+      ],
+      '📋 Travail & agenda':[
+        {icon:'📅',text:'Planifier le mois entier',note:'Ta vision à long terme est au mieux'},
+        {icon:'🤝',text:'Réunions, présentations, entretiens',note:"C'est ton moment pour briller"},
+        {icon:'🚀',text:'Lancer de nouveaux projets',note:"L'élan créatif est là"},
+        {icon:'📚',text:'Formations, apprentissages',note:'Ton cerveau absorbe bien les nouvelles infos'},
+      ],
+    }
+  },
+  ovulatoire:{
+    emoji:'✨',label:'Ovulatoire',color:'#F39C12',
+    desc:"Pic d'énergie, de clarté et de magnétisme. Tu rayonnes — profites-en.",
+    suggestions:{
+      '⚡ Mouvement & corps':[
+        {icon:'💪🏾',text:'Entraînement intense',note:'Ton corps est à son pic de performance'},
+        {icon:'💃🏾',text:'Danse, zumba, sports collectifs',note:"Tu as envie de te connecter aux autres"},
+        {icon:'🏋🏾‍♀️',text:'Musculation, cross-training',note:'Récupération rapide, résistance maximale'},
+      ],
+      '🍽️ Alimentation':[
+        {icon:'🥗',text:'Alimentation légère et fraîche',note:'Salades, smoothies, fruits de saison'},
+        {icon:'🌿',text:'Fibres et verdure',note:'Soutient la détox naturelle des œstrogènes'},
+        {icon:'💧',text:'Bien t'hydrater',note:"L'ovulation peut augmenter la température"},
+      ],
+      '📋 Travail & agenda':[
+        {icon:'🎤',text:'Prises de parole, présentations clés',note:'Tu es confiante et persuasive'},
+        {icon:'🧠',text:'Décisions importantes',note:'Clarté et intuition au maximum'},
+        {icon:'🤝',text:'Négociations, networking',note:"Ton charisme est à son pic"},
+        {icon:'🎯',text:'Objectifs ambitieux',note:"C'est maintenant ou jamais !"},
+      ],
+    }
+  },
+  luteale:{
+    emoji:'🍂',label:'Lutéale',color:'#8E44AD',
+    desc:"Tu tournes vers l'intérieur. Ton intuition est aiguisée, ton énergie ralentit doucement.",
+    suggestions:{
+      '⚡ Mouvement & corps':[
+        {icon:'🧘🏾‍♀️',text:'Yoga, pilates, stretching',note:"Écoute les signaux de ton corps"},
+        {icon:'🚶🏾‍♀️',text:'Marche en nature',note:'Régule l'humeur et le cortisol'},
+        {icon:'😴',text:'Coucher-toi plus tôt',note:'La fatigue arrive plus vite en fin de phase'},
+        {icon:'🛁',text:'Rituels de soin de soi',note:'Masque, bain, massage — tu le mérites'},
+      ],
+      '🍽️ Alimentation':[
+        {icon:'🍫',text:'Magnésium anti-fringales',note:'Chocolat noir, graines de courge, épinards'},
+        {icon:'🍠',text:'Glucides complexes',note:'Patate douce, riz complet — stabilisent l'humeur'},
+        {icon:'🫖',text:'Tisane de mélisse ou framboisier',note:'Réduit les tensions du SPM'},
+        {icon:'🚫',text:'Limiter café et alcool',note:'Amplifient les symptômes du SPM'},
+      ],
+      '📋 Travail & agenda':[
+        {icon:'📂',text:'Tâches de fond et routine',note:'Classement, suivi, organisation'},
+        {icon:'⚠️',text:'Alléger les réunions lourdes',note:'Tu peux être moins patiente avec les conflits'},
+        {icon:'🤍',text:"Dire non à ce qui n'est pas urgent",note:'C'est de l'énergie bien placée'},
+        {icon:'🔍',text:'Analyse, audit, bilan',note:'Ton esprit critique est excellent maintenant'},
+      ],
+    }
+  },
+};
+function drawWheel(){const cv=document.getElementById('wheelCanvas');if(!cv)return;const ctx=cv.getContext('2d');const cx=110,cy=110,r=100,inn=66;const segs=[{p:'menstruelle',s:-90,e:-90+(5/28)*360,c:'#C0392B'},{p:'folliculaire',s:-90+(5/28)*360,e:-90+(13/28)*360,c:'#27AE60'},{p:'ovulatoire',s:-90+(13/28)*360,e:-90+(16/28)*360,c:'#F39C12'},{p:'luteale',s:-90+(16/28)*360,e:270,c:'#8E44AD'}];ctx.clearRect(0,0,220,220);ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle='#F5EEF8';ctx.fill();segs.forEach(sg=>{const ia=sg.p===selPhase,ic=sg.p===CP;const sr=(sg.s*Math.PI)/180,er=(sg.e*Math.PI)/180;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,ia?r+5:r,sr,er);ctx.closePath();ctx.fillStyle=sg.c+(ia?'FF':'55');ctx.fill();if(ic){const a=(-90+(CD/28)*360)*Math.PI/180;const px=cx+(inn+(r-inn)/2)*Math.cos(a),py=cy+(inn+(r-inn)/2)*Math.sin(a);ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle=sg.c;ctx.lineWidth=2.5;ctx.stroke();}});ctx.beginPath();ctx.arc(cx,cy,inn,0,Math.PI*2);ctx.fillStyle='#FAF8F2';ctx.fill();ctx.strokeStyle='rgba(59,17,82,.06)';ctx.lineWidth=1;ctx.stroke();}
+function renderPhaseCard(ph){const data=PHASES[ph];if(!data)return;const card=document.getElementById('phaseCard');if(!card)return;let s='';Object.entries(data.suggestions).forEach(([g,items])=>{s+=`<div class="sugg-group"><div class="sugg-group-title">${g}</div><div class="sugg-list">${items.map(it=>`<div class="sugg-item"><span class="sugg-icon">${it.icon}</span><div class="sugg-text">${it.text}<em>${it.note}</em></div></div>`).join('')}</div></div>`;});card.innerHTML=`<div class="phase-card-wrap ${ph}"><div class="phase-card-header"><div class="phase-emoji">${data.emoji}</div><div><div class="phase-card-title ${ph}">${data.label}</div><div class="phase-card-sub">${ph===CP?'← tu es ici':''}</div></div></div><div class="phase-desc">"${data.desc}"</div>${s}</div>`;}
+function selectPhase(ph){selPhase=ph;document.querySelectorAll('.phase-tab').forEach(t=>t.className='phase-tab');const tab=document.getElementById('tab-'+ph);if(tab)tab.className='phase-tab active-'+ph;const lbl=document.getElementById('wheelPhaseLabel');if(lbl){lbl.textContent=PHASES[ph]?.label||ph;lbl.style.color=PHASES[ph]?.color||'var(--prune)';}drawWheel();renderPhaseCard(ph);}
+
+
+// ── VIDE-TÊTE ──
+let vtParsed = [];
+let vtRecognition = null;
+
+function openVT() {
+  document.getElementById('vtOverlay').classList.add('open');
+  // Reset état
+  document.getElementById('vtText').value = '';
+  document.getElementById('vtInput').style.display = '';
+  document.getElementById('vtResultsWrap').style.display = 'none';
+  vtParsed = [];
+  setTimeout(() => document.getElementById('vtText').focus(), 350);
+}
+
+function closeVTIfOutside(e) {
+  if (e.target === document.getElementById('vtOverlay')) closeVT();
+}
+
+function closeVT() {
+  document.getElementById('vtOverlay').classList.remove('open');
+  if (vtRecognition) { vtRecognition.stop(); vtRecognition = null; }
+  document.getElementById('vtMic').classList.remove('rec');
+  document.getElementById('vtMic').textContent = '🎙';
+}
+
+function toggleVTMic() {
+  const btn = document.getElementById('vtMic');
+  if (vtRecognition) {
+    vtRecognition.stop(); vtRecognition = null;
+    btn.classList.remove('rec'); btn.textContent = '🎙';
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Micro non supporté sur ce navigateur'); return; }
+  vtRecognition = new SR();
+  vtRecognition.lang = 'fr-FR';
+  vtRecognition.continuous = true;
+  vtRecognition.interimResults = true;
+  const base = document.getElementById('vtText').value;
+  vtRecognition.onresult = (e) => {
+    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+    document.getElementById('vtText').value = base + (base ? ' ' : '') + transcript;
+  };
+  vtRecognition.onend = () => {
+    btn.classList.remove('rec'); btn.textContent = '🎙'; vtRecognition = null;
+  };
+  vtRecognition.start();
+  btn.classList.add('rec'); btn.textContent = '⏹';
+}
+
+async function analyseVT() {
+  const text = document.getElementById('vtText').value.trim();
+  if (!text) return;
+
+  const btn = document.getElementById('vtSendBtn');
+  btn.disabled = true;
+
+  // Afficher loading
+  document.getElementById('vtInput').style.display = 'none';
+  document.getElementById('vtResultsWrap').style.display = '';
+  document.getElementById('vtItems').innerHTML = `
+    <div class="vt-loading">
+      <div class="vt-dots">
+        <span>●</span><span>●</span><span>●</span>
+      </div>
+      <div style="margin-top:8px">Alima analyse...</div>
+    </div>`;
+
+  const systemPrompt = `Tu es Alima, assistante familiale. L'utilisatrice vient de vider sa tête en vrac.
+Analyse le texte et extrais chaque élément distinct.
+Pour chaque élément, détermine :
+- type : "agenda" (événement avec date/heure), "rappel" (chose à faire sans date précise), "note" (info à retenir), "courses" (achat à faire)
+- icon : emoji adapté (1 seul)
+- title : reformulé en action claire et courte (max 6 mots)
+- detail : contexte ou précision utile (max 10 mots, optionnel)
+- cat : "yasmine", "marème", "pro", "perso", "courses" selon le contexte
+
+Réponds UNIQUEMENT en JSON valide, sans texte avant ni après :
+{"items": [{"type":"rappel","icon":"📞","title":"Appeler la maîtresse","detail":"école Jules Ferry","cat":"yasmine"}]}`;
+
+  try {
+    const resp = await fetch('/.netlify/functions/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: systemPrompt,
+        messages: [{ role: 'user', content: text }],
+      })
+    });
+
+    const data = await resp.json();
+    const raw = data.content?.[0]?.text || '{"items":[]}';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    vtParsed = parsed.items || [];
+    renderVTItems();
+
+  } catch(err) {
+    // Fallback si API pas disponible : parsing basique
+    vtParsed = text.split(/[,\.\n]+/)
+      .map(s => s.trim()).filter(s => s.length > 2)
+      .map(s => ({ type: 'rappel', icon: '📌', title: s, detail: '', cat: 'perso' }));
+    renderVTItems();
+  }
+
+  btn.disabled = false;
+}
+
+function renderVTItems() {
+  const container = document.getElementById('vtItems');
+  if (!vtParsed.length) {
+    container.innerHTML = '<div class="vt-loading">Rien détecté — reformule ?</div>';
+    return;
+  }
+  const typeLabel = { agenda:'Agenda', rappel:'Rappel', note:'Note', courses:'Courses' };
+  const catLabel = { yasmine:'Yasmine', marème:'Marème', pro:'Pro', perso:'Perso', courses:'Courses' };
+  container.innerHTML = vtParsed.map((item, i) => `
+    <div class="vt-item" id="vt-item-${i}">
+      <div class="vt-item-icon">${item.icon}</div>
+      <div class="vt-item-body">
+        <div class="vt-item-text">${item.title}</div>
+        <div class="vt-item-cat">${typeLabel[item.type]||item.type}${item.detail ? ' · ' + item.detail : ''}${item.cat ? ' · ' + (catLabel[item.cat]||item.cat) : ''}</div>
+      </div>
+      <div class="vt-item-del" onclick="removeVTItem(${i})">✕</div>
+    </div>
+  `).join('');
+}
+
+function removeVTItem(i) {
+  vtParsed.splice(i, 1);
+  renderVTItems();
+}
+
+function confirmVT() {
+  let added = 0;
+  const today = fmt(new Date());
+
+  vtParsed.forEach(item => {
+    if (item.type === 'agenda' || item.type === 'rappel') {
+      aItems.unshift({
+        id: aId++,
+        type: item.type === 'agenda' ? 'event' : 'rappel',
+        icon: item.icon,
+        title: item.title,
+        date: today,
+        time: null,
+        tags: item.cat && item.cat !== 'perso' && item.cat !== 'courses' ? [item.cat] : [],
+        done: false,
+      });
+      added++;
+    } else {
+      // note ou courses
+      notes.unshift({
+        id: nId++,
+        type: item.type === 'courses' ? 'checklist' : 'texte',
+        cat: item.cat || 'perso',
+        title: item.title,
+        body: item.detail || '',
+        items: item.type === 'courses' ? [{ label: item.title, done: false }] : undefined,
+        date: "Aujourd'hui",
+      });
+      added++;
+    }
+  });
+
+  closeVT();
+
+  // Toast
+  const t = document.createElement('div');
+  t.style.cssText = 'position:absolute;bottom:100px;left:50%;transform:translateX(-50%);background:var(--prune);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;white-space:nowrap;box-shadow:0 4px 20px rgba(30,6,48,.4)';
+  t.textContent = `✓ ${added} élément${added>1?'s':''} classé${added>1?'s':''} par Alima`;
+  document.querySelector('.phone').appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+
+  // Refresh écran courant
+  const active = document.querySelector('.screen.active')?.id;
+  if (active === 'screen-agenda') { buildStrip(); renderAgenda(); }
+  if (active === 'screen-notes') renderNotes();
+}
+
+
+// ── ONBOARDING ──
+let obNb = 1;
+let profile = JSON.parse(localStorage.getItem('alima_profile') || 'null');
+
+function initOnboarding() {
+  if (profile) {
+    // Déjà onboardé → appliquer le profil et cacher
+    document.getElementById('onboarding').classList.add('done');
+    applyProfile();
+  } else {
+    // Premier lancement
+    renderEnfantsFields();
+    setTimeout(() => document.getElementById('obPrenom').focus(), 300);
+  }
+}
+
+function checkStep1() {
+  const v = document.getElementById('obPrenom').value.trim();
+  document.getElementById('ob-btn-1').disabled = v.length < 2;
+}
+
+function setNbEnfants(delta) {
+  obNb = Math.max(1, Math.min(4, obNb + delta));
+  document.getElementById('obNbVal').textContent = obNb;
+  renderEnfantsFields();
+}
+
+function renderEnfantsFields() {
+  const c = document.getElementById('obEnfantsFields');
+  c.innerHTML = '';
+  for (let i = 0; i < obNb; i++) {
+    const emoji = ['👧🏾','👦🏾','👧','👦'][i] || '🧒';
+    c.innerHTML += `
+      <div class="ob-enfant-card">
+        <div class="ob-enfant-num">${emoji} Enfant ${i + 1}</div>
+        <div class="ob-row">
+          <div>
+            <div class="ob-label" style="font-size:10px;margin-bottom:6px">Prénom</div>
+            <input class="ob-input-sm" id="ob-e-prenom-${i}" type="text" placeholder="Prénom">
+          </div>
+          <div>
+            <div class="ob-label" style="font-size:10px;margin-bottom:6px">Âge</div>
+            <input class="ob-input-sm" id="ob-e-age-${i}" type="number" min="0" max="18" placeholder="Âge">
+          </div>
+        </div>
+      </div>`;
+  }
+}
+
+function goStep(n) {
+  if (n === 2) {
+    const prenom = document.getElementById('obPrenom').value.trim();
+    if (prenom.length < 2) return;
+  }
+  if (n === 3) {
+    buildRecap();
+  }
+  document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('ob-step-' + n).classList.add('active');
+}
+
+function buildRecap() {
+  const prenom = document.getElementById('obPrenom').value.trim();
+  const enfants = [];
+  for (let i = 0; i < obNb; i++) {
+    const p = document.getElementById('ob-e-prenom-' + i)?.value.trim() || 'Enfant ' + (i+1);
+    const a = document.getElementById('ob-e-age-' + i)?.value || '?';
+    enfants.push({ prenom: p, age: a });
+  }
+  const recap = document.getElementById('obRecap');
+  const enfantsText = enfants.map(e => `<strong>${e.prenom}</strong>, ${e.age} ans`).join(' · ');
+  recap.innerHTML = `
+    <div class="ob-recap-row"><div class="ob-recap-icon">👩🏾</div><div class="ob-recap-text">Bonjour <strong>${prenom}</strong> 🤍</div></div>
+    <div class="ob-recap-row"><div class="ob-recap-icon">👨‍👩‍👧</div><div class="ob-recap-text">${enfants.length} enfant${enfants.length > 1 ? 's' : ''} : ${enfantsText}</div></div>
+    <div class="ob-recap-row"><div class="ob-recap-icon">🌸</div><div class="ob-recap-text">Tu pourras configurer ton cycle dans <strong>Profil → Mon Cycle</strong></div></div>
+    <div class="ob-recap-row"><div class="ob-recap-icon">🧠</div><div class="ob-recap-text">Le bouton <strong>🧠 vide-tête</strong> est disponible partout — tape ou dicte ce qui t'occupe l'esprit</div></div>`;
+}
+
+function finishOnboarding() {
+  const prenom = document.getElementById('obPrenom').value.trim();
+  const enfants = [];
+  for (let i = 0; i < obNb; i++) {
+    const p = document.getElementById('ob-e-prenom-' + i)?.value.trim() || 'Enfant ' + (i+1);
+    const a = parseInt(document.getElementById('ob-e-age-' + i)?.value) || 0;
+    enfants.push({ prenom: p, age: a });
+  }
+  profile = { prenom, enfants, cycleStart: null };
+  localStorage.setItem('alima_profile', JSON.stringify(profile));
+  document.getElementById('onboarding').classList.add('done');
+  applyProfile();
+}
+
+function applyProfile() {
+  if (!profile) return;
+  const { prenom, enfants } = profile;
+
+  // Greeting accueil
+  const g = document.getElementById('homeGreeting');
+  if (g) g.innerHTML = `Bonjour ${prenom} 🤍<br><strong>Comment je peux t'aider aujourd'hui ?</strong>`;
+
+  // Profil hero
+  const hn = document.querySelector('.hero-name');
+  if (hn) hn.textContent = prenom;
+
+  // Filtres enfants dans agenda + notes
+  updateEnfantFilters(enfants);
+
+  // Cartes enfants dans profil
+  updateProfilEnfants(enfants);
+
+  // Remplacer prénoms dans agenda et notes
+  personaliseData(enfants);
+}
+
+function updateEnfantFilters(enfants) {
+  // Agenda filters
+  const af = document.querySelector('#screen-agenda .filter-chips');
+  if (af) {
+    // Supprimer les chips Yasmine/Marème hardcodées, garder Tous/Rappels
+    const chips = af.querySelectorAll('.filter-chip[data-child]');
+    chips.forEach(c => c.remove());
+    // Ajouter les vrais enfants
+    enfants.forEach(e => {
+      const chip = document.createElement('div');
+      chip.className = 'filter-chip';
+      chip.setAttribute('data-child', e.prenom.toLowerCase());
+      chip.textContent = '👧 ' + e.prenom;
+      chip.onclick = function() { setAFilter(this, e.prenom.toLowerCase()); };
+      af.appendChild(chip);
+    });
+  }
+}
+
+function updateProfilEnfants(enfants) {
+  const ec = document.getElementById('enfantsCarousel');
+  if (!ec) return;
+  // On garde la structure existante mais on met à jour les noms visibles
+  const cards = ec.querySelectorAll('.child-card');
+  enfants.forEach((e, i) => {
+    if (cards[i]) {
+      const nameEl = cards[i].querySelector('.child-name');
+      const ageEl = cards[i].querySelector('.child-age');
+      if (nameEl) nameEl.textContent = e.prenom;
+      if (ageEl) ageEl.textContent = e.age + ' ans';
+    }
+  });
+  // Cacher les cartes en trop
+  cards.forEach((c, i) => {
+    if (i >= enfants.length && !c.classList.contains('add-child')) c.style.display = 'none';
+  });
+}
+
+function personaliseData(enfants) {
+  if (!enfants.length) return;
+  const e1 = enfants[0]?.prenom || 'Enfant 1';
+  const e2 = enfants[1]?.prenom || null;
+
+  // Remplacer Yasmine dans l'agenda
+  aItems.forEach(item => {
+    item.title = item.title.replace(/Yasmine/g, e1);
+    if (e2) item.title = item.title.replace(/Marème/g, e2);
+    item.tags = item.tags.map(t => {
+      if (t === 'yasmine') return e1.toLowerCase();
+      if (t === 'marème' && e2) return e2.toLowerCase();
+      return t;
+    });
+  });
+
+  // Remplacer dans les notes
+  notes.forEach(n => {
+    n.title = n.title.replace(/Yasmine/g, e1);
+    if (e2) n.title = n.title.replace(/Marème/g, e2);
+    n.cat = n.cat === 'yasmine' ? e1.toLowerCase() : (n.cat === 'marème' && e2 ? e2.toLowerCase() : n.cat);
+  });
+
+  // Brain rows
+  const brainRows = document.querySelectorAll('.brain-text');
+  brainRows.forEach(r => {
+    r.innerHTML = r.innerHTML.replace(/Yasmine/g, e1);
+    if (e2) r.innerHTML = r.innerHTML.replace(/Marème/g, e2);
+  });
+}
+
+// Init
+buildStrip();
+initOnboarding();renderAgenda();renderNotes();
+</script>
+</body>
+</html>
