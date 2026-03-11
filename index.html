@@ -1160,7 +1160,7 @@ function renderAgenda(){const c=document.getElementById('agendaContent');c.inner
 function renderAListe(c,data){const g={};data.forEach(it=>{if(!g[it.date])g[it.date]=[];g[it.date].push(it);});const s=Object.keys(g).sort();if(!s.length){c.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--light);font-size:14px">Rien ici 🌿</div>';return;}s.forEach((k,i)=>{const act=g[k].filter(it=>!it.done);const dn=g[k].filter(it=>it.done);const sec=document.createElement('div');sec.className='date-section';const dt=new Date(k+'T00:00:00');const isT=k===fmt(today),isTm=k===fmt(D(1));const lbl=isT?"Aujourd'hui":isTm?'Demain':JJ[dt.getDay()]+' '+dt.getDate()+' '+MM[dt.getMonth()];sec.innerHTML=`<div class="date-label${isT?' today':''}">${lbl}</div>`;act.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')).forEach((it,j)=>{const el=mkItem(it);el.style.animationDelay=(i*.04+j*.04)+'s';sec.appendChild(el);});appendDone(sec,dn);c.appendChild(sec);});}
 function renderAJour(c,data){const items=data.filter(it=>it.date===selDay);const dt=new Date(selDay+'T00:00:00');const isT=selDay===fmt(today);const lbl=document.createElement('div');lbl.className='date-label'+(isT?' today':'');lbl.textContent=isT?"Aujourd'hui":JJ[dt.getDay()]+' '+dt.getDate()+' '+MM[dt.getMonth()];c.appendChild(lbl);const act=items.filter(it=>!it.done);const dn=items.filter(it=>it.done);if(!act.length&&!dn.length){c.innerHTML+='<div style="text-align:center;padding:60px 20px;color:var(--light);font-size:14px">Rien ce jour 🌿</div>';return;}act.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')).forEach((it,i)=>{const el=mkItem(it);el.style.animationDelay=(i*.05)+'s';c.appendChild(el);});appendDone(c,dn);}
 function mkItem(it){const d=document.createElement('div');d.className=`item type-${it.type}`;d.dataset.id=it.id;const tags=it.tags.map(t=>`<span class="item-tag tag-${t}">${t}</span>`).join('');d.innerHTML=`<div class="item-icon">${it.icon}</div><div class="item-body"><div class="item-title">${it.title}</div><div class="item-meta">${it.time?`<span class="item-time">${it.time}</span>`:''}${tags}</div></div><div class="item-check${it.done?' checked':''}" onclick="toggleItem(event,${it.id})">${it.done?'✓':''}</div>`;return d;}
-function toggleItem(e,id){e.stopPropagation();const it=aItems.find(i=>i.id===id);if(!it)return;if(!it.done){const el=document.querySelector(`.item[data-id="${id}"]`);if(el){const c=el.querySelector('.item-check');if(c){c.classList.add('checked');c.textContent='✓';}el.classList.add('vanish');setTimeout(()=>{it.done=true;renderAgenda();updateHome();},380);}}else{it.done=false;renderAgenda();}}
+function toggleItem(e,id){e.stopPropagation();const it=aItems.find(i=>i.id===id);if(!it)return;if(!it.done){const el=document.querySelector(`.item[data-id="${id}"]`);if(el){const c=el.querySelector('.item-check');if(c){c.classList.add('checked');c.textContent='✓';}el.classList.add('vanish');setTimeout(()=>{it.done=true;renderAgenda();updateHome();saveAgenda();},380);}}else{it.done=false;renderAgenda();saveAgenda();}}
 function appendDone(c,dn){if(!dn.length)return;const t=document.createElement('div');t.className='done-toggle';t.innerHTML=`<span>${showDone?'▲':'▼'}</span> ${dn.length} fait${dn.length>1?'s':''}`;t.onclick=()=>{showDone=!showDone;renderAgenda();};c.appendChild(t);if(showDone){const s=document.createElement('div');s.className='done-section';dn.forEach(it=>s.appendChild(mkItem(it)));c.appendChild(s);}}
 
 // ── NOTES ──
@@ -1178,6 +1178,7 @@ function closeNModal(){document.getElementById('noteModal').classList.remove('op
 function setNType(el,t){nType=t;document.querySelectorAll('.type-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
 function setNCat(el,c){nCat=c;document.querySelectorAll('.cat-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
 function saveNote(){const t=document.getElementById('noteText').value.trim();if(!t)return;let n={id:nId++,cat:nCat,date:"Aujourd'hui"};if(nType==='checklist'){n.type='checklist';n.title='Ma liste';n.items=t.split('\n').filter(l=>l.trim()).map(l=>({label:l.trim(),done:false}));}else if(nType==='vocale'){n.type='vocale';n.title=t;n.duration='0:00';}else if(nType==='photo'){n.type='photo';n.title=t;n.emoji='🖼️';}else{const ls=t.split('\n');n.type='texte';n.title=ls[0];n.body=ls.slice(1).join(' ')||t;}notes.unshift(n);closeNModal();renderNotes();updateHome();}
+  saveNotes();
 
 // ── CYCLE ──
 const CP='folliculaire',CD=8;
@@ -1448,7 +1449,7 @@ function confirmVT() {
     }
   });
 
-  closeVT();
+  saveAgenda(); saveNotes(); closeVT();
 
   // Toast
   const t = document.createElement('div');
@@ -1669,6 +1670,7 @@ let obEnfants = [];
     if (saved) {
       profile = JSON.parse(saved);
       applyProfileFull();
+      loadAgendaNotes();
       // Pas d'onboarding — profil déjà là
       document.getElementById('onboarding').classList.add('done');
     } else {
@@ -1757,6 +1759,7 @@ function obFinish() {
 
   // Fermer onboarding
   document.getElementById('onboarding').classList.add('done');
+  loadAgendaNotes();
   applyProfileFull();
 }
 
@@ -1809,6 +1812,24 @@ function renderProfilEnfants() {
       </div>`;
     scroll.insertBefore(card, addBtn);
   });
+}
+
+// ── PERSISTANCE AGENDA & NOTES ──
+function saveAgenda() {
+  try { localStorage.setItem('alima_agenda', JSON.stringify(aItems)); } catch(e) {}
+}
+function saveNotes() {
+  try { localStorage.setItem('alima_notes', JSON.stringify(notes)); } catch(e) {}
+}
+function loadAgendaNotes() {
+  try {
+    const a = localStorage.getItem('alima_agenda');
+    if (a) { const parsed = JSON.parse(a); parsed.forEach(i=>aItems.push(i)); }
+  } catch(e) {}
+  try {
+    const n = localStorage.getItem('alima_notes');
+    if (n) { const parsed = JSON.parse(n); parsed.forEach(i=>notes.push(i)); }
+  } catch(e) {}
 }
 </script>
 
