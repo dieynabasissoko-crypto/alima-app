@@ -4,6 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="manifest" href="/manifest.json">
+
+<script>
+(function(){
+  var c=document.createElement('canvas');c.width=180;c.height=180;
+  var ctx=c.getContext('2d');
+  // Fond violet arrondi
+  ctx.fillStyle='#3B1152';
+  var r=40;ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(180-r,0);ctx.quadraticCurveTo(180,0,180,r);ctx.lineTo(180,180-r);ctx.quadraticCurveTo(180,180,180-r,180);ctx.lineTo(r,180);ctx.quadraticCurveTo(0,180,0,180-r);ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();ctx.fill();
+  // Lettre a
+  ctx.fillStyle='#fff';ctx.font='italic 108px Georgia,serif';ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillText('a',90,128);
+  // Points dorés
+  ctx.fillStyle='#E8B85A';
+  ctx.beginPath();ctx.arc(90,26,7,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=.8;
+  ctx.beginPath();ctx.arc(130,40,5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(50,40,5,0,Math.PI*2);ctx.fill();
+  // Patch apple-touch-icon
+  var link=document.querySelector('link[rel="apple-touch-icon"]')||document.createElement('link');
+  link.rel='apple-touch-icon';link.href=c.toDataURL('image/png');
+  document.head.appendChild(link);
+})();
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Alima">
@@ -18,8 +40,8 @@
   --c-event:#3B1152;--c-rappel:#C9943A;--c-recurrent:#2E7D6B;--c-tache:#5C6BC0;
   --folliculaire:#27AE60;--menstruelle:#C0392B;--ovulatoire:#F39C12;--luteale:#8E44AD;
 }
-html,body{height:100%;overflow:hidden;background:var(--prune-dark);font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center}
-.phone{width:390px;height:844px;background:var(--cream);border-radius:48px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 40px 100px rgba(0,0,0,.7)}
+html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'DM Sans',sans-serif}
+.phone{width:100%;height:100%;max-width:480px;margin:0 auto;background:var(--cream);overflow:hidden;position:relative;display:flex;flex-direction:column}@media(min-width:500px){body{background:var(--prune-dark);display:flex;align-items:center;justify-content:center}.phone{width:390px;height:844px;border-radius:48px;box-shadow:0 40px 100px rgba(0,0,0,.7)}}
 .status-bar{height:44px;flex-shrink:0;background:var(--cream);display:flex;align-items:center;justify-content:space-between;padding:0 28px}
 .status-time{font-size:15px;font-weight:500;color:var(--prune-dark)}
 .status-icons{font-size:12px;color:var(--light);display:flex;gap:6px}
@@ -653,50 +675,8 @@ html,body{height:100%;overflow:hidden;background:var(--prune-dark);font-family:'
     <div style="padding:18px 22px 0">
       <!-- Enfants -->
       <div class="section-title" style="margin-bottom:12px">Mes enfants</div>
-      <div class="children-scroll">
-        <div class="child-card">
-          <div class="child-top">
-            <div class="child-avatar yasmine">👧</div>
-            <div>
-              <div class="child-name">Yasmine</div>
-              <div class="child-age">7 ans · CE1</div>
-            </div>
-          </div>
-          <div class="child-tags">
-            <div class="child-tag">🏫 Jules Ferry</div>
-            <div class="child-tag">📚 Maths</div>
-          </div>
-          <div class="child-rows">
-            <div class="child-row">
-              <span class="child-row-icon">⏰</span>
-              <div class="child-row-text"><strong>École</strong> 8h00 → 16h30</div>
-            </div>
-            <div class="child-row">
-              <span class="child-row-icon">📅</span>
-              <div class="child-row-text"><strong>Contrôle maths</strong> dans 4 jours</div>
-            </div>
-          </div>
-        </div>
-        <div class="child-card">
-          <div class="child-top">
-            <div class="child-avatar marème">👶</div>
-            <div>
-              <div class="child-name">Marème</div>
-              <div class="child-age">4 ans · Moyenne section</div>
-            </div>
-          </div>
-          <div class="child-tags">
-            <div class="child-tag">🏫 Les Colibris</div>
-            <div class="child-tag">💊 Traitement en cours</div>
-          </div>
-          <div class="child-rows">
-            <div class="child-row">
-              <span class="child-row-icon">👩‍⚕️</span>
-              <div class="child-row-text"><strong>Pédiatre</strong> demain 14h</div>
-            </div>
-          </div>
-        </div>
-        <div class="add-child">
+      <div class="children-scroll" id="profilChildrenScroll">
+        <div class="add-child" onclick="openEditProfil()">
           <span style="font-size:26px">+</span>
           <span style="font-size:12px;color:var(--light)">Ajouter</span>
         </div>
@@ -771,6 +751,16 @@ html,body{height:100%;overflow:hidden;background:var(--prune-dark);font-family:'
             <div class="setting-label" style="color:#E53935">Se déconnecter</div>
           </div>
           <div class="setting-right"><span class="chevron">›</span></div>
+        </div>
+      </div>
+      <!-- Réinitialiser -->
+      <div style="margin:24px 0 0">
+        <div onclick="resetApp()" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border-radius:16px;cursor:pointer;border:1.5px solid rgba(229,57,53,0.15)">
+          <div style="width:36px;height:36px;border-radius:11px;background:rgba(229,57,53,0.08);display:flex;align-items:center;justify-content:center;font-size:17px">🗑️</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:500;color:#E53935">Réinitialiser l'app</div>
+            <div style="font-size:11px;color:#9A80AA">Effacer toutes les données et recommencer</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1161,18 +1151,7 @@ const D=o=>{const dt=new Date(today);dt.setDate(dt.getDate()+o);return dt;};
 const fmt=dt=>dt.toISOString().split('T')[0];
 const JJ=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 const MM=['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
-const aItems=[
-  {id:1,date:fmt(D(0)),time:'08h00',title:'École Yasmine',type:'recurrent',icon:'🏫',tags:['yasmine'],done:false},
-  {id:2,date:fmt(D(0)),time:'09h30',title:'Réunion équipe',type:'event',icon:'💼',tags:['pro'],done:false},
-  {id:3,date:fmt(D(0)),time:'16h30',title:'Récupérer les enfants',type:'recurrent',icon:'🚗',tags:['yasmine','marème'],done:false},
-  {id:4,date:fmt(D(0)),time:'19h00',title:'Révision maths Yasmine',type:'rappel',icon:'⏰',tags:['yasmine'],done:false},
-  {id:5,date:fmt(D(0)),time:'21h00',title:'Médicaments Marème',type:'rappel',icon:'💊',tags:['marème'],done:false},
-  {id:6,date:fmt(D(0)),time:'',title:'Commander fournitures',type:'tache',icon:'✅',tags:[],done:false},
-  {id:7,date:fmt(D(1)),time:'08h00',title:'École Yasmine',type:'recurrent',icon:'🏫',tags:['yasmine'],done:false},
-  {id:8,date:fmt(D(1)),time:'14h00',title:'Pédiatre Marème',type:'event',icon:'👩‍⚕️',tags:['marème'],done:false},
-  {id:9,date:fmt(D(2)),time:'10h00',title:'Call client',type:'event',icon:'📞',tags:['pro'],done:false},
-  {id:10,date:fmt(D(4)),time:'09h00',title:'Contrôle maths Yasmine',type:'event',icon:'📚',tags:['yasmine'],done:false},
-];
+const aItems=[]
 let aView='liste',aFilter='tous',selDay=fmt(today),showDone=false,aId=200;
 function buildStrip(){const s=document.getElementById('daysStrip');s.innerHTML='';for(let i=0;i<14;i++){const dt=D(i);const k=fmt(dt);const has=aItems.some(it=>it.date===k);const p=document.createElement('div');p.className='day-pill'+(k===selDay?' active':'')+(has?' has-events':'');p.dataset.date=k;p.innerHTML=`<div class="day-name">${JJ[dt.getDay()]}</div><div class="day-num">${dt.getDate()}</div><div class="day-dot"></div>`;p.onclick=()=>{selDay=k;buildStrip();renderAgenda();};s.appendChild(p);}}
 function switchView(v){aView=v;document.getElementById('btnListe').classList.toggle('active',v==='liste');document.getElementById('btnJour').classList.toggle('active',v==='jour');document.getElementById('daysStrip').classList.toggle('visible',v==='jour');renderAgenda();}
@@ -1185,14 +1164,7 @@ function toggleItem(e,id){e.stopPropagation();const it=aItems.find(i=>i.id===id)
 function appendDone(c,dn){if(!dn.length)return;const t=document.createElement('div');t.className='done-toggle';t.innerHTML=`<span>${showDone?'▲':'▼'}</span> ${dn.length} fait${dn.length>1?'s':''}`;t.onclick=()=>{showDone=!showDone;renderAgenda();};c.appendChild(t);if(showDone){const s=document.createElement('div');s.className='done-section';dn.forEach(it=>s.appendChild(mkItem(it)));c.appendChild(s);}}
 
 // ── NOTES ──
-let notes=[
-  {id:1,type:'texte',cat:'yasmine',title:'Réunion parents Yasmine',body:'Apporter le carnet. Demander soutien maths.',date:"Aujourd'hui"},
-  {id:2,type:'checklist',cat:'courses',title:'Courses weekend',items:[{label:'Lait de soja',done:true},{label:'Pain de mie',done:true},{label:'Yaourts Marème',done:false},{label:'Bananes',done:false}],date:'Hier'},
-  {id:3,type:'vocale',cat:'perso',title:'Idée cadeau maman',duration:'0:42',date:'Lun 6 mars'},
-  {id:4,type:'texte',cat:'pro',title:'Points réunion lundi',body:'Budget Q2, roadmap, recrutement UX.',date:'Dim 5 mars'},
-  {id:5,type:'photo',cat:'marème',title:'Dessin Marème 🎨',emoji:'🖼️',date:'Sam 4 mars'},
-  {id:6,type:'checklist',cat:'yasmine',title:'Affaires sport Yasmine',items:[{label:'Chaussures',done:true},{label:'Tenue',done:false},{label:'Gourde',done:false}],date:'Ven 3 mars'},
-];
+let notes=[];
 let nFilter='tous',nSearch='',nType='texte',nCat='perso',nId=100;
 const CI={yasmine:'👧',marème:'👶',perso:'🌿',pro:'💼',courses:'🛒'};
 const CL={yasmine:'Yasmine',marème:'Marème',perso:'Perso',pro:'Pro',courses:'Courses'};
@@ -1786,6 +1758,57 @@ function obFinish() {
   // Fermer onboarding
   document.getElementById('onboarding').classList.add('done');
   applyProfileFull();
+}
+
+
+function renderProfilEnfants() {
+  const scroll = document.getElementById('profilChildrenScroll');
+  if (!scroll) return;
+  const emojis = ['👧','👦','👧🏾','👦🏾'];
+  scroll.querySelectorAll('.child-card').forEach(c => c.remove());
+  const addBtn = scroll.querySelector('.add-child');
+  if (!profile || !profile.enfants || !profile.enfants.length) return;
+  profile.enfants.forEach((e, i) => {
+    const card = document.createElement('div');
+    card.className = 'child-card';
+    card.innerHTML = `
+      <div class="child-top">
+        <div class="child-avatar">${emojis[i]||'🧒'}</div>
+        <div>
+          <div class="child-name">${e.prenom}</div>
+          <div class="child-age">${e.age} an${e.age>1?'s':''}</div>
+        </div>
+      </div>`;
+    scroll.insertBefore(card, addBtn);
+  });
+}
+
+function resetApp() {
+  if (!confirm('Effacer toutes tes données et recommencer depuis le début ?')) return;
+  try { localStorage.clear(); } catch(e) {}
+  location.reload();
+}
+
+function renderProfilEnfants() {
+  const scroll = document.getElementById('profilChildrenScroll');
+  if (!scroll) return;
+  const emojis = ['👧','👦','👧🏾','👦🏾'];
+  scroll.querySelectorAll('.child-card').forEach(c => c.remove());
+  const addBtn = scroll.querySelector('.add-child');
+  if (!profile || !profile.enfants || !profile.enfants.length) return;
+  profile.enfants.forEach((e, i) => {
+    const card = document.createElement('div');
+    card.className = 'child-card';
+    card.innerHTML = `
+      <div class="child-top">
+        <div class="child-avatar">${emojis[i]||'🧒'}</div>
+        <div>
+          <div class="child-name">${e.prenom}</div>
+          <div class="child-age">${e.age} an${e.age>1?'s':''}</div>
+        </div>
+      </div>`;
+    scroll.insertBefore(card, addBtn);
+  });
 }
 </script>
 
