@@ -489,12 +489,12 @@ html,body{height:100%;overflow:hidden;background:var(--prune-dark);font-family:'
       <div style="margin-top:32px">
         <div class="ob-label">Ton prénom</div>
         <input class="ob-input" id="obPrenom" type="text" placeholder="Ex : Fatou, Aïcha, Marie…" 
-          oninput="checkStep1()" onkeydown="if(event.key==='Enter')goStep(2)">
+          oninput="checkStep1()" onkeyup="checkStep1()" onkeydown="if(event.key==='Enter')goStep(2)">
       </div>
     </div>
     <div class="ob-footer">
       <div class="ob-dots"><div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
-      <button class="ob-btn" id="ob-btn-1" onclick="goStep(2)" disabled>Continuer →</button>
+      <button class="ob-btn" id="ob-btn-1" onclick="goStep(2)">Continuer →</button>
     </div>
   </div>
 
@@ -1397,7 +1397,10 @@ function initOnboarding() {
 
 function checkStep1() {
   const v = document.getElementById('obPrenom').value.trim();
-  document.getElementById('ob-btn-1').disabled = v.length < 2;
+  const btn = document.getElementById('ob-btn-1');
+  const input = document.getElementById('obPrenom');
+  btn.style.opacity = v.length >= 1 ? '1' : '0.5';
+  if (v.length >= 1) input.style.borderColor = 'rgba(201,148,58,.5)';
 }
 
 function setNbEnfants(delta) {
@@ -1431,7 +1434,13 @@ function renderEnfantsFields() {
 function goStep(n) {
   if (n === 2) {
     const prenom = document.getElementById('obPrenom').value.trim();
-    if (prenom.length < 2) return;
+    if (prenom.length < 1) {
+      const input = document.getElementById('obPrenom');
+      input.style.borderColor = 'rgba(201,148,58,.8)';
+      input.placeholder = 'Entre ton prénom pour continuer 🤍';
+      input.focus();
+      return;
+    }
   }
   if (n === 3) {
     buildRecap();
