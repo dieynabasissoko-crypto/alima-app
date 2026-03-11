@@ -357,316 +357,154 @@ html,body{height:100%;overflow:hidden;background:var(--prune-dark);font-family:'
 .vt-dots span:nth-child(2){animation-delay:.2s}
 .vt-dots span:nth-child(3){animation-delay:.4s}
 @keyframes vt-dot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
-
-/* ── ONBOARDING ── */
-#onboarding{
-  position:absolute;inset:0;z-index:200;
-  background:var(--prune-dark);
-  display:flex;flex-direction:column;
-  overflow:hidden;
-}
-#onboarding.done{display:none}
-
-.ob-step{display:none;flex-direction:column;height:100%;padding:0}
-.ob-step.active{display:flex}
-
-/* Header */
-.ob-header{
-  padding:50px 28px 0;flex-shrink:0;
-}
-.ob-logo-row{display:flex;align-items:center;gap:12px;margin-bottom:40px}
-.ob-logo-mark{
-  width:44px;height:44px;border-radius:13px;
-  background:linear-gradient(145deg,#2A0A45,var(--prune));
-  border:1px solid rgba(232,184,90,.25);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Fraunces',serif;font-size:22px;font-style:italic;color:#fff;padding-top:3px;
-  position:relative;
-}
-.ob-logo-mark::before{content:'·';position:absolute;top:4px;right:7px;font-size:10px;color:var(--gold-light)}
-.ob-wordmark{font-family:'Fraunces',serif;font-size:22px;color:#fff}
-.ob-wordmark span{color:var(--gold)}
-
-.ob-step-badge{
-  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--gold);margin-bottom:16px;font-weight:500;
-}
-.ob-title{
-  font-family:'Fraunces',serif;font-size:28px;font-weight:400;
-  color:#fff;line-height:1.25;margin-bottom:10px;
-}
-.ob-title em{color:var(--gold);font-style:italic}
-.ob-sub{font-size:14px;color:rgba(255,255,255,.45);line-height:1.65;margin-bottom:0}
-
-/* Body */
-.ob-body{flex:1;padding:28px 28px 0;overflow-y:auto}
-
-/* Inputs */
-.ob-label{font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px}
-.ob-input{
-  width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);
-  border-radius:16px;padding:14px 18px;
-  font-family:'DM Sans',sans-serif;font-size:17px;color:#fff;outline:none;
-  transition:border-color .2s;
-}
-.ob-input:focus{border-color:rgba(201,148,58,.5)}
-.ob-input::placeholder{color:rgba(255,255,255,.2)}
-
-/* Enfants */
-.ob-enfants{display:flex;flex-direction:column;gap:14px;margin-bottom:8px}
-.ob-enfant-card{
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-  border-radius:18px;padding:16px;
-}
-.ob-enfant-num{font-size:11px;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;font-weight:500}
-.ob-row{display:grid;grid-template-columns:1fr 100px;gap:10px}
-.ob-input-sm{
-  background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);
-  border-radius:12px;padding:11px 14px;
-  font-family:'DM Sans',sans-serif;font-size:15px;color:#fff;outline:none;width:100%;
-  transition:border-color .2s;
-}
-.ob-input-sm:focus{border-color:rgba(201,148,58,.5)}
-.ob-input-sm::placeholder{color:rgba(255,255,255,.2)}
-
-/* Compteur enfants */
-.ob-nb-row{display:flex;align-items:center;gap:16px;margin-bottom:24px}
-.ob-nb-btn{
-  width:40px;height:40px;border-radius:12px;
-  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
-  color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-}
-.ob-nb-val{font-size:28px;font-family:'Fraunces',serif;color:#fff;min-width:32px;text-align:center}
-
-/* Bouton suite */
-.ob-footer{padding:20px 28px 36px;flex-shrink:0}
-.ob-btn{
-  width:100%;height:52px;border-radius:18px;
-  background:linear-gradient(135deg,var(--prune),#5A1E80);
-  border:none;color:#fff;font-size:16px;font-weight:600;
-  font-family:'DM Sans',sans-serif;cursor:pointer;
-  box-shadow:0 6px 24px rgba(59,17,82,.5);
-  transition:opacity .15s,transform .1s;
-}
-.ob-btn:active{transform:scale(.98);opacity:.9}
-.ob-btn:disabled{opacity:.4;cursor:default}
-
-/* Progress dots */
-.ob-dots{display:flex;gap:6px;justify-content:center;margin-bottom:20px}
-.ob-dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.15);transition:all .3s}
-.ob-dot.active{width:20px;background:var(--gold)}
-
-/* Step 3 — recap */
-.ob-recap{
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-  border-radius:20px;padding:20px;margin-top:8px;
-}
-.ob-recap-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.ob-recap-row:last-child{margin-bottom:0}
-.ob-recap-icon{font-size:22px;width:36px;text-align:center}
-.ob-recap-text{font-size:14px;color:rgba(255,255,255,.7);line-height:1.4}
-.ob-recap-text strong{color:#fff}
 </style>
 </head>
 <body>
 <div class="phone">
 
-<!-- ══ ONBOARDING ══ -->
-<div id="onboarding">
-
-  <!-- STEP 1 : Prénom -->
-  <div class="ob-step active" id="ob-step-1">
-    <div class="ob-header">
-      <div class="ob-logo-row">
-        <div class="ob-logo-mark">a</div>
-        <div class="ob-wordmark">alim<span>a</span></div>
-      </div>
-      <div class="ob-step-badge">Bienvenue</div>
-      <div class="ob-title">Je suis <em>Alima</em>,<br>ton assistante familiale</div>
-      <div class="ob-sub">Je connais ta famille, ton travail et ton rythme. Pour commencer, comment tu t'appelles ?</div>
-    </div>
-    <div class="ob-body">
-      <div style="margin-top:32px">
-        <div class="ob-label">Ton prénom</div>
-        <input class="ob-input" id="obPrenom" type="text" placeholder="Ex : Fatou, Aïcha, Marie…" 
-          oninput="checkStep1()" onkeyup="checkStep1()" onkeydown="if(event.key==='Enter')goStep(2)">
-      </div>
-    </div>
-    <div class="ob-footer">
-      <div class="ob-dots"><div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
-      <button class="ob-btn" id="ob-btn-1" onclick="goStep(2)">Continuer →</button>
-    </div>
-  </div>
-
-  <!-- STEP 2 : Enfants -->
-  <div class="ob-step" id="ob-step-2">
-    <div class="ob-header">
-      <div class="ob-logo-row">
-        <div class="ob-logo-mark">a</div>
-        <div class="ob-wordmark">alim<span>a</span></div>
-      </div>
-      <div class="ob-step-badge">Ta famille</div>
-      <div class="ob-title">Parle-moi de<br>tes <em>enfants</em></div>
-      <div class="ob-sub">Je vais pouvoir anticiper leurs besoins et t'aider à tout gérer.</div>
-    </div>
-    <div class="ob-body">
-      <div class="ob-nb-row">
-        <button class="ob-nb-btn" onclick="setNbEnfants(-1)">−</button>
-        <div class="ob-nb-val" id="obNbVal">1</div>
-        <button class="ob-nb-btn" onclick="setNbEnfants(1)">+</button>
-        <div style="font-size:14px;color:rgba(255,255,255,.4)">enfant(s)</div>
-      </div>
-      <div class="ob-enfants" id="obEnfantsFields"></div>
-    </div>
-    <div class="ob-footer">
-      <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot active"></div><div class="ob-dot"></div></div>
-      <button class="ob-btn" id="ob-btn-2" onclick="goStep(3)">Continuer →</button>
-    </div>
-  </div>
-
-  <!-- STEP 3 : Confirmation -->
-  <div class="ob-step" id="ob-step-3">
-    <div class="ob-header">
-      <div class="ob-logo-row">
-        <div class="ob-logo-mark">a</div>
-        <div class="ob-wordmark">alim<span>a</span></div>
-      </div>
-      <div class="ob-step-badge">C'est parti !</div>
-      <div class="ob-title">Je suis prête à<br>t'<em>aider</em> 🤍</div>
-      <div class="ob-sub">Voilà ce que j'ai retenu. Tu pourras tout modifier dans ton Profil.</div>
-    </div>
-    <div class="ob-body">
-      <div class="ob-recap" id="obRecap"></div>
-    </div>
-    <div class="ob-footer">
-      <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot active"></div></div>
-      <button class="ob-btn" onclick="finishOnboarding()">Ouvrir Alima →</button>
-    </div>
-  </div>
-
-</div>
-
+<!-- ── STATUS BAR ── -->
 <div class="status-bar">
-  <span class="status-time">9:41</span>
+  <span class="status-time" id="statusTime">9:41</span>
   <div class="status-icons"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
 </div>
 
-<!-- ═══ ACCUEIL ═══ -->
-<div class="screen active" id="screen-home">
-  <div class="home-body">
-    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:28px">
-      <div class="logo-mark"><div class="logo-dots"><span></span><span></span><span></span><span></span><span></span></div><div class="logo-a">a</div></div>
-      <div class="logo-wordmark">alim<span>a</span></div>
-    </div>
-    <div class="home-greeting" id="homeGreeting">Bonjour Aminata 🤍<br><strong>Comment je peux t'aider aujourd'hui ?</strong></div>
-    <div class="home-input-wrap" onclick="document.getElementById('homeInput').focus()">
-      <span style="font-size:17px;color:var(--light)">🎙</span>
-      <input class="home-input" id="homeInput" type="text" placeholder="Demande quelque chose à Alima…" onkeydown="if(event.key==='Enter'){goChat(this.value);this.value=''}">
-    </div>
-    <div class="brain-summary">
-      <div class="brain-label">Ce qu'Alima retient</div>
-      <div class="brain-row" onclick="goChat('Rappelle-moi mes rappels du jour')"><span class="brain-icon">⏰</span><span class="brain-text"><strong>2 rappels</strong> aujourd'hui — école 16h30, médicaments soir</span><div class="brain-dot"></div></div>
-      <div class="brain-row" onclick="goChat('Le contrôle de maths de Yasmine')"><span class="brain-icon">📚</span><span class="brain-text"><strong>Yasmine</strong> · contrôle maths vendredi</span><div class="brain-dot"></div></div>
-      <div class="brain-row" onclick="goChat('Ma réunion de lundi')"><span class="brain-icon">💼</span><span class="brain-text"><strong>Réunion</strong> lundi 10h — ordre du jour à préparer</span><div class="brain-dot"></div></div>
-    </div>
-    <div onclick="nav('cycle')" style="width:100%;background:linear-gradient(135deg,#2A0A45,var(--prune));border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-top:12px;box-shadow:0 4px 16px rgba(42,10,61,.25);position:relative;overflow:hidden">
-      <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:radial-gradient(circle,rgba(232,184,90,.15),transparent 70%);border-radius:50%"></div>
-      <div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.1);border:1px solid rgba(232,184,90,.25);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🌸</div>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:500;color:var(--gold-light)">Phase folliculaire · Jour 8</div>
-        <div style="font-size:11.5px;color:rgba(255,255,255,.5);margin-top:2px;line-height:1.45">Bonne énergie — moment idéal pour planifier et lancer</div>
+<!-- ══ SCREEN : ACCUEIL ══ -->
+<div id="screen-home" class="screen active">
+  <div class="scroll" style="padding-bottom:80px">
+    <div class="home-body">
+      <!-- Logo centré -->
+      <div class="logo-mark">
+        <div class="logo-dots">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="logo-a">a</div>
       </div>
-      <div style="font-size:16px;color:rgba(255,255,255,.35)">›</div>
+      <div class="logo-wordmark" style="margin-bottom:8px">Ali<span>ma</span></div>
+      <div class="home-greeting">
+        Bonjour <strong id="homePrenom">Aminata</strong> 🤍<br>
+        Qu'est-ce qu'on gère ensemble aujourd'hui ?
+      </div>
+
+      <!-- Input principal -->
+      <div class="home-input-wrap" onclick="if(event.target!==document.getElementById('homeInput')){document.getElementById('homeInput').focus()}">
+        <input class="home-input" id="homeInput" placeholder="Dis-moi ce que tu veux faire…" onkeydown="if(event.key==='Enter'){goChat(this.value)}" />
+        <span style="font-size:20px;cursor:pointer" onclick="event.stopPropagation();goChat(document.getElementById('homeInput').value)">→</span>
+      </div>
+
+      <!-- Résumé cerveau -->
+      <div class="brain-summary">
+        <div class="brain-label">Ton cerveau du jour</div>
+        <div class="brain-row" onclick="navTo('agenda')">
+          <span class="brain-icon">📅</span>
+          <span class="brain-text" id="brainAgenda"><strong>4 événements</strong> aujourd'hui</span>
+          <div class="brain-dot"></div>
+        </div>
+        <div class="brain-row" onclick="navTo('notes')">
+          <span class="brain-icon">📝</span>
+          <span class="brain-text" id="brainNotes"><strong>3 notes</strong> en attente</span>
+          <div class="brain-dot"></div>
+        </div>
+        <div class="brain-row" onclick="nav('profil')">
+          <span class="brain-icon">🌙</span>
+          <span class="brain-text" id="homePhaseText">Phase folliculaire · J8 · Énergie montante</span>
+          <div class="brain-dot" style="background:#27AE60"></div>
+        </div>
+      </div>
+
+      <!-- Chips rapides -->
+      <div class="home-chips">
+        <div class="chip" onclick="goChat('Qu\'est-ce que j\'ai aujourd\'hui ?')">📅 Mon planning</div>
+        <div class="chip" onclick="goChat('Rappelle-moi mes notes')">📝 Mes notes</div>
+        <div class="chip" onclick="goChat('Ajoute un rappel')">⏰ Rappel</div>
+        <div class="chip" onclick="goChat('Conseil pour ma phase de cycle')">🌙 Mon cycle</div>
+      </div>
     </div>
-    <div class="home-chips">
-      <div class="chip" onclick="goChat('Mon agenda')">📅 Agenda</div>
-      <div class="chip" onclick="goChat('Note rapide')">📝 Note</div>
-      <div class="chip" onclick="goChat('Créer un rappel')">⏰ Rappel</div>
-      <div class="chip" onclick="goChat('Les enfants')">👧 Enfants</div>
-    </div>
-  </div>
-  <div class="bottom-nav">
-    <div class="nav-item active" onclick="nav('home')"><div class="nav-icon">💬</div><div class="nav-label">Alima</div></div>
-    <div class="nav-item" onclick="nav('agenda')"><div class="nav-icon">📅</div><div class="nav-label">Agenda</div></div>
-    <div class="nav-item" onclick="nav('notes')"><div class="nav-icon">📝</div><div class="nav-label">Notes</div></div>
-    <div class="nav-item" onclick="nav('profil')"><div class="nav-icon">👤</div><div class="nav-label">Profil</div></div>
   </div>
 </div>
 
-<!-- ═══ CHAT ═══ -->
-<div class="screen" id="screen-chat">
-  <div style="padding:10px 20px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(59,17,82,.06);flex-shrink:0">
+<!-- ══ SCREEN : CHAT ══ -->
+<div id="screen-chat" class="screen">
+  <!-- Header -->
+  <div style="padding:14px 18px 10px;border-bottom:1px solid rgba(59,17,82,.05);display:flex;align-items:center;gap:12px;flex-shrink:0">
+    <div onclick="navTo('home')" style="width:32px;height:32px;border-radius:10px;background:#fff;border:1px solid rgba(59,17,82,.1);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--mid);flex-shrink:0">←</div>
     <div class="mini-logo">a</div>
     <div style="flex:1">
-      <div style="font-family:'Fraunces',serif;font-size:15px;color:var(--prune-dark)">alim<span style="color:var(--gold)">a</span></div>
-      <div style="font-size:11px;color:var(--light);display:flex;align-items:center;gap:4px"><div style="width:5px;height:5px;border-radius:50%;background:#5CB85C"></div>disponible · <span style="color:var(--gold);cursor:pointer" onclick="nav('cycle')">🌸 J8</span></div>
+      <div class="page-title" style="font-size:17px">Ali<span>ma</span></div>
+      <div style="font-size:11px;color:var(--light);margin-top:1px">✨ En ligne</div>
     </div>
-    <span style="font-size:13px;color:var(--light);cursor:pointer;padding:4px 8px" onclick="nav('home')">← Accueil</span>
+    <div onclick="resetChat()" style="font-size:12px;color:var(--light);cursor:pointer;padding:6px 10px;border-radius:10px;background:var(--sand)">Effacer</div>
   </div>
+
+  <!-- Messages -->
   <div class="messages" id="messages">
+    <div class="msg-alima" style="animation:fadeUp .3s ease both">
+      <div class="msg-avatar">a</div>
+      <div class="bubble-alima">Bonjour 🤍 Je suis là pour t'aider. Dis-moi ce que tu veux faire, ou pose-moi une question !</div>
+    </div>
     <div class="typing" id="typing">
       <div class="msg-avatar">a</div>
-      <div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+      <div class="typing-bubble">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
     </div>
   </div>
+
+  <!-- Input -->
   <div class="input-bar">
     <div class="input-wrap">
       <textarea class="input-field" id="chatInput" placeholder="Écris à Alima…" rows="1"
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
-        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,90)+'px'"></textarea>
-      <button class="mic-btn" onclick="this.classList.toggle('recording');this.textContent=this.classList.contains('recording')?'⏹':'🎙'">🎙</button>
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"
+        oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+      <button class="mic-btn" onclick="toggleMic()">🎙</button>
     </div>
     <button class="send-btn" onclick="sendChat()">↑</button>
   </div>
-  <div class="bottom-nav">
-    <div class="nav-item active" onclick="nav('home')"><div class="nav-icon">💬</div><div class="nav-label">Alima</div></div>
-    <div class="nav-item" onclick="nav('agenda')"><div class="nav-icon">📅</div><div class="nav-label">Agenda</div></div>
-    <div class="nav-item" onclick="nav('notes')"><div class="nav-icon">📝</div><div class="nav-label">Notes</div></div>
-    <div class="nav-item" onclick="nav('profil')"><div class="nav-icon">👤</div><div class="nav-label">Profil</div></div>
-  </div>
 </div>
 
-<!-- ═══ AGENDA ═══ -->
-<div class="screen" id="screen-agenda">
-  <div style="padding:8px 22px 0;flex-shrink:0">
+<!-- ══ SCREEN : AGENDA ══ -->
+<div id="screen-agenda" class="screen">
+  <!-- Header -->
+  <div style="padding:16px 22px 0;flex-shrink:0">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div class="page-title">agenda<span>.</span></div>
+      <div class="page-title">Agenda<span>.</span></div>
       <div class="view-switch">
         <div class="view-btn active" id="btnListe" onclick="switchView('liste')">Liste</div>
         <div class="view-btn" id="btnJour" onclick="switchView('jour')">Jours</div>
       </div>
     </div>
+    <!-- Days strip -->
     <div class="days-strip" id="daysStrip"></div>
+    <!-- Filtres -->
     <div class="filter-bar">
       <div class="filter-chip active" onclick="setAFilter(this,'tous')">Tous</div>
-      <div class="filter-chip" onclick="setAFilter(this,'yasmine')" data-child="yasmine">👧 Yasmine</div>
-      <div class="filter-chip" onclick="setAFilter(this,'marème')" data-child="marème">👶 Marème</div>
+      <div class="filter-chip" onclick="setAFilter(this,'yasmine')">👧 Yasmine</div>
+      <div class="filter-chip" onclick="setAFilter(this,'marème')">👶 Marème</div>
       <div class="filter-chip" onclick="setAFilter(this,'pro')">💼 Pro</div>
       <div class="filter-chip" onclick="setAFilter(this,'rappel')">⏰ Rappels</div>
     </div>
   </div>
-  <div style="flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 22px 90px;scrollbar-width:none" id="agendaContent"></div>
-  <div class="fab" onclick="alert('Ajouter — à connecter')">+</div>
-  <div class="bottom-nav">
-    <div class="nav-item" onclick="nav('home')"><div class="nav-icon">💬</div><div class="nav-label">Alima</div></div>
-    <div class="nav-item active"><div class="nav-icon">📅</div><div class="nav-label">Agenda</div></div>
-    <div class="nav-item" onclick="nav('notes')"><div class="nav-icon">📝</div><div class="nav-label">Notes</div></div>
-    <div class="nav-item" onclick="nav('profil')"><div class="nav-icon">👤</div><div class="nav-label">Profil</div></div>
-  </div>
+  <!-- Content -->
+  <div class="scroll" id="agendaContent" style="padding:14px 22px 90px"></div>
 </div>
 
-<!-- ═══ NOTES ═══ -->
-<div class="screen" id="screen-notes">
-  <div style="padding:8px 22px 0;flex-shrink:0">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div class="page-title">notes<span>.</span></div>
+<!-- ══ SCREEN : NOTES ══ -->
+<div id="screen-notes" class="screen">
+  <!-- Header -->
+  <div style="padding:16px 22px 0;flex-shrink:0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div class="page-title">Notes<span>.</span></div>
+      <div style="width:34px;height:34px;border-radius:11px;background:var(--prune);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:20px" onclick="openNModal()">+</div>
     </div>
-    <div style="background:#fff;border-radius:16px;border:1.5px solid rgba(59,17,82,.08);display:flex;align-items:center;gap:8px;padding:9px 14px;margin-bottom:12px">
-      <span style="font-size:14px;color:var(--light)">🔍</span>
-      <input style="flex:1;background:none;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--prune-dark)" placeholder="Rechercher…" oninput="setNSearch(this.value)">
+    <!-- Recherche -->
+    <div style="background:#fff;border-radius:14px;border:1.5px solid rgba(59,17,82,.08);display:flex;align-items:center;padding:9px 14px;gap:8px;margin-bottom:12px">
+      <span style="color:var(--light)">🔍</span>
+      <input style="flex:1;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--prune-dark);background:none" placeholder="Rechercher une note…" oninput="setNSearch(this.value)"/>
     </div>
+    <!-- Filtres -->
     <div class="filter-bar">
-      <div class="filter-chip active" onclick="setNFilter(this,'tous')">Toutes</div>
+      <div class="filter-chip active" onclick="setNFilter(this,'tous')">Tout</div>
       <div class="filter-chip" onclick="setNFilter(this,'yasmine')">👧 Yasmine</div>
       <div class="filter-chip" onclick="setNFilter(this,'marème')">👶 Marème</div>
       <div class="filter-chip" onclick="setNFilter(this,'perso')">🌿 Perso</div>
@@ -674,149 +512,251 @@ html,body{height:100%;overflow:hidden;background:var(--prune-dark);font-family:'
       <div class="filter-chip" onclick="setNFilter(this,'courses')">🛒 Courses</div>
     </div>
   </div>
-  <div style="flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 16px 90px;scrollbar-width:none"><div class="masonry" id="masonry"></div></div>
-  <div class="fab" onclick="openNModal()">+</div>
-  <div class="bottom-nav">
-    <div class="nav-item" onclick="nav('home')"><div class="nav-icon">💬</div><div class="nav-label">Alima</div></div>
-    <div class="nav-item" onclick="nav('agenda')"><div class="nav-icon">📅</div><div class="nav-label">Agenda</div></div>
-    <div class="nav-item active"><div class="nav-icon">📝</div><div class="nav-label">Notes</div></div>
-    <div class="nav-item" onclick="nav('profil')"><div class="nav-icon">👤</div><div class="nav-label">Profil</div></div>
-  </div>
-  <div class="modal-bg" id="noteModal" onclick="if(event.target===this)closeNModal()">
-    <div class="modal">
-      <div class="modal-handle"></div>
-      <div class="modal-title">Nouvelle note</div>
-      <div class="type-options">
-        <div class="type-opt active" onclick="setNType(this,'texte')"><div class="type-opt-icon">📝</div><div class="type-opt-label">Texte</div></div>
-        <div class="type-opt" onclick="setNType(this,'checklist')"><div class="type-opt-icon">✅</div><div class="type-opt-label">Liste</div></div>
-        <div class="type-opt" onclick="setNType(this,'vocale')"><div class="type-opt-icon">🎙</div><div class="type-opt-label">Vocale</div></div>
-        <div class="type-opt" onclick="setNType(this,'photo')"><div class="type-opt-icon">📷</div><div class="type-opt-label">Photo</div></div>
-      </div>
-      <div class="cat-options">
-        <div class="cat-opt active" onclick="setNCat(this,'perso')">🌿 Perso</div>
-        <div class="cat-opt" onclick="setNCat(this,'yasmine')">👧 Yasmine</div>
-        <div class="cat-opt" onclick="setNCat(this,'marème')">👶 Marème</div>
-        <div class="cat-opt" onclick="setNCat(this,'pro')">💼 Pro</div>
-        <div class="cat-opt" onclick="setNCat(this,'courses')">🛒 Courses</div>
-      </div>
-      <textarea class="modal-textarea" id="noteText" placeholder="Écris ta note…"></textarea>
-      <div class="modal-actions">
-        <button class="btn-cancel" onclick="closeNModal()">Annuler</button>
-        <button class="btn-save" onclick="saveNote()">Enregistrer</button>
-      </div>
-    </div>
+  <!-- Grille masonry -->
+  <div class="scroll" style="padding:14px 22px 90px">
+    <div class="masonry" id="masonry"></div>
   </div>
 </div>
 
-<!-- ═══ PROFIL ═══ -->
-<div class="screen" id="screen-profil">
-  <div class="scroll">
+<!-- ══ SCREEN : PROFIL ══ -->
+<div id="screen-profil" class="screen">
+  <div class="scroll" style="padding-bottom:80px">
+    <!-- Hero violet -->
     <div class="hero">
       <div class="hero-top">
         <div class="avatar-parent">👩🏾</div>
-        <div style="flex:1"><div class="hero-name">Aminata</div><div class="hero-sub">2 enfants · Paris 13e</div></div>
-        <div style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;color:rgba(255,255,255,.7)">✏️</div>
+        <div>
+          <div class="hero-name" id="profilPrenom">Aminata</div>
+          <div class="hero-sub" id="profilSub">Maman · Professionnelle · En phase folliculaire</div>
+        </div>
       </div>
+      <!-- Raccourci cycle -->
       <div class="cycle-strip-btn" onclick="nav('cycle')">
-        <span style="font-size:18px">🌸</span>
-        <div style="flex:1"><div class="cycle-phase-name">Phase folliculaire</div><div class="cycle-detail-txt">Jour 8 · Prochain cycle dans 20 jours</div></div>
-        <div class="cycle-badge">J8</div>
-        <span style="font-size:14px;color:rgba(255,255,255,.4)">›</span>
+        <span style="font-size:20px">🌱</span>
+        <div style="flex:1">
+          <div class="cycle-phase-name" id="profilPhaseName">Phase folliculaire</div>
+          <div class="cycle-detail-txt" id="profilPhaseDetail">Jour 8 · Énergie montante · Planifie, fonce</div>
+        </div>
+        <div class="cycle-badge" id="profilCycleBadge">J8</div>
       </div>
     </div>
-    <div style="padding:20px 22px 0">
-      <div class="section-title">Ma famille</div>
+
+    <div style="padding:18px 22px 0">
+      <!-- Enfants -->
+      <div class="section-title" style="margin-bottom:12px">Mes enfants</div>
       <div class="children-scroll">
         <div class="child-card">
-          <div class="child-top"><div class="child-avatar yasmine">👧🏾</div><div><div class="child-name">Yasmine</div><div class="child-age">7 ans · CE1</div></div></div>
-          <div class="child-tags"><span class="child-tag">🏊 Natation</span><span class="child-tag">📚 Lecture</span></div>
+          <div class="child-top">
+            <div class="child-avatar yasmine">👧</div>
+            <div>
+              <div class="child-name">Yasmine</div>
+              <div class="child-age">7 ans · CE1</div>
+            </div>
+          </div>
+          <div class="child-tags">
+            <div class="child-tag">🏫 Jules Ferry</div>
+            <div class="child-tag">📚 Maths</div>
+          </div>
           <div class="child-rows">
-            <div class="child-row"><span class="child-row-icon">🏫</span><div class="child-row-text"><strong>École Jules Ferry</strong> · 8h30–16h30</div></div>
-            <div class="child-row"><span class="child-row-icon">⚠️</span><div class="child-row-text"><strong>Allergie</strong> arachides</div></div>
-            <div class="child-row"><span class="child-row-icon">👩‍⚕️</span><div class="child-row-text">Dr Moreau · 01 42 00 00 00</div></div>
-            <div class="child-row"><span class="child-row-icon">🍽️</span><div class="child-row-text">Aime pâtes, riz au lait</div></div>
+            <div class="child-row">
+              <span class="child-row-icon">⏰</span>
+              <div class="child-row-text"><strong>École</strong> 8h00 → 16h30</div>
+            </div>
+            <div class="child-row">
+              <span class="child-row-icon">📅</span>
+              <div class="child-row-text"><strong>Contrôle maths</strong> dans 4 jours</div>
+            </div>
           </div>
         </div>
-        <div class="child-card" style="animation-delay:.08s">
-          <div class="child-top"><div class="child-avatar marème">👶🏾</div><div><div class="child-name">Marème</div><div class="child-age">4 ans · Maternelle</div></div></div>
-          <div class="child-tags"><span class="child-tag">🎨 Dessin</span><span class="child-tag">🎵 Musique</span></div>
+        <div class="child-card">
+          <div class="child-top">
+            <div class="child-avatar marème">👶</div>
+            <div>
+              <div class="child-name">Marème</div>
+              <div class="child-age">4 ans · Moyenne section</div>
+            </div>
+          </div>
+          <div class="child-tags">
+            <div class="child-tag">🏫 Les Colibris</div>
+            <div class="child-tag">💊 Traitement en cours</div>
+          </div>
           <div class="child-rows">
-            <div class="child-row"><span class="child-row-icon">🏫</span><div class="child-row-text"><strong>École Pasteur</strong> · 8h45–16h15</div></div>
-            <div class="child-row"><span class="child-row-icon">💊</span><div class="child-row-text">Sirop si fièvre</div></div>
-            <div class="child-row"><span class="child-row-icon">👩‍⚕️</span><div class="child-row-text">Dr Moreau · 01 42 00 00 00</div></div>
-            <div class="child-row"><span class="child-row-icon">🍽️</span><div class="child-row-text">Végétarienne · aime bananes</div></div>
+            <div class="child-row">
+              <span class="child-row-icon">👩‍⚕️</span>
+              <div class="child-row-text"><strong>Pédiatre</strong> demain 14h</div>
+            </div>
           </div>
         </div>
-        <div class="add-child"><div style="font-size:24px;color:var(--light)">+</div><div style="font-size:12px;color:var(--light);text-align:center">Ajouter un enfant</div></div>
+        <div class="add-child">
+          <span style="font-size:26px">+</span>
+          <span style="font-size:12px;color:var(--light)">Ajouter</span>
+        </div>
       </div>
-    </div>
-    <div style="padding:20px 22px 0">
-      <div class="section-title">Notifications</div>
+
+      <!-- Notifications -->
+      <div class="section-title" style="margin:18px 0 12px">Notifications</div>
       <div class="settings-card">
-        <div class="setting-row"><div class="setting-icon bg-purple">🔔</div><div class="setting-body"><div class="setting-label">Rappels</div><div class="setting-sub">Avant chaque événement</div></div><div class="setting-right"><span style="font-size:12px;color:var(--light)">15 min</span><div class="chevron">›</div></div></div>
-        <div class="setting-row"><div class="setting-icon bg-gold">🌅</div><div class="setting-body"><div class="setting-label">Résumé du matin</div><div class="setting-sub">Alima résume ta journée</div></div><div class="setting-right"><div class="toggle on" onclick="this.classList.toggle('on')"></div></div></div>
-        <div class="setting-row"><div class="setting-icon bg-green">🌙</div><div class="setting-body"><div class="setting-label">Bilan du soir</div><div class="setting-sub">Ce qui reste demain</div></div><div class="setting-right"><div class="toggle" onclick="this.classList.toggle('on')"></div></div></div>
-        <div class="setting-row"><div class="setting-icon bg-purple">🌸</div><div class="setting-body"><div class="setting-label">Suggestions cycle</div><div class="setting-sub">Conseils selon ta phase</div></div><div class="setting-right"><div class="toggle on" onclick="this.classList.toggle('on')"></div></div></div>
+        <div class="setting-row">
+          <div class="setting-icon bg-purple">🔔</div>
+          <div class="setting-body">
+            <div class="setting-label">Rappels agenda</div>
+            <div class="setting-sub">30 min avant chaque événement</div>
+          </div>
+          <div class="setting-right">
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-icon bg-gold">🌙</div>
+          <div class="setting-body">
+            <div class="setting-label">Résumé du matin</div>
+            <div class="setting-sub">Chaque jour à 7h30</div>
+          </div>
+          <div class="setting-right">
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-icon bg-green">🌱</div>
+          <div class="setting-body">
+            <div class="setting-label">Alertes cycle</div>
+            <div class="setting-sub">Changement de phase</div>
+          </div>
+          <div class="setting-right">
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div style="padding:4px 22px 0">
-      <div class="section-title">Abonnement</div>
+
+      <!-- Abonnement -->
+      <div class="section-title" style="margin:18px 0 12px">Abonnement</div>
       <div class="sub-card">
-        <div class="sub-top"><div class="sub-name">Essai gratuit</div><div class="sub-badge">3 mois offerts</div></div>
-        <div class="sub-desc">Il te reste <strong style="color:var(--gold-light)">67 jours</strong> d'essai. Après, 1,99 €/mois sans engagement.</div>
-        <button class="sub-btn">Gérer mon abonnement</button>
+        <div class="sub-top">
+          <div class="sub-name">Alima Free</div>
+          <div class="sub-badge">Essai · 82j restants</div>
+        </div>
+        <div class="sub-desc">Accès complet pendant 3 mois. Ensuite, continue pour 1,99 €/mois.</div>
+        <button class="sub-btn">Voir les avantages Premium →</button>
       </div>
-    </div>
-    <div style="padding:4px 22px 100px">
-      <div class="section-title">Compte</div>
+
+      <!-- Compte -->
+      <div class="section-title" style="margin:18px 0 12px">Compte</div>
       <div class="settings-card">
-        <div class="setting-row"><div class="setting-icon bg-blue">🔒</div><div class="setting-body"><div class="setting-label">Confidentialité</div></div><div class="chevron">›</div></div>
-        <div class="setting-row"><div class="setting-icon bg-green">📤</div><div class="setting-body"><div class="setting-label">Exporter mes données</div></div><div class="chevron">›</div></div>
-        <div class="setting-row"><div class="setting-icon bg-red">🚪</div><div class="setting-body"><div class="setting-label" style="color:#E53935">Se déconnecter</div></div><div class="chevron">›</div></div>
+        <div class="setting-row">
+          <div class="setting-icon bg-purple">✏️</div>
+          <div class="setting-body">
+            <div class="setting-label">Modifier le profil</div>
+          </div>
+          <div class="setting-right"><span class="chevron">›</span></div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-icon bg-blue">🔒</div>
+          <div class="setting-body">
+            <div class="setting-label">Confidentialité</div>
+          </div>
+          <div class="setting-right"><span class="chevron">›</span></div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-icon bg-red">🚪</div>
+          <div class="setting-body">
+            <div class="setting-label" style="color:#E53935">Se déconnecter</div>
+          </div>
+          <div class="setting-right"><span class="chevron">›</span></div>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="bottom-nav">
-    <div class="nav-item" onclick="nav('home')"><div class="nav-icon">💬</div><div class="nav-label">Alima</div></div>
-    <div class="nav-item" onclick="nav('agenda')"><div class="nav-icon">📅</div><div class="nav-label">Agenda</div></div>
-    <div class="nav-item" onclick="nav('notes')"><div class="nav-icon">📝</div><div class="nav-label">Notes</div></div>
-    <div class="nav-item active"><div class="nav-icon">👤</div><div class="nav-label">Profil</div></div>
   </div>
 </div>
 
-<!-- ═══ CYCLE (sous-page) ═══ -->
-<div class="screen" id="screen-cycle">
-  <div style="padding:10px 22px 14px;flex-shrink:0;display:flex;align-items:center;gap:12px">
+<!-- ══ SCREEN : CYCLE ══ -->
+<div id="screen-cycle" class="screen">
+  <!-- Header -->
+  <div style="padding:14px 22px;display:flex;align-items:center;gap:12px;flex-shrink:0">
     <div class="back-btn" onclick="nav('profil')">←</div>
-    <div class="page-title">mon cycle<span>.</span></div>
+    <div class="page-title">Mon cycle<span>.</span></div>
   </div>
-  <div class="scroll">
-    <div style="padding:0 22px 16px;display:flex;flex-direction:column;align-items:center">
+
+  <div class="scroll" style="padding-bottom:80px">
+    <!-- Roue -->
+    <div style="display:flex;flex-direction:column;align-items:center;padding:0 22px 10px">
       <div class="wheel-wrap">
         <canvas id="wheelCanvas" width="220" height="220"></canvas>
         <div class="wheel-center">
-          <div class="wheel-day">8</div>
-          <div class="wheel-sub">jour du cycle</div>
-          <div class="wheel-phase" id="wheelPhaseLabel" style="color:var(--folliculaire)">Folliculaire</div>
+          <div class="wheel-day" id="wheelDay">8</div>
+          <div class="wheel-sub">jour</div>
+          <div class="wheel-phase" id="wheelPhaseLabel" style="color:#27AE60">Folliculaire</div>
         </div>
       </div>
     </div>
+
+    <!-- Onglets phases -->
     <div class="phase-tabs">
-      <div class="phase-tab" id="tab-menstruelle" onclick="selectPhase('menstruelle')"><div class="tab-icon">🌑</div><div class="tab-name">Menstruelle</div><div class="tab-days">J1–J5</div></div>
-      <div class="phase-tab active-folliculaire" id="tab-folliculaire" onclick="selectPhase('folliculaire')"><div class="tab-icon">🌱</div><div class="tab-name">Folliculaire</div><div class="tab-days">J6–J13</div></div>
-      <div class="phase-tab" id="tab-ovulatoire" onclick="selectPhase('ovulatoire')"><div class="tab-icon">✨</div><div class="tab-name">Ovulatoire</div><div class="tab-days">J14–J16</div></div>
-      <div class="phase-tab" id="tab-luteale" onclick="selectPhase('luteale')"><div class="tab-icon">🍂</div><div class="tab-name">Lutéale</div><div class="tab-days">J17–J28</div></div>
+      <div class="phase-tab" id="tab-menstruelle" onclick="selectPhase('menstruelle')">
+        <div class="tab-icon">🌑</div>
+        <div class="tab-name">Mens.</div>
+        <div class="tab-days">J1–5</div>
+      </div>
+      <div class="phase-tab active-folliculaire" id="tab-folliculaire" onclick="selectPhase('folliculaire')">
+        <div class="tab-icon">🌱</div>
+        <div class="tab-name">Follic.</div>
+        <div class="tab-days">J6–13</div>
+      </div>
+      <div class="phase-tab" id="tab-ovulatoire" onclick="selectPhase('ovulatoire')">
+        <div class="tab-icon">✨</div>
+        <div class="tab-name">Ovul.</div>
+        <div class="tab-days">J14–16</div>
+      </div>
+      <div class="phase-tab" id="tab-luteale" onclick="selectPhase('luteale')">
+        <div class="tab-icon">🍂</div>
+        <div class="tab-name">Lutéale</div>
+        <div class="tab-days">J17–28</div>
+      </div>
     </div>
-    <div id="phaseCard"></div>
-    <div style="margin:0 22px 16px">
-      <div class="section-title">Cette semaine dans ton agenda</div>
-      <div class="alert-card soft"><div class="alert-icon">🌱</div><div><div class="alert-text">Tu es en phase folliculaire — ta <strong>réunion lundi</strong> est bien placée. Tu seras en pleine forme.</div><span class="alert-action" onclick="nav('agenda')">Voir l'agenda →</span></div></div>
-      <div class="alert-card warn"><div class="alert-icon">🍂</div><div><div class="alert-text">Ta phase lutéale commence <strong>dans 6 jours</strong>. Évite si possible les décisions lourdes en fin de semaine prochaine.</div><span class="alert-action" onclick="nav('agenda')">Voir l'agenda →</span></div></div>
-      <div class="alert-card info" style="margin-bottom:30px"><div class="alert-icon">💆🏾‍♀️</div><div><div class="alert-text">Aucune pause "soin de soi" cette semaine. Tu veux qu'Alima bloque <strong>30 minutes</strong> pour toi ?</div><span class="alert-action" onclick="goChat('Bloque 30 minutes pour moi cette semaine')">Demander à Alima →</span></div></div>
-    </div>
+
+    <!-- Phase card -->
+    <div id="phaseCard" style="margin:0 22px 16px"></div>
   </div>
 </div>
 
+<!-- ══ MODAL NOTE ══ -->
+<div class="modal-bg" id="noteModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nouvelle note</div>
+    <!-- Type -->
+    <div class="type-options">
+      <div class="type-opt active" onclick="setNType(this,'texte')">
+        <div class="type-opt-icon">📝</div>
+        <div class="type-opt-label">Texte</div>
+      </div>
+      <div class="type-opt" onclick="setNType(this,'checklist')">
+        <div class="type-opt-icon">✅</div>
+        <div class="type-opt-label">Liste</div>
+      </div>
+      <div class="type-opt" onclick="setNType(this,'vocale')">
+        <div class="type-opt-icon">🎙</div>
+        <div class="type-opt-label">Voix</div>
+      </div>
+      <div class="type-opt" onclick="setNType(this,'photo')">
+        <div class="type-opt-icon">📷</div>
+        <div class="type-opt-label">Photo</div>
+      </div>
+    </div>
+    <!-- Catégorie -->
+    <div class="cat-options">
+      <div class="cat-opt active" onclick="setNCat(this,'perso')">🌿 Perso</div>
+      <div class="cat-opt" onclick="setNCat(this,'yasmine')">👧 Yasmine</div>
+      <div class="cat-opt" onclick="setNCat(this,'marème')">👶 Marème</div>
+      <div class="cat-opt" onclick="setNCat(this,'pro')">💼 Pro</div>
+      <div class="cat-opt" onclick="setNCat(this,'courses')">🛒 Courses</div>
+    </div>
+    <textarea class="modal-textarea" id="noteText" placeholder="Ta note, liste ou idée…" rows="4"></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeNModal()">Annuler</button>
+      <button class="btn-save" onclick="saveNote()">Enregistrer</button>
+    </div>
+  </div>
+</div>
 
 <!-- ══ VIDE-TÊTE GLOBAL ══ -->
 <button class="vt-btn" id="vtBtn" onclick="openVT()">
@@ -829,15 +769,13 @@ html,body{height:100%;overflow:hidden;background:var(--prune-dark);font-family:'
     <div class="vt-handle"></div>
     <div class="vt-sheet-title">Vide ta tête 🧠</div>
     <div class="vt-sheet-sub">Tape tout ce qui t'occupe l'esprit — en vrac, sans ordre.<br>Alima trie pour toi.</div>
-
     <div id="vtInput">
-      <textarea class="vt-textarea" id="vtText" placeholder="Ex: appeler la maîtresse, commander chaussures Marème, préparer réunion jeudi, acheter paracétamol..."></textarea>
+      <textarea class="vt-textarea" id="vtText" placeholder="Ex: appeler la maîtresse, commander chaussures Marème, préparer réunion jeudi, acheter paracétamol…"></textarea>
       <div class="vt-actions">
         <button class="vt-mic" id="vtMic" onclick="toggleVTMic()">🎙</button>
         <button class="vt-send" id="vtSendBtn" onclick="analyseVT()">Analyser avec Alima →</button>
       </div>
     </div>
-
     <div id="vtResultsWrap" style="display:none">
       <div class="vt-results">
         <div class="vt-result-title">Alima a compris :</div>
@@ -848,15 +786,49 @@ html,body{height:100%;overflow:hidden;background:var(--prune-dark);font-family:'
   </div>
 </div>
 
+<!-- ══ BOTTOM NAV ══ -->
+<div class="bottom-nav">
+  <div class="nav-item active" id="nav-home" onclick="navTo('home')">
+    <div class="nav-icon">💬</div>
+    <div class="nav-label">Alima</div>
+  </div>
+  <div class="nav-item" id="nav-agenda" onclick="navTo('agenda')">
+    <div class="nav-icon">📅</div>
+    <div class="nav-label">Agenda</div>
+  </div>
+  <div class="nav-item" id="nav-notes" onclick="navTo('notes')">
+    <div class="nav-icon">📝</div>
+    <div class="nav-label">Notes</div>
+  </div>
+  <div class="nav-item" id="nav-profil" onclick="navTo('profil')">
+    <div class="nav-icon">👤</div>
+    <div class="nav-label">Profil</div>
+  </div>
+</div>
+
 </div><!-- /phone -->
 <script>
 // ── NAVIGATION ──
 function nav(id) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+id).classList.add('active');
+  const vtBtn=document.getElementById('vtBtn');
+  if(vtBtn) vtBtn.style.display=(id==='chat')?'none':'';
   if(id==='agenda'){buildStrip();renderAgenda();}
   if(id==='notes')renderNotes();
   if(id==='cycle'){drawWheel();renderPhaseCard(selPhase);}
+  if(id==='home')updateHome();
+}
+function navTo(id) {
+  nav(id);
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const nb=document.getElementById('nav-'+id);
+  if(nb) nb.classList.add('active');
+}
+function navHighlight(id) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const nb=document.getElementById('nav-'+id);
+  if(nb) nb.classList.add('active');
 }
 
 
@@ -937,14 +909,40 @@ RÈGLES :
 let chatHistory = [];
 
 // ── CHAT ──
+let micRecognition = null;
+function toggleMic() {
+  const btn = document.querySelector('.mic-btn');
+  if (micRecognition) {
+    micRecognition.stop(); micRecognition = null;
+    btn.classList.remove('recording'); btn.textContent = '🎙';
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Micro non supporté sur ce navigateur'); return; }
+  micRecognition = new SR();
+  micRecognition.lang = 'fr-FR'; micRecognition.continuous = false; micRecognition.interimResults = false;
+  micRecognition.onresult = (e) => {
+    const t = e.results[0][0].transcript;
+    const inp = document.getElementById('chatInput');
+    inp.value = (inp.value + ' ' + t).trim();
+    inp.style.height = 'auto'; inp.style.height = inp.scrollHeight + 'px';
+  };
+  micRecognition.onend = () => { btn.classList.remove('recording'); btn.textContent = '🎙'; micRecognition = null; };
+  micRecognition.start();
+  btn.classList.add('recording'); btn.textContent = '⏹';
+}
+
 function goChat(msg) {
   nav('chat');
-  if (msg) {
-    setTimeout(() => {
-      addU(msg);
-      callAlima(msg);
-    }, 80);
+  navHighlight('home');
+  if (msg && msg.trim()) {
+    setTimeout(() => { addU(msg.trim()); callAlima(msg.trim()); }, 80);
   }
+}
+function resetChat() {
+  chatHistory=[];
+  document.getElementById('messages').innerHTML='';
+  setTimeout(()=>addA('Bonjour 🤍 Je suis là !'),200);
 }
 
 function sendChat() {
@@ -974,7 +972,8 @@ async function callAlima(userMsg) {
     hideT();
 
     if (data.error) {
-      addA("Désolée, je n'arrive pas à me connecter. Vérifie ta clé API 🤍");
+      const msg = data.error?.message || JSON.stringify(data.error);
+      addA(`❌ Erreur API : ${msg}`);
       return;
     }
 
@@ -1028,6 +1027,7 @@ function executeAction(action) {
     notes.unshift(newNote);
     showActionToast(`📝 Note "${newNote.title}" ajoutée`);
   }
+  updateHome();
 }
 
 function showActionToast(msg) {
@@ -1072,7 +1072,7 @@ function renderAgenda(){const c=document.getElementById('agendaContent');c.inner
 function renderAListe(c,data){const g={};data.forEach(it=>{if(!g[it.date])g[it.date]=[];g[it.date].push(it);});const s=Object.keys(g).sort();if(!s.length){c.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--light);font-size:14px">Rien ici 🌿</div>';return;}s.forEach((k,i)=>{const act=g[k].filter(it=>!it.done);const dn=g[k].filter(it=>it.done);const sec=document.createElement('div');sec.className='date-section';const dt=new Date(k+'T00:00:00');const isT=k===fmt(today),isTm=k===fmt(D(1));const lbl=isT?"Aujourd'hui":isTm?'Demain':JJ[dt.getDay()]+' '+dt.getDate()+' '+MM[dt.getMonth()];sec.innerHTML=`<div class="date-label${isT?' today':''}">${lbl}</div>`;act.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')).forEach((it,j)=>{const el=mkItem(it);el.style.animationDelay=(i*.04+j*.04)+'s';sec.appendChild(el);});appendDone(sec,dn);c.appendChild(sec);});}
 function renderAJour(c,data){const items=data.filter(it=>it.date===selDay);const dt=new Date(selDay+'T00:00:00');const isT=selDay===fmt(today);const lbl=document.createElement('div');lbl.className='date-label'+(isT?' today':'');lbl.textContent=isT?"Aujourd'hui":JJ[dt.getDay()]+' '+dt.getDate()+' '+MM[dt.getMonth()];c.appendChild(lbl);const act=items.filter(it=>!it.done);const dn=items.filter(it=>it.done);if(!act.length&&!dn.length){c.innerHTML+='<div style="text-align:center;padding:60px 20px;color:var(--light);font-size:14px">Rien ce jour 🌿</div>';return;}act.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')).forEach((it,i)=>{const el=mkItem(it);el.style.animationDelay=(i*.05)+'s';c.appendChild(el);});appendDone(c,dn);}
 function mkItem(it){const d=document.createElement('div');d.className=`item type-${it.type}`;d.dataset.id=it.id;const tags=it.tags.map(t=>`<span class="item-tag tag-${t}">${t}</span>`).join('');d.innerHTML=`<div class="item-icon">${it.icon}</div><div class="item-body"><div class="item-title">${it.title}</div><div class="item-meta">${it.time?`<span class="item-time">${it.time}</span>`:''}${tags}</div></div><div class="item-check${it.done?' checked':''}" onclick="toggleItem(event,${it.id})">${it.done?'✓':''}</div>`;return d;}
-function toggleItem(e,id){e.stopPropagation();const it=aItems.find(i=>i.id===id);if(!it)return;if(!it.done){const el=document.querySelector(`.item[data-id="${id}"]`);if(el){const c=el.querySelector('.item-check');if(c){c.classList.add('checked');c.textContent='✓';}el.classList.add('vanish');setTimeout(()=>{it.done=true;renderAgenda();},380);}}else{it.done=false;renderAgenda();}}
+function toggleItem(e,id){e.stopPropagation();const it=aItems.find(i=>i.id===id);if(!it)return;if(!it.done){const el=document.querySelector(`.item[data-id="${id}"]`);if(el){const c=el.querySelector('.item-check');if(c){c.classList.add('checked');c.textContent='✓';}el.classList.add('vanish');setTimeout(()=>{it.done=true;renderAgenda();updateHome();},380);}}else{it.done=false;renderAgenda();}}
 function appendDone(c,dn){if(!dn.length)return;const t=document.createElement('div');t.className='done-toggle';t.innerHTML=`<span>${showDone?'▲':'▼'}</span> ${dn.length} fait${dn.length>1?'s':''}`;t.onclick=()=>{showDone=!showDone;renderAgenda();};c.appendChild(t);if(showDone){const s=document.createElement('div');s.className='done-section';dn.forEach(it=>s.appendChild(mkItem(it)));c.appendChild(s);}}
 
 // ── NOTES ──
@@ -1096,7 +1096,7 @@ function openNModal(){document.getElementById('noteModal').classList.add('open')
 function closeNModal(){document.getElementById('noteModal').classList.remove('open');document.getElementById('noteText').value='';}
 function setNType(el,t){nType=t;document.querySelectorAll('.type-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
 function setNCat(el,c){nCat=c;document.querySelectorAll('.cat-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
-function saveNote(){const t=document.getElementById('noteText').value.trim();if(!t)return;let n={id:nId++,cat:nCat,date:"Aujourd'hui"};if(nType==='checklist'){n.type='checklist';n.title='Ma liste';n.items=t.split('\n').filter(l=>l.trim()).map(l=>({label:l.trim(),done:false}));}else if(nType==='vocale'){n.type='vocale';n.title=t;n.duration='0:00';}else if(nType==='photo'){n.type='photo';n.title=t;n.emoji='🖼️';}else{const ls=t.split('\n');n.type='texte';n.title=ls[0];n.body=ls.slice(1).join(' ')||t;}notes.unshift(n);closeNModal();renderNotes();}
+function saveNote(){const t=document.getElementById('noteText').value.trim();if(!t)return;let n={id:nId++,cat:nCat,date:"Aujourd'hui"};if(nType==='checklist'){n.type='checklist';n.title='Ma liste';n.items=t.split('\n').filter(l=>l.trim()).map(l=>({label:l.trim(),done:false}));}else if(nType==='vocale'){n.type='vocale';n.title=t;n.duration='0:00';}else if(nType==='photo'){n.type='photo';n.title=t;n.emoji='🖼️';}else{const ls=t.split('\n');n.type='texte';n.title=ls[0];n.body=ls.slice(1).join(' ')||t;}notes.unshift(n);closeNModal();renderNotes();updateHome();}
 
 // ── CYCLE ──
 const CP='folliculaire',CD=8;
@@ -1158,7 +1158,7 @@ const PHASES={
       '🍽️ Alimentation':[
         {icon:'🥗',text:'Alimentation légère et fraîche',note:'Salades, smoothies, fruits de saison'},
         {icon:'🌿',text:'Fibres et verdure',note:'Soutient la détox naturelle des œstrogènes'},
-        {icon:'💧',text:'Bien t'hydrater',note:"L'ovulation peut augmenter la température"},
+        {icon:'💧',text:"Bien t'hydrater",note:"L'ovulation peut augmenter la température"},
       ],
       '📋 Travail & agenda':[
         {icon:'🎤',text:'Prises de parole, présentations clés',note:'Tu es confiante et persuasive'},
@@ -1174,20 +1174,20 @@ const PHASES={
     suggestions:{
       '⚡ Mouvement & corps':[
         {icon:'🧘🏾‍♀️',text:'Yoga, pilates, stretching',note:"Écoute les signaux de ton corps"},
-        {icon:'🚶🏾‍♀️',text:'Marche en nature',note:'Régule l'humeur et le cortisol'},
+        {icon:'🚶🏾‍♀️',text:'Marche en nature',note:'Régule l\'humeur et le cortisol'},
         {icon:'😴',text:'Coucher-toi plus tôt',note:'La fatigue arrive plus vite en fin de phase'},
         {icon:'🛁',text:'Rituels de soin de soi',note:'Masque, bain, massage — tu le mérites'},
       ],
       '🍽️ Alimentation':[
         {icon:'🍫',text:'Magnésium anti-fringales',note:'Chocolat noir, graines de courge, épinards'},
-        {icon:'🍠',text:'Glucides complexes',note:'Patate douce, riz complet — stabilisent l'humeur'},
+        {icon:'🍠',text:'Glucides complexes',note:'Patate douce, riz complet — stabilisent l\'humeur'},
         {icon:'🫖',text:'Tisane de mélisse ou framboisier',note:'Réduit les tensions du SPM'},
         {icon:'🚫',text:'Limiter café et alcool',note:'Amplifient les symptômes du SPM'},
       ],
       '📋 Travail & agenda':[
         {icon:'📂',text:'Tâches de fond et routine',note:'Classement, suivi, organisation'},
         {icon:'⚠️',text:'Alléger les réunions lourdes',note:'Tu peux être moins patiente avec les conflits'},
-        {icon:'🤍',text:"Dire non à ce qui n'est pas urgent",note:'C'est de l'énergie bien placée'},
+        {icon:'🤍',text:"Dire non à ce qui n'est pas urgent",note:'C\'est de l\'énergie bien placée'},
         {icon:'🔍',text:'Analyse, audit, bilan',note:'Ton esprit critique est excellent maintenant'},
       ],
     }
@@ -1197,6 +1197,10 @@ function drawWheel(){const cv=document.getElementById('wheelCanvas');if(!cv)retu
 function renderPhaseCard(ph){const data=PHASES[ph];if(!data)return;const card=document.getElementById('phaseCard');if(!card)return;let s='';Object.entries(data.suggestions).forEach(([g,items])=>{s+=`<div class="sugg-group"><div class="sugg-group-title">${g}</div><div class="sugg-list">${items.map(it=>`<div class="sugg-item"><span class="sugg-icon">${it.icon}</span><div class="sugg-text">${it.text}<em>${it.note}</em></div></div>`).join('')}</div></div>`;});card.innerHTML=`<div class="phase-card-wrap ${ph}"><div class="phase-card-header"><div class="phase-emoji">${data.emoji}</div><div><div class="phase-card-title ${ph}">${data.label}</div><div class="phase-card-sub">${ph===CP?'← tu es ici':''}</div></div></div><div class="phase-desc">"${data.desc}"</div>${s}</div>`;}
 function selectPhase(ph){selPhase=ph;document.querySelectorAll('.phase-tab').forEach(t=>t.className='phase-tab');const tab=document.getElementById('tab-'+ph);if(tab)tab.className='phase-tab active-'+ph;const lbl=document.getElementById('wheelPhaseLabel');if(lbl){lbl.textContent=PHASES[ph]?.label||ph;lbl.style.color=PHASES[ph]?.color||'var(--prune)';}drawWheel();renderPhaseCard(ph);}
 
+
+// ── PROFIL (simplifié sans onboarding) ──
+let profile = null;
+try { const s = localStorage.getItem('alima_profile'); if(s) profile = JSON.parse(s); } catch(e) {}
 
 // ── VIDE-TÊTE ──
 let vtParsed = [];
@@ -1376,204 +1380,62 @@ function confirmVT() {
   const active = document.querySelector('.screen.active')?.id;
   if (active === 'screen-agenda') { buildStrip(); renderAgenda(); }
   if (active === 'screen-notes') renderNotes();
+  updateHome();
 }
 
 
-// ── ONBOARDING ──
-let obNb = 1;
-let profile = JSON.parse(localStorage.getItem('alima_profile') || 'null');
 
-function initOnboarding() {
-  if (profile) {
-    // Déjà onboardé → appliquer le profil et cacher
-    document.getElementById('onboarding').classList.add('done');
-    applyProfile();
-  } else {
-    // Premier lancement
-    renderEnfantsFields();
-    setTimeout(() => document.getElementById('obPrenom').focus(), 300);
+// ── CYCLE DAY (depuis profil ou J8 par défaut) ──
+const CYCLE_DAY = (function() {
+  if(profile && profile.cycleStart){
+    const d=Math.round((new Date()-new Date(profile.cycleStart))/86400000)+1;
+    return Math.max(1,Math.min(28,d));
   }
+  return 8;
+})();
+const ENERGIE_LABEL = {basse:'Énergie basse',montante:'Énergie montante',peak:"Pic d'énergie",descendante:'Énergie qui descend'};
+
+// ── updateHome : met à jour accueil + profil de façon dynamique ──
+function updateHome() {
+  const prenom=(profile && profile.prenom)?profile.prenom:'Aminata';
+  const phInfo=getPhaseInfo(CYCLE_DAY);
+  const conseil=phInfo.conseil||'';
+  // Accueil
+  const hp=document.getElementById('homePrenom'); if(hp) hp.textContent=prenom;
+  const todayFmt=fmt(today);
+  const nbT=aItems.filter(it=>!it.done&&it.date===todayFmt).length;
+  const ba=document.getElementById('brainAgenda');
+  if(ba) ba.innerHTML='<strong>'+nbT+' événement'+(nbT>1?'s':'')+'</strong> aujourd\'hui';
+  const bn=document.getElementById('brainNotes');
+  if(bn) bn.innerHTML='<strong>'+notes.length+' note'+(notes.length>1?'s':'')+'</strong> enregistrée'+(notes.length>1?'s':'');
+  const hp2=document.getElementById('homePhaseText');
+  if(hp2) hp2.textContent='Phase '+phInfo.label+' · J'+CYCLE_DAY+' · '+(ENERGIE_LABEL[phInfo.energie]||'');
+  // Profil
+  const pp=document.getElementById('profilPrenom'); if(pp) pp.textContent=prenom;
+  const ps=document.getElementById('profilSub'); if(ps) ps.textContent='Maman · Professionnelle · Phase '+phInfo.label;
+  const ppn=document.getElementById('profilPhaseName'); if(ppn) ppn.textContent='Phase '+phInfo.label;
+  const ppd=document.getElementById('profilPhaseDetail'); if(ppd) ppd.textContent='Jour '+CYCLE_DAY+' · '+(ENERGIE_LABEL[phInfo.energie]||'')+' · '+conseil;
+  const pcb=document.getElementById('profilCycleBadge'); if(pcb) pcb.textContent='J'+CYCLE_DAY;
+  const wd=document.getElementById('wheelDay'); if(wd) wd.textContent=CYCLE_DAY;
 }
 
-function checkStep1() {
-  const v = document.getElementById('obPrenom').value.trim();
-  const btn = document.getElementById('ob-btn-1');
-  const input = document.getElementById('obPrenom');
-  btn.style.opacity = v.length >= 1 ? '1' : '0.5';
-  if (v.length >= 1) input.style.borderColor = 'rgba(201,148,58,.5)';
-}
-
-function setNbEnfants(delta) {
-  obNb = Math.max(1, Math.min(4, obNb + delta));
-  document.getElementById('obNbVal').textContent = obNb;
-  renderEnfantsFields();
-}
-
-function renderEnfantsFields() {
-  const c = document.getElementById('obEnfantsFields');
-  c.innerHTML = '';
-  for (let i = 0; i < obNb; i++) {
-    const emoji = ['👧🏾','👦🏾','👧','👦'][i] || '🧒';
-    c.innerHTML += `
-      <div class="ob-enfant-card">
-        <div class="ob-enfant-num">${emoji} Enfant ${i + 1}</div>
-        <div class="ob-row">
-          <div>
-            <div class="ob-label" style="font-size:10px;margin-bottom:6px">Prénom</div>
-            <input class="ob-input-sm" id="ob-e-prenom-${i}" type="text" placeholder="Prénom">
-          </div>
-          <div>
-            <div class="ob-label" style="font-size:10px;margin-bottom:6px">Âge</div>
-            <input class="ob-input-sm" id="ob-e-age-${i}" type="number" min="0" max="18" placeholder="Âge">
-          </div>
-        </div>
-      </div>`;
+// ── INIT ──
+(function init() {
+  function tick() {
+    const now=new Date();
+    const el=document.getElementById('statusTime');
+    if(el) el.textContent=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
   }
-}
-
-function goStep(n) {
-  if (n === 2) {
-    const prenom = document.getElementById('obPrenom').value.trim();
-    if (prenom.length < 1) {
-      const input = document.getElementById('obPrenom');
-      input.style.borderColor = 'rgba(201,148,58,.8)';
-      input.placeholder = 'Entre ton prénom pour continuer 🤍';
-      input.focus();
-      return;
-    }
-  }
-  if (n === 3) {
-    buildRecap();
-  }
-  document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
-  document.getElementById('ob-step-' + n).classList.add('active');
-}
-
-function buildRecap() {
-  const prenom = document.getElementById('obPrenom').value.trim();
-  const enfants = [];
-  for (let i = 0; i < obNb; i++) {
-    const p = document.getElementById('ob-e-prenom-' + i)?.value.trim() || 'Enfant ' + (i+1);
-    const a = document.getElementById('ob-e-age-' + i)?.value || '?';
-    enfants.push({ prenom: p, age: a });
-  }
-  const recap = document.getElementById('obRecap');
-  const enfantsText = enfants.map(e => `<strong>${e.prenom}</strong>, ${e.age} ans`).join(' · ');
-  recap.innerHTML = `
-    <div class="ob-recap-row"><div class="ob-recap-icon">👩🏾</div><div class="ob-recap-text">Bonjour <strong>${prenom}</strong> 🤍</div></div>
-    <div class="ob-recap-row"><div class="ob-recap-icon">👨‍👩‍👧</div><div class="ob-recap-text">${enfants.length} enfant${enfants.length > 1 ? 's' : ''} : ${enfantsText}</div></div>
-    <div class="ob-recap-row"><div class="ob-recap-icon">🌸</div><div class="ob-recap-text">Tu pourras configurer ton cycle dans <strong>Profil → Mon Cycle</strong></div></div>
-    <div class="ob-recap-row"><div class="ob-recap-icon">🧠</div><div class="ob-recap-text">Le bouton <strong>🧠 vide-tête</strong> est disponible partout — tape ou dicte ce qui t'occupe l'esprit</div></div>`;
-}
-
-function finishOnboarding() {
-  const prenom = document.getElementById('obPrenom').value.trim();
-  const enfants = [];
-  for (let i = 0; i < obNb; i++) {
-    const p = document.getElementById('ob-e-prenom-' + i)?.value.trim() || 'Enfant ' + (i+1);
-    const a = parseInt(document.getElementById('ob-e-age-' + i)?.value) || 0;
-    enfants.push({ prenom: p, age: a });
-  }
-  profile = { prenom, enfants, cycleStart: null };
-  localStorage.setItem('alima_profile', JSON.stringify(profile));
-  document.getElementById('onboarding').classList.add('done');
-  applyProfile();
-}
-
-function applyProfile() {
-  if (!profile) return;
-  const { prenom, enfants } = profile;
-
-  // Greeting accueil
-  const g = document.getElementById('homeGreeting');
-  if (g) g.innerHTML = `Bonjour ${prenom} 🤍<br><strong>Comment je peux t'aider aujourd'hui ?</strong>`;
-
-  // Profil hero
-  const hn = document.querySelector('.hero-name');
-  if (hn) hn.textContent = prenom;
-
-  // Filtres enfants dans agenda + notes
-  updateEnfantFilters(enfants);
-
-  // Cartes enfants dans profil
-  updateProfilEnfants(enfants);
-
-  // Remplacer prénoms dans agenda et notes
-  personaliseData(enfants);
-}
-
-function updateEnfantFilters(enfants) {
-  // Agenda filters
-  const af = document.querySelector('#screen-agenda .filter-chips');
-  if (af) {
-    // Supprimer les chips Yasmine/Marème hardcodées, garder Tous/Rappels
-    const chips = af.querySelectorAll('.filter-chip[data-child]');
-    chips.forEach(c => c.remove());
-    // Ajouter les vrais enfants
-    enfants.forEach(e => {
-      const chip = document.createElement('div');
-      chip.className = 'filter-chip';
-      chip.setAttribute('data-child', e.prenom.toLowerCase());
-      chip.textContent = '👧 ' + e.prenom;
-      chip.onclick = function() { setAFilter(this, e.prenom.toLowerCase()); };
-      af.appendChild(chip);
-    });
-  }
-}
-
-function updateProfilEnfants(enfants) {
-  const ec = document.getElementById('enfantsCarousel');
-  if (!ec) return;
-  // On garde la structure existante mais on met à jour les noms visibles
-  const cards = ec.querySelectorAll('.child-card');
-  enfants.forEach((e, i) => {
-    if (cards[i]) {
-      const nameEl = cards[i].querySelector('.child-name');
-      const ageEl = cards[i].querySelector('.child-age');
-      if (nameEl) nameEl.textContent = e.prenom;
-      if (ageEl) ageEl.textContent = e.age + ' ans';
-    }
-  });
-  // Cacher les cartes en trop
-  cards.forEach((c, i) => {
-    if (i >= enfants.length && !c.classList.contains('add-child')) c.style.display = 'none';
-  });
-}
-
-function personaliseData(enfants) {
-  if (!enfants.length) return;
-  const e1 = enfants[0]?.prenom || 'Enfant 1';
-  const e2 = enfants[1]?.prenom || null;
-
-  // Remplacer Yasmine dans l'agenda
-  aItems.forEach(item => {
-    item.title = item.title.replace(/Yasmine/g, e1);
-    if (e2) item.title = item.title.replace(/Marème/g, e2);
-    item.tags = item.tags.map(t => {
-      if (t === 'yasmine') return e1.toLowerCase();
-      if (t === 'marème' && e2) return e2.toLowerCase();
-      return t;
-    });
-  });
-
-  // Remplacer dans les notes
-  notes.forEach(n => {
-    n.title = n.title.replace(/Yasmine/g, e1);
-    if (e2) n.title = n.title.replace(/Marème/g, e2);
-    n.cat = n.cat === 'yasmine' ? e1.toLowerCase() : (n.cat === 'marème' && e2 ? e2.toLowerCase() : n.cat);
-  });
-
-  // Brain rows
-  const brainRows = document.querySelectorAll('.brain-text');
-  brainRows.forEach(r => {
-    r.innerHTML = r.innerHTML.replace(/Yasmine/g, e1);
-    if (e2) r.innerHTML = r.innerHTML.replace(/Marème/g, e2);
-  });
-}
-
-// Init
-buildStrip();
-initOnboarding();renderAgenda();renderNotes();
+  tick(); setInterval(tick,30000);
+  // Activer l'onglet cycle courant
+  const curPhase=getPhaseInfo(CYCLE_DAY).phase;
+  selPhase=curPhase;
+  document.querySelectorAll('.phase-tab').forEach(t=>t.className='phase-tab');
+  const at=document.getElementById('tab-'+curPhase);
+  if(at) at.className='phase-tab active-'+curPhase;
+  updateHome();
+  buildStrip(); renderAgenda(); renderNotes();
+})();
 </script>
 </body>
 </html>
