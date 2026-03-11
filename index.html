@@ -5,27 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="manifest" href="/manifest.json">
 
-<script>
-(function(){
-  var c=document.createElement('canvas');c.width=180;c.height=180;
-  var ctx=c.getContext('2d');
-  // Fond violet arrondi
-  ctx.fillStyle='#3B1152';
-  var r=40;ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(180-r,0);ctx.quadraticCurveTo(180,0,180,r);ctx.lineTo(180,180-r);ctx.quadraticCurveTo(180,180,180-r,180);ctx.lineTo(r,180);ctx.quadraticCurveTo(0,180,0,180-r);ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();ctx.fill();
-  // Lettre a
-  ctx.fillStyle='#fff';ctx.font='italic 108px Georgia,serif';ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillText('a',90,128);
-  // Points dorés
-  ctx.fillStyle='#E8B85A';
-  ctx.beginPath();ctx.arc(90,26,7,0,Math.PI*2);ctx.fill();
-  ctx.globalAlpha=.8;
-  ctx.beginPath();ctx.arc(130,40,5,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(50,40,5,0,Math.PI*2);ctx.fill();
-  // Patch apple-touch-icon
-  var link=document.querySelector('link[rel="apple-touch-icon"]')||document.createElement('link');
-  link.rel='apple-touch-icon';link.href=c.toDataURL('image/png');
-  document.head.appendChild(link);
-})();
-</script>
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Alima">
