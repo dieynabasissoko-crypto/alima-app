@@ -555,7 +555,7 @@ if('serviceWorker' in navigator) {
         </div>
         <div class="brain-row" onclick="navTo('notes')">
           <span class="brain-icon">📝</span>
-          <span class="brain-text" id="brainNotes"><strong>3 notes</strong> en attente</span>
+          <span class="brain-text" id="brainNotes">0 note</span>
           <div class="brain-dot"></div>
         </div>
         <div class="brain-row" onclick="nav('profil')">
@@ -665,7 +665,7 @@ if('serviceWorker' in navigator) {
       <div class="filter-chip" onclick="setNFilter(this,'pro')">💼 Pro</div>
       <div class="filter-chip" onclick="setNFilter(this,'courses')">🛒 Courses</div>
     </div>
-      <div class="filter-chip" onclick="setNFilter(this,'marème')">👶 Marème</div>
+      
       <div class="filter-chip" onclick="setNFilter(this,'perso')">🌿 Perso</div>
       <div class="filter-chip" onclick="setNFilter(this,'pro')">💼 Pro</div>
       <div class="filter-chip" onclick="setNFilter(this,'courses')">🛒 Courses</div>
@@ -890,10 +890,8 @@ if('serviceWorker' in navigator) {
       </div>
     </div>
     <!-- Catégorie -->
-    <div class="cat-options">
+    <div class="cat-options" id="noteCatOptions">
       <div class="cat-opt active" onclick="setNCat(this,'perso')">🌿 Perso</div>
-      <div class="cat-opt" onclick="setNCat(this,'yasmine')">👧 Yasmine</div>
-      <div class="cat-opt" onclick="setNCat(this,'marème')">👶 Marème</div>
       <div class="cat-opt" onclick="setNCat(this,'pro')">💼 Pro</div>
       <div class="cat-opt" onclick="setNCat(this,'courses')">🛒 Courses</div>
     </div>
@@ -962,6 +960,7 @@ function nav(id) {
   const vtBtn=document.getElementById('vtBtn');
   if(vtBtn) vtBtn.style.display=(id==='chat')?'none':'';
   if(id==='agenda'){buildStrip();renderAgenda();renderCycleBanner();}
+  if(id==='profil'){renderProfilEnfants();}
   if(id==='notes')renderNotes();
   if(id==='cycle'){drawWheel();renderPhaseCard(selPhase);}
   if(id==='home')updateHome();
@@ -1237,7 +1236,7 @@ function toggleNItem(e,nid,idx){e.stopPropagation();const n=notes.find(x=>x.id==
 function deleteNote(e,id){e.stopPropagation();const el=e.target.closest('.card');if(el){el.style.transition='opacity .25s,transform .25s';el.style.opacity='0';el.style.transform='scale(.95)';setTimeout(()=>{const i=notes.findIndex(n=>n.id===id);if(i>=0){notes.splice(i,1);saveNotes();renderNotes();updateHome();}},260);}}
 function setNFilter(el,f){nFilter=f;document.querySelectorAll('#screen-notes .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderNotes();}
 function setNSearch(q){nSearch=q;renderNotes();}
-function openNModal(){document.getElementById('noteModal').classList.add('open');}
+function openNModal(){document.getElementById('noteModal').classList.add('open');renderNoteCats();}
 function closeNModal(){document.getElementById('noteModal').classList.remove('open');document.getElementById('noteText').value='';}
 function setNType(el,t){nType=t;document.querySelectorAll('.type-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
 function setNCat(el,c){nCat=c;document.querySelectorAll('.cat-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
@@ -1681,50 +1680,11 @@ function applyProfileFull() {
   const pp = document.getElementById('profilPrenom'); if(pp) pp.textContent = prenom;
   const hn = document.getElementById('homePrenom'); if(hn) hn.textContent = prenom;
 
-  // Mettre à jour les filtres agenda avec les vrais prénoms
-  if (enfants && enfants.length) {
-    const fc = document.querySelectorAll('.filter-chip');
-    // Mettre à jour le filtre enfant 1
-    if (enfants[0] && fc[1]) {
-      fc[1].textContent = '👧 ' + enfants[0].prenom;
-      fc[1].setAttribute('onclick', `setAFilter(this,'${enfants[0].prenom.toLowerCase()}')`);
-    }
-    if (enfants[1] && fc[2]) {
-      fc[2].textContent = '👶 ' + enfants[1].prenom;
-      fc[2].setAttribute('onclick', `setAFilter(this,'${enfants[1].prenom.toLowerCase()}')`);
-    }
-  }
-
   updateHome();
-  if (document.getElementById('screen-profil').classList.contains('active')) {
-    // re-render les cards enfants dans profil
-    renderProfilEnfants();
-  }
+  renderProfilEnfants();
 }
 
-function renderProfilEnfants() {
-  if (!profile || !profile.enfants) return;
-  const scroll = document.querySelector('.children-scroll');
-  if (!scroll) return;
-  const emojis = ['👧','👦','👧🏾','👦🏾'];
-  // Reconstruire les cards
-  const addBtn = scroll.querySelector('.add-child');
-  // Supprimer les anciennes cards
-  scroll.querySelectorAll('.child-card').forEach(c => c.remove());
-  profile.enfants.forEach((e, i) => {
-    const card = document.createElement('div');
-    card.className = 'child-card';
-    card.innerHTML = `
-      <div class="child-top">
-        <div class="child-avatar">${emojis[i]||'🧒'}</div>
-        <div>
-          <div class="child-name">${e.prenom}</div>
-          <div class="child-age">${e.age} ans</div>
-        </div>
-      </div>`;
-    scroll.insertBefore(card, addBtn);
-  });
-}
+
 
 // Charger profil au démarrage
 let obEnfants = [];
@@ -1857,27 +1817,7 @@ function resetApp() {
   location.reload();
 }
 
-function renderProfilEnfants() {
-  const scroll = document.getElementById('profilChildrenScroll');
-  if (!scroll) return;
-  const emojis = ['👧','👦','👧🏾','👦🏾'];
-  scroll.querySelectorAll('.child-card').forEach(c => c.remove());
-  const addBtn = scroll.querySelector('.add-child');
-  if (!profile || !profile.enfants || !profile.enfants.length) return;
-  profile.enfants.forEach((e, i) => {
-    const card = document.createElement('div');
-    card.className = 'child-card';
-    card.innerHTML = `
-      <div class="child-top">
-        <div class="child-avatar">${emojis[i]||'🧒'}</div>
-        <div>
-          <div class="child-name">${e.prenom}</div>
-          <div class="child-age">${e.age} an${e.age>1?'s':''}</div>
-        </div>
-      </div>`;
-    scroll.insertBefore(card, addBtn);
-  });
-}
+
 
 // ── PERSISTANCE AGENDA & NOTES ──
 function saveAgenda() {
@@ -2140,6 +2080,32 @@ function importData(event) {
 }
 
 // ── FILTRES DYNAMIQUES ENFANTS ──
+function renderNoteCats() {
+  const enfants = (profile && profile.enfants) ? profile.enfants : [];
+  const emojis = ['👧','👦','👧🏾','👦🏾'];
+  const container = document.getElementById('noteCatOptions');
+  if (!container) return;
+  // Supprimer les chips enfants existants
+  container.querySelectorAll('.chip-enfant').forEach(c => c.remove());
+  // Réinitialiser la sélection active sur Perso
+  const firstOpt = container.querySelector('.cat-opt');
+  container.querySelectorAll('.cat-opt').forEach(c => c.classList.remove('active'));
+  if (firstOpt) { firstOpt.classList.add('active'); nCat = 'perso'; }
+  // Insérer après Perso
+  const persoChip = container.querySelector('.cat-opt');
+  enfants.forEach((e, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'cat-opt chip-enfant';
+    chip.textContent = (emojis[i]||'👶') + ' ' + e.prenom;
+    chip.onclick = function() { setNCat(this, e.prenom.toLowerCase()); };
+    if (persoChip && persoChip.nextSibling) {
+      container.insertBefore(chip, persoChip.nextSibling);
+    } else {
+      container.appendChild(chip);
+    }
+  });
+}
+
 function renderEnfantFilters() {
   const enfants = (profile && profile.enfants) ? profile.enfants : [];
   const emojis = ['👧','👦','👧🏾','👦🏾'];
