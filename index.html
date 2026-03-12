@@ -427,6 +427,16 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'DM Sa
   #editNoteModal .enmodal{background:#FAF8F2;border-radius:28px 28px 0 0;width:100%;padding:20px 22px 36px}
   #editNoteModal input, #editNoteModal textarea{width:100%;background:#fff;border:1.5px solid rgba(59,17,82,.12);border-radius:14px;padding:11px 15px;font-size:15px;color:#1E0630;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:10px;resize:none}
 </style>
+
+<script>
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(r => console.log('SW enregistré', r.scope))
+      .catch(e => console.log('SW erreur', e));
+  });
+}
+</script>
 </head>
 <body>
 <div class="phone">
@@ -763,8 +773,27 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'DM Sa
           <div class="setting-right"><span class="chevron">›</span></div>
         </div>
       </div>
-      <!-- Réinitialiser -->
+      <!-- Sauvegarde -->
       <div style="margin:24px 0 0">
+        <div style="font-size:11px;color:#9A80AA;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Mes données</div>
+        <div onclick="exportData()" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border-radius:16px;cursor:pointer;margin-bottom:8px;border:1.5px solid rgba(59,17,82,0.08)">
+          <div style="width:36px;height:36px;border-radius:11px;background:rgba(59,17,82,0.07);display:flex;align-items:center;justify-content:center;font-size:17px">📤</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:500;color:#1E0630">Exporter mes données</div>
+            <div style="font-size:11px;color:#9A80AA">Sauvegarder agenda, notes et profil</div>
+          </div>
+        </div>
+        <div onclick="document.getElementById('importFile').click()" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border-radius:16px;cursor:pointer;margin-bottom:8px;border:1.5px solid rgba(59,17,82,0.08)">
+          <div style="width:36px;height:36px;border-radius:11px;background:rgba(59,17,82,0.07);display:flex;align-items:center;justify-content:center;font-size:17px">📥</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:500;color:#1E0630">Importer mes données</div>
+            <div style="font-size:11px;color:#9A80AA">Restaurer depuis un fichier de sauvegarde</div>
+          </div>
+        </div>
+        <input id="importFile" type="file" accept=".json" style="display:none" onchange="importData(event)">
+      </div>
+      <!-- Réinitialiser -->
+      <div style="margin:12px 0 0">
         <div onclick="resetApp()" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border-radius:16px;cursor:pointer;border:1.5px solid rgba(229,57,53,0.15)">
           <div style="width:36px;height:36px;border-radius:11px;background:rgba(229,57,53,0.08);display:flex;align-items:center;justify-content:center;font-size:17px">🗑️</div>
           <div style="flex:1">
@@ -2039,6 +2068,69 @@ function saveEditNote() {
     n.body = body;
   }
   saveNotes(); closeEditNote(); renderNotes();
+}
+
+// ── EXPORT / IMPORT DONNÉES ──
+function exportData() {
+  const data = {
+    version: 1,
+    exportDate: new Date().toISOString(),
+    profile: profile,
+    agenda: aItems,
+    notes: notes
+  };
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const prenom = (profile && profile.prenom) ? profile.prenom.toLowerCase() : 'alima';
+  const date = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `alima-sauvegarde-${prenom}-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showActionToast('📤 Sauvegarde téléchargée !');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.version || !data.profile) {
+        showActionToast('❌ Fichier invalide');
+        return;
+      }
+      // Confirmer avant d'écraser
+      if (!confirm('Restaurer les données de la sauvegarde du ' + (data.exportDate ? data.exportDate.split('T')[0] : '?') + ' ? Tes données actuelles seront remplacées.')) return;
+
+      // Restaurer
+      profile = data.profile;
+      if (data.agenda) { aItems.length = 0; data.agenda.forEach(i => aItems.push(i)); }
+      if (data.notes)  { notes.length  = 0; data.notes.forEach(n => notes.push(n)); }
+
+      // Sauvegarder dans localStorage
+      try {
+        localStorage.setItem('alima_profile', JSON.stringify(profile));
+        localStorage.setItem('alima_agenda',  JSON.stringify(aItems));
+        localStorage.setItem('alima_notes',   JSON.stringify(notes));
+      } catch(err) {}
+
+      // Rafraîchir l'UI
+      applyProfileFull();
+      renderAgenda();
+      renderNotes();
+      updateHome();
+      showActionToast('✅ Données restaurées !');
+    } catch(err) {
+      showActionToast('❌ Erreur de lecture du fichier');
+    }
+  };
+  reader.readAsText(file);
+  // Reset input pour pouvoir réimporter le même fichier
+  event.target.value = '';
 }
 </script>
 
