@@ -957,24 +957,37 @@ function buildSystemPrompt() {
     ? `\nC'est le matin : commence par un bonjour chaleureux, mentionne brièvement la phase du cycle (ex: "Bonjour ${prenom} 🤍 Tu es en phase ${phaseInfo.label.toLowerCase()} !"). Puis résumé concis de la journée.`
     : '';
 
+  // Calculer les 7 prochains jours avec leur nom
+  const joursNoms = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  const todayISO = now.toISOString().split('T')[0];
+  let prochainsjours = '';
+  for (let i = 0; i <= 7; i++) {
+    const d = new Date(now); d.setDate(d.getDate() + i);
+    const iso = d.toISOString().split('T')[0];
+    const nom = i === 0 ? 'aujourd\'hui' : i === 1 ? 'demain' : joursNoms[d.getDay()];
+    prochainsjours += `- ${nom} = ${iso}\n`;
+  }
+
   return `Tu es Alima, assistante familiale bienveillante pour ${prenom}, une maman qui travaille.
 
 FAMILLE :
 ${enfantsStr}
 
-DATE : ${dateStr}
-
+DATE ACTUELLE : ${dateStr} (${todayISO})
+PROCHAINS JOURS (utilise ces dates EXACTES pour tout événement futur) :
+${prochainsjours}
 CYCLE :
 - Phase : ${phaseInfo.label} (jour ${cycleDay}/28)
 - Énergie : ${phaseInfo.energie}
 - Conseil : ${phaseInfo.conseil}
 
-PROCHAINS ÉVÉNEMENTS :
+PROCHAINS ÉVÉNEMENTS AGENDA :
 ${upcoming || '(aucun)'}
 
 RÈGLES :
 - Réponds en français, chaleur et concision (2-3 phrases max sauf si demandé plus)
 - Appelle l'utilisatrice par son prénom : ${prenom}
+- Pour toute date mentionnée (lundi, jeudi, vendredi...) utilise TOUJOURS la liste "PROCHAINS JOURS" ci-dessus pour trouver la bonne date ISO YYYY-MM-DD
 - Quand tu détectes une intention, agis et termine par :
   ACTION:{"type":"add_event","title":"...","date":"YYYY-MM-DD","time":"HHhMM ou null","tags":[],"icon":"emoji"}
   ou ACTION:{"type":"add_note","title":"...","body":"...","cat":"${actionCats}"}
@@ -1149,16 +1162,16 @@ let nFilter='tous',nSearch='',nType='texte',nCat='perso',nId=100;
 const CI={yasmine:'👧',marème:'👶',perso:'🌿',pro:'💼',courses:'🛒'};
 const CL={yasmine:'Yasmine',marème:'Marème',perso:'Perso',pro:'Pro',courses:'Courses'};
 function renderNotes(){const g=document.getElementById('masonry');g.innerHTML='';const data=notes.filter(n=>{if(nFilter!=='tous'&&n.cat!==nFilter)return false;if(nSearch){const q=nSearch.toLowerCase();return n.title.toLowerCase().includes(q)||(n.body||'').toLowerCase().includes(q)||(n.items||[]).some(i=>i.label.toLowerCase().includes(q));}return true;});if(!data.length){g.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--light);font-size:14px">Aucune note 🌿</div>';return;}data.forEach((n,i)=>{const c=mkCard(n);c.style.animationDelay=(i*.05)+'s';g.appendChild(c);});}
-function mkCard(n){const d=document.createElement('div');d.className=`card cat-${n.cat}`;const ti=n.type==='texte'?'📝':n.type==='checklist'?'✅':n.type==='vocale'?'🎙':'📷';let b='';if(n.type==='texte')b=`<div class="card-body">${n.body}</div>`;else if(n.type==='checklist'){const dn=n.items.filter(i=>i.done).length;b=`<div class="check-list">${n.items.map((it,idx)=>`<div class="check-item${it.done?' done':''}"><div class="check-box${it.done?' checked':''}" onclick="toggleNItem(event,${n.id},${idx})">${it.done?'✓':''}</div><span class="check-label">${it.label}</span></div>`).join('')}</div><div class="card-body" style="margin-top:6px;font-size:11px">${dn}/${n.items.length} faits</div>`;}else if(n.type==='vocale'){const bars=Array.from({length:16},(_,i)=>`<div class="wave-bar" style="height:${4+Math.sin(i*.8)*7+Math.random()*5}px"></div>`).join('');b=`<div class="voice-bar"><div class="voice-play">▶</div><div class="voice-wave">${bars}</div><span class="voice-dur">${n.duration}</span></div>`;}else b=`<div class="card-photo">${n.emoji||'🖼️'}</div>`;d.innerHTML=`<div class="card-header"><div class="card-cat"><span>${CI[n.cat]}</span>${CL[n.cat]}</div><span style="font-size:12px">${ti}</span></div><div class="card-title">${n.title}</div>${b}<div class="card-date">${n.date}</div>`;return d;}
-function toggleNItem(e,nid,idx){e.stopPropagation();const n=notes.find(x=>x.id===nid);if(n&&n.items){n.items[idx].done=!n.items[idx].done;renderNotes();}}
+function mkCard(n){const d=document.createElement('div');d.className=`card cat-${n.cat}`;const ti=n.type==='texte'?'📝':n.type==='checklist'?'✅':n.type==='vocale'?'🎙':'📷';let b='';if(n.type==='texte')b=`<div class="card-body">${n.body}</div>`;else if(n.type==='checklist'){const dn=n.items.filter(i=>i.done).length;b=`<div class="check-list">${n.items.map((it,idx)=>`<div class="check-item${it.done?' done':''}"><div class="check-box${it.done?' checked':''}" onclick="toggleNItem(event,${n.id},${idx})">${it.done?'✓':''}</div><span class="check-label">${it.label}</span></div>`).join('')}</div><div class="card-body" style="margin-top:6px;font-size:11px">${dn}/${n.items.length} faits</div>`;}else if(n.type==='vocale'){const bars=Array.from({length:16},(_,i)=>`<div class="wave-bar" style="height:${4+Math.sin(i*.8)*7+Math.random()*5}px"></div>`).join('');b=`<div class="voice-bar"><div class="voice-play">▶</div><div class="voice-wave">${bars}</div><span class="voice-dur">${n.duration}</span></div>`;}else b=`<div class="card-photo">${n.emoji||'🖼️'}</div>`;d.innerHTML=`<div class="card-header"><div class="card-cat"><span>${CI[n.cat]}</span>${CL[n.cat]}</div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px">${ti}</span><span onclick="deleteNote(event,${n.id})" style="font-size:14px;cursor:pointer;opacity:.4;line-height:1" title="Supprimer">🗑️</span></div></div><div class="card-title">${n.title}</div>${b}<div class="card-date">${n.date}</div>`;return d;}
+function toggleNItem(e,nid,idx){e.stopPropagation();const n=notes.find(x=>x.id===nid);if(n&&n.items){n.items[idx].done=!n.items[idx].done;saveNotes();renderNotes();}}
+function deleteNote(e,id){e.stopPropagation();const el=e.target.closest('.card');if(el){el.style.transition='opacity .25s,transform .25s';el.style.opacity='0';el.style.transform='scale(.95)';setTimeout(()=>{const i=notes.findIndex(n=>n.id===id);if(i>=0){notes.splice(i,1);saveNotes();renderNotes();updateHome();}},260);}}
 function setNFilter(el,f){nFilter=f;document.querySelectorAll('#screen-notes .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderNotes();}
 function setNSearch(q){nSearch=q;renderNotes();}
 function openNModal(){document.getElementById('noteModal').classList.add('open');}
 function closeNModal(){document.getElementById('noteModal').classList.remove('open');document.getElementById('noteText').value='';}
 function setNType(el,t){nType=t;document.querySelectorAll('.type-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
 function setNCat(el,c){nCat=c;document.querySelectorAll('.cat-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
-function saveNote(){const t=document.getElementById('noteText').value.trim();if(!t)return;let n={id:nId++,cat:nCat,date:"Aujourd'hui"};if(nType==='checklist'){n.type='checklist';n.title='Ma liste';n.items=t.split('\n').filter(l=>l.trim()).map(l=>({label:l.trim(),done:false}));}else if(nType==='vocale'){n.type='vocale';n.title=t;n.duration='0:00';}else if(nType==='photo'){n.type='photo';n.title=t;n.emoji='🖼️';}else{const ls=t.split('\n');n.type='texte';n.title=ls[0];n.body=ls.slice(1).join(' ')||t;}notes.unshift(n);closeNModal();renderNotes();updateHome();}
-  saveNotes();
+function saveNote(){const t=document.getElementById('noteText').value.trim();if(!t)return;let n={id:nId++,cat:nCat,date:"Aujourd'hui"};if(nType==='checklist'){n.type='checklist';n.title='Ma liste';n.items=t.split('\n').filter(l=>l.trim()).map(l=>({label:l.trim(),done:false}));}else if(nType==='vocale'){n.type='vocale';n.title=t;n.duration='0:00';}else if(nType==='photo'){n.type='photo';n.title=t;n.emoji='🖼️';}else{const ls=t.split('\n');n.type='texte';n.title=ls[0];n.body=ls.slice(1).join(' ')||t;}notes.unshift(n);saveNotes();closeNModal();renderNotes();updateHome();}
 
 // ── CYCLE ──
 const CP='folliculaire',CD=8;
