@@ -426,6 +426,14 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'DM Sa
   #editNoteModal.open{display:flex}
   #editNoteModal .enmodal{background:#FAF8F2;border-radius:28px 28px 0 0;width:100%;padding:20px 22px 36px}
   #editNoteModal input, #editNoteModal textarea{width:100%;background:#fff;border:1.5px solid rgba(59,17,82,.12);border-radius:14px;padding:11px 15px;font-size:15px;color:#1E0630;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:10px;resize:none}
+
+  .card-menu-btn{
+    font-size:16px;color:var(--light);cursor:pointer;
+    padding:2px 6px;border-radius:8px;line-height:1;
+    letter-spacing:1px;
+    -webkit-user-select:none;user-select:none;
+  }
+  .card-menu-btn:active{background:rgba(59,17,82,.08)}
 </style>
 
 <script>
@@ -623,10 +631,8 @@ if('serviceWorker' in navigator) {
     <!-- Days strip -->
     <div class="days-strip" id="daysStrip"></div>
     <!-- Filtres -->
-    <div class="filter-bar">
+    <div class="filter-bar" id="agendaFilterBar">
       <div class="filter-chip active" onclick="setAFilter(this,'tous')">Tous</div>
-      <div class="filter-chip" onclick="setAFilter(this,'yasmine')">👧 Yasmine</div>
-      <div class="filter-chip" onclick="setAFilter(this,'marème')">👶 Marème</div>
       <div class="filter-chip" onclick="setAFilter(this,'pro')">💼 Pro</div>
       <div class="filter-chip" onclick="setAFilter(this,'rappel')">⏰ Rappels</div>
     </div>
@@ -653,9 +659,12 @@ if('serviceWorker' in navigator) {
       <input style="flex:1;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--prune-dark);background:none" placeholder="Rechercher une note…" oninput="setNSearch(this.value)"/>
     </div>
     <!-- Filtres -->
-    <div class="filter-bar">
+    <div class="filter-bar" id="notesFilterBar">
       <div class="filter-chip active" onclick="setNFilter(this,'tous')">Tout</div>
-      <div class="filter-chip" onclick="setNFilter(this,'yasmine')">👧 Yasmine</div>
+      <div class="filter-chip" onclick="setNFilter(this,'perso')">🌿 Perso</div>
+      <div class="filter-chip" onclick="setNFilter(this,'pro')">💼 Pro</div>
+      <div class="filter-chip" onclick="setNFilter(this,'courses')">🛒 Courses</div>
+    </div>
       <div class="filter-chip" onclick="setNFilter(this,'marème')">👶 Marème</div>
       <div class="filter-chip" onclick="setNFilter(this,'perso')">🌿 Perso</div>
       <div class="filter-chip" onclick="setNFilter(this,'pro')">💼 Pro</div>
@@ -1221,7 +1230,9 @@ let nFilter='tous',nSearch='',nType='texte',nCat='perso',nId=100;
 const CI={yasmine:'👧',marème:'👶',perso:'🌿',pro:'💼',courses:'🛒'};
 const CL={yasmine:'Yasmine',marème:'Marème',perso:'Perso',pro:'Pro',courses:'Courses'};
 function renderNotes(){const g=document.getElementById('masonry');g.innerHTML='';const data=notes.filter(n=>{if(nFilter!=='tous'&&n.cat!==nFilter)return false;if(nSearch){const q=nSearch.toLowerCase();return n.title.toLowerCase().includes(q)||(n.body||'').toLowerCase().includes(q)||(n.items||[]).some(i=>i.label.toLowerCase().includes(q));}return true;});if(!data.length){g.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--light);font-size:14px">Aucune note 🌿</div>';return;}data.forEach((n,i)=>{const c=mkCard(n);c.style.animationDelay=(i*.05)+'s';g.appendChild(c);});}
-function mkCard(n){const d=document.createElement('div');d.className=`card cat-${n.cat}`;const ti=n.type==='texte'?'📝':n.type==='checklist'?'✅':n.type==='vocale'?'🎙':'📷';let b='';if(n.type==='texte')b=`<div class="card-body">${n.body}</div>`;else if(n.type==='checklist'){const dn=n.items.filter(i=>i.done).length;b=`<div class="check-list">${n.items.map((it,idx)=>`<div class="check-item${it.done?' done':''}"><div class="check-box${it.done?' checked':''}" onclick="toggleNItem(event,${n.id},${idx})">${it.done?'✓':''}</div><span class="check-label">${it.label}</span></div>`).join('')}</div><div class="card-body" style="margin-top:6px;font-size:11px">${dn}/${n.items.length} faits</div>`;}else if(n.type==='vocale'){const bars=Array.from({length:16},(_,i)=>`<div class="wave-bar" style="height:${4+Math.sin(i*.8)*7+Math.random()*5}px"></div>`).join('');b=`<div class="voice-bar"><div class="voice-play">▶</div><div class="voice-wave">${bars}</div><span class="voice-dur">${n.duration}</span></div>`;}else b=`<div class="card-photo">${n.emoji||'🖼️'}</div>`;d.innerHTML=`<div class="card-header"><div class="card-cat"><span>${CI[n.cat]}</span>${CL[n.cat]}</div><span style="font-size:12px">${ti}</span></div><div class="card-title">${n.title}</div>${b}<div class="card-date">${n.date}</div>`;bindLongPress(d, n.id);return d;}
+function mkCard(n){const d=document.createElement('div');d.className=`card cat-${n.cat}`;const ti=n.type==='texte'?'📝':n.type==='checklist'?'✅':n.type==='vocale'?'🎙':'📷';let b='';if(n.type==='texte')b=`<div class="card-body">${n.body}</div>`;else if(n.type==='checklist'){const dn=n.items.filter(i=>i.done).length;b=`<div class="check-list">${n.items.map((it,idx)=>`<div class="check-item${it.done?' done':''}"><div class="check-box${it.done?' checked':''}" onclick="toggleNItem(event,${n.id},${idx})">${it.done?'✓':''}</div><span class="check-label">${it.label}</span></div>`).join('')}</div><div class="card-body" style="margin-top:6px;font-size:11px">${dn}/${n.items.length} faits</div>`;}else if(n.type==='vocale'){const bars=Array.from({length:16},(_,i)=>`<div class="wave-bar" style="height:${4+Math.sin(i*.8)*7+Math.random()*5}px"></div>`).join('');b=`<div class="voice-bar"><div class="voice-play">▶</div><div class="voice-wave">${bars}</div><span class="voice-dur">${n.duration}</span></div>`;}else b=`<div class="card-photo">${n.emoji||'🖼️'}</div>`;d.innerHTML=`<div class="card-header"><div class="card-cat"><span>${CI[n.cat]}</span>${CL[n.cat]}</div><div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px">${ti}</span><span class="card-menu-btn" data-nid="${n.id}">···</span></div></div><div class="card-title">${n.title}</div>${b}<div class="card-date">${n.date}</div>`;
+  d.querySelector('.card-menu-btn').addEventListener('click', function(e){e.stopPropagation();openNoteCtx(this, n.id);});
+  return d;}
 function toggleNItem(e,nid,idx){e.stopPropagation();const n=notes.find(x=>x.id===nid);if(n&&n.items){n.items[idx].done=!n.items[idx].done;saveNotes();renderNotes();}}
 function deleteNote(e,id){e.stopPropagation();const el=e.target.closest('.card');if(el){el.style.transition='opacity .25s,transform .25s';el.style.opacity='0';el.style.transform='scale(.95)';setTimeout(()=>{const i=notes.findIndex(n=>n.id===id);if(i>=0){notes.splice(i,1);saveNotes();renderNotes();updateHome();}},260);}}
 function setNFilter(el,f){nFilter=f;document.querySelectorAll('#screen-notes .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderNotes();}
@@ -1655,6 +1666,7 @@ function saveEditProfil() {
 
 function applyProfileFull() {
   if (!profile) return;
+  renderEnfantFilters();
   const { prenom, enfants, cycleStart } = profile;
 
   // Recalculer CYCLE_DAY si cycleStart disponible
@@ -1995,30 +2007,24 @@ function openAgendaItemMenu(e, id) {
 
 // ── MENU CONTEXTUEL NOTE (tap long) ──
 let ctxNoteId = null;
-let longPressTimer = null;
-
-function bindLongPress(el, id) {
-  el.addEventListener('pointerdown', () => {
-    longPressTimer = setTimeout(() => openNoteCtx(el, id), 500);
-  });
-  el.addEventListener('pointerup', () => clearTimeout(longPressTimer));
-  el.addEventListener('pointermove', () => clearTimeout(longPressTimer));
-  el.addEventListener('pointercancel', () => clearTimeout(longPressTimer));
-}
 
 function openNoteCtx(el, id) {
   ctxNoteId = id;
   const overlay = document.getElementById('noteCtxOverlay');
   const menu = document.getElementById('noteCtxMenu');
-  overlay.style.display = 'block';
-  // Positionner le menu près de la carte
+  // Positionner le menu près du bouton cliqué
   const rect = el.getBoundingClientRect();
-  const phone = el.closest('.phone') || document.body;
+  const phone = el.closest('.phone') || document.documentElement;
   const pr = phone.getBoundingClientRect();
-  const top = Math.min(rect.bottom - pr.top + 4, pr.height - 130);
-  const left = Math.min(rect.left - pr.left, pr.width - 196);
+  let top = rect.bottom - pr.top + 4;
+  let left = rect.left - pr.left - 100;
+  // Garder dans les limites
+  if (top + 120 > pr.height - 80) top = rect.top - pr.top - 120;
+  if (left < 8) left = 8;
+  if (left + 190 > pr.width - 8) left = pr.width - 198;
   menu.style.top = top + 'px';
   menu.style.left = left + 'px';
+  overlay.style.display = 'block';
 }
 
 function closeNoteCtx() {
@@ -2131,6 +2137,50 @@ function importData(event) {
   reader.readAsText(file);
   // Reset input pour pouvoir réimporter le même fichier
   event.target.value = '';
+}
+
+// ── FILTRES DYNAMIQUES ENFANTS ──
+function renderEnfantFilters() {
+  const enfants = (profile && profile.enfants) ? profile.enfants : [];
+  const emojis = ['👧','👦','👧🏾','👦🏾'];
+
+  // Filtres Notes
+  const nbf = document.getElementById('notesFilterBar');
+  if (nbf) {
+    // Supprimer les chips enfants existants
+    nbf.querySelectorAll('.chip-enfant').forEach(c => c.remove());
+    // Insérer après "Tout" (premier chip)
+    const firstChip = nbf.querySelector('.filter-chip');
+    enfants.forEach((e, i) => {
+      const chip = document.createElement('div');
+      chip.className = 'filter-chip chip-enfant';
+      chip.textContent = (emojis[i]||'👶') + ' ' + e.prenom;
+      chip.onclick = function() { setNFilter(this, e.prenom.toLowerCase()); };
+      if (firstChip && firstChip.nextSibling) {
+        nbf.insertBefore(chip, firstChip.nextSibling);
+      } else {
+        nbf.appendChild(chip);
+      }
+    });
+  }
+
+  // Filtres Agenda
+  const abf = document.getElementById('agendaFilterBar');
+  if (abf) {
+    abf.querySelectorAll('.chip-enfant').forEach(c => c.remove());
+    const firstChip = abf.querySelector('.filter-chip');
+    enfants.forEach((e, i) => {
+      const chip = document.createElement('div');
+      chip.className = 'filter-chip chip-enfant';
+      chip.textContent = (emojis[i]||'👶') + ' ' + e.prenom;
+      chip.onclick = function() { setAFilter(this, e.prenom.toLowerCase()); };
+      if (firstChip && firstChip.nextSibling) {
+        abf.insertBefore(chip, firstChip.nextSibling);
+      } else {
+        abf.appendChild(chip);
+      }
+    });
+  }
 }
 </script>
 
