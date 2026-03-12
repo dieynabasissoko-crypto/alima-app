@@ -434,6 +434,26 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'DM Sa
     -webkit-user-select:none;user-select:none;
   }
   .card-menu-btn:active{background:rgba(59,17,82,.08)}
+
+  /* ── Bannière rappel sonore ── */
+  #reminderBanner{
+    display:none;position:absolute;top:16px;left:16px;right:16px;z-index:500;
+    background:linear-gradient(135deg,#3B1152,#5A1E80);
+    border-radius:20px;padding:14px 16px;
+    box-shadow:0 8px 32px rgba(30,6,48,.35);
+    animation:slideDown .35s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+  #reminderBanner .rb-icon{font-size:26px;flex-shrink:0}
+  #reminderBanner .rb-title{font-family:'Fraunces',serif;font-size:15px;color:#fff;font-weight:600}
+  #reminderBanner .rb-sub{font-size:11px;color:rgba(255,255,255,.65);margin-top:2px}
+  #reminderBanner .rb-close{font-size:18px;color:rgba(255,255,255,.5);cursor:pointer;padding:4px;flex-shrink:0}
+  #reminderBanner .rb-inner{display:flex;align-items:center;gap:12px}
+  /* ── Badge permission notif ── */
+  #notifPermBadge{display:none;background:rgba(201,148,58,.12);border:1px solid rgba(201,148,58,.25);
+    border-radius:12px;padding:10px 14px;margin:12px 0 0;cursor:pointer}
+
+  #homeWelcomeMsg{animation:fadeUp .4s ease both;animation-delay:.2s}
 </style>
 
 <script>
@@ -537,6 +557,10 @@ if('serviceWorker' in navigator) {
       <div class="home-greeting">
         Bonjour <strong id="homePrenom">Aminata</strong> 🤍<br>
         Qu'est-ce qu'on gère ensemble aujourd'hui ?
+      </div>
+      <!-- Message de bienvenue proactif -->
+      <div id="homeWelcomeMsg" style="display:none;margin:0 4px 4px;background:#fff;border-radius:18px;padding:14px 16px;font-size:13.5px;color:#3B1152;line-height:1.55;border:1.5px solid rgba(59,17,82,.07);font-family:'DM Sans',sans-serif;position:relative">
+        <div style="position:absolute;top:-8px;left:16px;background:linear-gradient(135deg,#3B1152,#5A1E80);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;letter-spacing:.06em">ALIMA</div>
       </div>
 
       <!-- Input principal -->
@@ -708,6 +732,16 @@ if('serviceWorker' in navigator) {
 
       <!-- Notifications -->
       <div class="section-title" style="margin:18px 0 12px">Notifications</div>
+      <div id="notifPermBadge" onclick="requestNotifPerm()">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">🔔</span>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#C9943A">Activer les rappels</div>
+            <div style="font-size:11px;color:#9A80AA">Recevoir les rappels même app en arrière-plan</div>
+          </div>
+          <span style="margin-left:auto;font-size:18px">→</span>
+        </div>
+      </div>
       <div class="settings-card">
         <div class="setting-row">
           <div class="setting-icon bg-purple">🔔</div>
@@ -927,6 +961,19 @@ if('serviceWorker' in navigator) {
 </div>
 
 <!-- ══ BOTTOM NAV ══ -->
+
+<!-- ══ BANNIÈRE RAPPEL ══ -->
+<div id="reminderBanner">
+  <div class="rb-inner">
+    <div class="rb-icon">⏰</div>
+    <div style="flex:1">
+      <div class="rb-title" id="rbTitle">Rappel</div>
+      <div class="rb-sub" id="rbSub">Maintenant</div>
+    </div>
+    <div class="rb-close" onclick="closeReminder()">✕</div>
+  </div>
+</div>
+
 <div class="bottom-nav">
   <div class="nav-item active" id="nav-home" onclick="navTo('home')">
     <div class="nav-icon">💬</div>
@@ -955,7 +1002,7 @@ function nav(id) {
   const vtBtn=document.getElementById('vtBtn');
   if(vtBtn) vtBtn.style.display=(id==='chat')?'none':'';
   if(id==='agenda'){buildStrip();renderAgenda();renderCycleBanner();}
-  if(id==='profil'){renderProfilEnfants();}
+  if(id==='profil'){renderProfilEnfants();updateNotifBadge();}
   if(id==='notes')renderNotes();
   if(id==='cycle'){drawWheel();renderPhaseCard(selPhase);}
   if(id==='home')updateHome();
@@ -1043,8 +1090,11 @@ CYCLE :
 - Énergie : ${phaseInfo.energie}
 - Conseil : ${phaseInfo.conseil}
 
+MÉMOIRE DES CONVERSATIONS RÉCENTES :
+\${getMemorySummary() || '(première conversation)'}
+
 PROCHAINS ÉVÉNEMENTS AGENDA :
-${upcoming || '(aucun)'}
+\${upcoming || '(aucun)'}
 
 RÈGLES :
 - Réponds en français, chaleur et concision (2-3 phrases max sauf si demandé plus)
@@ -1574,6 +1624,7 @@ function updateHome() {
   if(at) at.className='phase-tab active-'+curPhase;
   updateHome();
   buildStrip(); renderAgenda(); renderNotes();
+  setTimeout(startReminderClock, 0);
 })();
 
 // ── ÉDITION PROFIL ──
@@ -1693,6 +1744,8 @@ let obEnfants = [];
       loadAgendaNotes();
       // Pas d'onboarding — profil déjà là
       document.getElementById('onboarding').classList.add('done');
+      // Message de bienvenue proactif (une fois par jour)
+      setTimeout(sendMorningWelcome, 800);
     } else {
       // Nouvelle utilisatrice — lancer l'onboarding
       obInit();
@@ -2141,6 +2194,264 @@ function renderEnfantFilters() {
         abf.appendChild(chip);
       }
     });
+  }
+}
+
+// ══ SYSTÈME DE RAPPELS ══
+
+// Son via Web Audio API (aucun fichier audio requis)
+function playReminderSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+    // 3 bips doux : do-mi-sol
+    [[523, 0], [659, 0.18], [784, 0.36]].forEach(([freq, delay]) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, now + delay);
+      gain.gain.linearRampToValueAtTime(0.35, now + delay + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.55);
+      osc.start(now + delay);
+      osc.stop(now + delay + 0.6);
+    });
+  } catch(e) { console.log('Audio non disponible:', e); }
+}
+
+// Afficher la bannière in-app
+function showReminderBanner(title, sub) {
+  const b = document.getElementById('reminderBanner');
+  document.getElementById('rbTitle').textContent = title;
+  document.getElementById('rbSub').textContent = sub || 'Maintenant';
+  b.style.display = 'block';
+  // Fermeture auto après 8 secondes
+  clearTimeout(window._rbTimer);
+  window._rbTimer = setTimeout(closeReminder, 8000);
+}
+
+function closeReminder() {
+  document.getElementById('reminderBanner').style.display = 'none';
+  clearTimeout(window._rbTimer);
+}
+
+// Notification système (Android natif, iOS 16.4+ PWA installée)
+function sendNotification(title, body) {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    try {
+      // Via Service Worker pour iOS compatibility
+      if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.ready.then(reg => {
+          reg.showNotification(title, {
+            body, icon: '/icon-192.png', badge: '/icon-192.png',
+            tag: 'alima-rappel', renotify: true,
+            vibrate: [200, 100, 200]
+          });
+        });
+      } else {
+        new Notification(title, { body, icon: '/icon-192.png' });
+      }
+    } catch(e) { console.log('Notification:', e); }
+  }
+}
+
+// Demande de permission notification
+function requestNotifPerm() {
+  if (!('Notification' in window)) {
+    showActionToast('❌ Notifications non supportées sur ce navigateur');
+    return;
+  }
+  Notification.requestPermission().then(perm => {
+    if (perm === 'granted') {
+      showActionToast('✅ Rappels activés !');
+      document.getElementById('notifPermBadge').style.display = 'none';
+      // Test immédiat
+      sendNotification('Alima 🤍', 'Les rappels sont activés. Je penserai à toi !');
+    } else {
+      showActionToast('Pour activer : Réglages → Safari → Notifications');
+    }
+  });
+}
+
+// Mettre à jour le badge permission selon l'état actuel
+function updateNotifBadge() {
+  const badge = document.getElementById('notifPermBadge');
+  if (!badge) return;
+  if (!('Notification' in window)) {
+    badge.style.display = 'none';
+  } else if (Notification.permission === 'granted') {
+    badge.style.display = 'none';
+  } else {
+    badge.style.display = 'block';
+  }
+}
+
+// Vérifier les rappels à déclencher (appelé toutes les 60s)
+
+var firedReminders = new Set();
+function checkReminders() {
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const todayISO = now.toISOString().split('T')[0];
+  const todayFmt = fmt(now); // format utilisé dans aItems.date
+
+  aItems.forEach(item => {
+    if (item.type !== 'rappel') return;
+    if (item.done) return;
+    // Vérifier que c'est aujourd'hui
+    const isToday = item.date === todayFmt || item.date === todayISO ||
+                    item.date === "Aujourd\'hui" || item.date === "Aujourd'hui";
+    if (!isToday) return;
+    if (!item.time) return;
+
+    // Parser le temps (format "09h30" ou "09:30")
+    const timeParsed = item.time.replace('h', ':');
+    const [h, m] = timeParsed.split(':').map(Number);
+    if (isNaN(h)) return;
+    const itemMin = h * 60 + (m || 0);
+
+    // Déclencher si on est dans la minute exacte
+    const key = `${item.id}-${todayISO}`;
+    if (nowMin === itemMin && !firedReminders.has(key)) {
+      firedReminders.add(key);
+      playReminderSound();
+      showReminderBanner('⏰ ' + item.title, item.time + (item.tags && item.tags.length ? ' · ' + item.tags.join(', ') : ''));
+      sendNotification('⏰ ' + item.title, 'Rappel Alima · ' + item.time);
+    }
+  });
+
+  // Nettoyer les vieux keys (> 1 jour) pour ne pas faire grossir le Set
+  if (firedReminders.size > 100) firedReminders.clear();
+}
+
+// Démarrer la vérification toutes les 60 secondes
+// + immédiatement au démarrage pour ne pas rater un rappel
+function startReminderClock() {
+  checkReminders();
+  setInterval(checkReminders, 60000);
+  updateNotifBadge();
+}
+
+// ══ MÉMOIRE PERSISTANTE ══
+const MEMORY_KEY = 'alima_memory';
+const MEMORY_MAX = 20; // nombre max d'échanges mémorisés
+
+function loadMemory() {
+  try {
+    const saved = localStorage.getItem(MEMORY_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch(e) { return []; }
+}
+
+function saveMemory(history) {
+  try {
+    // Garder seulement les MEMORY_MAX derniers échanges (user+assistant = 1 échange)
+    const trimmed = history.slice(-MEMORY_MAX * 2);
+    localStorage.setItem(MEMORY_KEY, JSON.stringify(trimmed));
+  } catch(e) {}
+}
+
+function getMemorySummary() {
+  const mem = loadMemory();
+  if (!mem.length) return '';
+  // Formater les échanges passés pour le system prompt
+  return mem.map(m =>
+    m.role === 'user'
+      ? `[Utilisatrice] ${m.content}`
+      : `[Alima] ${typeof m.content === 'string' ? m.content.split('\n')[0].slice(0,120) : ''}`
+  ).join('\n');
+}
+
+function clearMemory() {
+  try { localStorage.removeItem(MEMORY_KEY); } catch(e) {}
+}
+
+// ══ MESSAGE DE BIENVENUE PROACTIF ══
+const WELCOME_KEY = 'alima_lastWelcome';
+
+function shouldShowWelcome() {
+  const today = new Date().toISOString().split('T')[0];
+  try {
+    return localStorage.getItem(WELCOME_KEY) !== today;
+  } catch(e) { return false; }
+}
+
+function markWelcomeSeen() {
+  try {
+    localStorage.setItem(WELCOME_KEY, new Date().toISOString().split('T')[0]);
+  } catch(e) {}
+}
+
+async function sendMorningWelcome() {
+  if (!shouldShowWelcome()) return;
+  if (!profile || !profile.prenom) return;
+  markWelcomeSeen();
+
+  // Construire le contexte du jour
+  const now = new Date();
+  const todayFmt = fmt(now);
+  const todayISO = now.toISOString().split('T')[0];
+  const h = now.getHours();
+  const salut = h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
+  const prenom = profile.prenom;
+
+  // Événements du jour
+  const evtAujourdhui = aItems.filter(it =>
+    !it.done && (it.date === todayFmt || it.date === todayISO)
+  );
+  const nbEvt = evtAujourdhui.length;
+  const evtStr = evtAujourdhui.slice(0,4).map(it =>
+    `- ${it.icon||'📅'} ${it.title}${it.time ? ' à ' + it.time : ''}`
+  ).join('\n');
+
+  // Phase cycle
+  const cycleDay = profile.cycleStart
+    ? Math.max(1, Math.min(28, Math.round((now - new Date(profile.cycleStart)) / 86400000) + 1))
+    : 8;
+  const ph = getPhaseInfo(cycleDay);
+
+  // Mémoire des derniers échanges
+  const memSummary = getMemorySummary();
+  const memPart = memSummary
+    ? `\n\nDERNIERS ÉCHANGES AVEC ELLE :\n${memSummary.slice(0, 600)}`
+    : '';
+
+  const welcomePrompt = `${salut} ${prenom} ! Tu es Alima, son assistante familiale.
+Génère un message de bienvenue personnalisé et chaleureux (3-4 phrases max) qui :
+1. La salue par son prénom avec une touche humaine
+2. Mentionne sa phase de cycle (${ph.label}, J${cycleDay}) si pertinent et utile
+3. ${nbEvt > 0 ? `Résume brièvement ses ${nbEvt} événement(s) du jour :\n${evtStr}` : `Lui propose de planifier sa journée`}
+4. Se termine par une question ou proposition d'aide concrète${memPart}
+
+Réponds en français, ton chaleureux et personnel. Pas de formatage markdown.`;
+
+  // Afficher l'indicateur de chargement discret
+  const welcomeEl = document.getElementById('homeWelcomeMsg');
+  if (welcomeEl) {
+    welcomeEl.style.display = 'block';
+    welcomeEl.textContent = '✨ Alima prépare ton briefing...';
+  }
+
+  try {
+    const resp = await fetch('/.netlify/functions/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: buildSystemPrompt(),
+        messages: [{ role: 'user', content: welcomePrompt }]
+      })
+    });
+    const data = await resp.json();
+    const msg = data.content && data.content[0] ? data.content[0].text : null;
+    if (msg && welcomeEl) {
+      welcomeEl.textContent = msg;
+      welcomeEl.style.display = 'block';
+      // Mémoriser ce message comme premier échange de la journée
+      chatHistory.push({ role: 'assistant', content: msg });
+    }
+  } catch(e) {
+    if (welcomeEl) welcomeEl.style.display = 'none';
   }
 }
 </script>
