@@ -400,6 +400,32 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'DM Sa
   .ob-dots{display:flex;gap:6px;margin-bottom:32px}
   .ob-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2)}
   .ob-dot.active{background:#C9943A;width:20px;border-radius:4px}
+
+  /* ── Bandeau phase cycle agenda ── */
+  #cycleBanner{display:flex;align-items:center;gap:10px;padding:9px 16px;margin:0 -22px 0;font-size:12px;flex-shrink:0;transition:background .3s}
+  #cycleBanner .cb-icon{font-size:18px}
+  #cycleBanner .cb-text{flex:1;font-weight:500;color:#fff}
+  #cycleBanner .cb-toggle{font-size:10px;color:rgba(255,255,255,.6);cursor:pointer;text-decoration:underline;white-space:nowrap}
+  /* ── Menu contextuel note (tap long) ── */
+  #noteCtxOverlay{display:none;position:absolute;inset:0;z-index:250;background:rgba(20,6,36,.5);backdrop-filter:blur(3px)}
+  #noteCtxMenu{position:absolute;background:#fff;border-radius:20px;padding:8px;min-width:180px;box-shadow:0 8px 40px rgba(0,0,0,.2)}
+  .ctx-btn{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:14px;cursor:pointer;font-size:14px;font-weight:500;color:var(--prune-dark)}
+  .ctx-btn:active{background:var(--cream)}
+  .ctx-btn.danger{color:#E53935}
+  /* ── Bouton + agenda ── */
+  #agendaAddBtn{position:absolute;right:18px;bottom:90px;width:52px;height:52px;border-radius:18px;background:linear-gradient(135deg,#3B1152,#5A1E80);border:none;color:#fff;font-size:26px;box-shadow:0 6px 24px rgba(59,17,82,.4);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:transform .15s}
+  #agendaAddBtn:active{transform:scale(.93)}
+  /* ── Modal ajout événement agenda ── */
+  #agendaModal{display:none;position:absolute;inset:0;z-index:200;background:rgba(20,6,36,.6);backdrop-filter:blur(4px);align-items:flex-end}
+  #agendaModal.open{display:flex}
+  #agendaModal .amodal{background:#FAF8F2;border-radius:28px 28px 0 0;width:100%;padding:20px 22px 36px;max-height:88%}
+  #agendaModal input, #agendaModal select{width:100%;background:#fff;border:1.5px solid rgba(59,17,82,.12);border-radius:14px;padding:11px 15px;font-size:15px;color:#1E0630;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:10px}
+  #agendaModal select{appearance:none;-webkit-appearance:none}
+  /* ── Modal édition note ── */
+  #editNoteModal{display:none;position:absolute;inset:0;z-index:260;background:rgba(20,6,36,.6);backdrop-filter:blur(4px);align-items:flex-end}
+  #editNoteModal.open{display:flex}
+  #editNoteModal .enmodal{background:#FAF8F2;border-radius:28px 28px 0 0;width:100%;padding:20px 22px 36px}
+  #editNoteModal input, #editNoteModal textarea{width:100%;background:#fff;border:1.5px solid rgba(59,17,82,.12);border-radius:14px;padding:11px 15px;font-size:15px;color:#1E0630;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:10px;resize:none}
 </style>
 </head>
 <body>
@@ -595,8 +621,12 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'DM Sa
       <div class="filter-chip" onclick="setAFilter(this,'rappel')">⏰ Rappels</div>
     </div>
   </div>
+  <!-- Bandeau phase cycle -->
+  <div id="cycleBanner" style="display:none"></div>
   <!-- Content -->
   <div class="scroll" id="agendaContent" style="padding:14px 22px 90px"></div>
+  <!-- Bouton + -->
+  <button id="agendaAddBtn" onclick="openAgendaModal()">＋</button>
 </div>
 
 <!-- ══ SCREEN : NOTES ══ -->
@@ -893,7 +923,7 @@ function nav(id) {
   document.getElementById('screen-'+id).classList.add('active');
   const vtBtn=document.getElementById('vtBtn');
   if(vtBtn) vtBtn.style.display=(id==='chat')?'none':'';
-  if(id==='agenda'){buildStrip();renderAgenda();}
+  if(id==='agenda'){buildStrip();renderAgenda();renderCycleBanner();}
   if(id==='notes')renderNotes();
   if(id==='cycle'){drawWheel();renderPhaseCard(selPhase);}
   if(id==='home')updateHome();
@@ -1152,7 +1182,7 @@ function setAFilter(el,f){aFilter=f;document.querySelectorAll('#screen-agenda .f
 function renderAgenda(){const c=document.getElementById('agendaContent');c.innerHTML='';let data=aItems.filter(it=>{if(aFilter==='tous')return true;if(aFilter==='rappel')return it.type==='rappel';return it.tags.includes(aFilter);});if(aView==='liste')renderAListe(c,data);else renderAJour(c,data);}
 function renderAListe(c,data){const g={};data.forEach(it=>{if(!g[it.date])g[it.date]=[];g[it.date].push(it);});const s=Object.keys(g).sort();if(!s.length){c.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--light);font-size:14px">Rien ici 🌿</div>';return;}s.forEach((k,i)=>{const act=g[k].filter(it=>!it.done);const dn=g[k].filter(it=>it.done);const sec=document.createElement('div');sec.className='date-section';const dt=new Date(k+'T00:00:00');const isT=k===fmt(today),isTm=k===fmt(D(1));const lbl=isT?"Aujourd'hui":isTm?'Demain':JJ[dt.getDay()]+' '+dt.getDate()+' '+MM[dt.getMonth()];sec.innerHTML=`<div class="date-label${isT?' today':''}">${lbl}</div>`;act.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')).forEach((it,j)=>{const el=mkItem(it);el.style.animationDelay=(i*.04+j*.04)+'s';sec.appendChild(el);});appendDone(sec,dn);c.appendChild(sec);});}
 function renderAJour(c,data){const items=data.filter(it=>it.date===selDay);const dt=new Date(selDay+'T00:00:00');const isT=selDay===fmt(today);const lbl=document.createElement('div');lbl.className='date-label'+(isT?' today':'');lbl.textContent=isT?"Aujourd'hui":JJ[dt.getDay()]+' '+dt.getDate()+' '+MM[dt.getMonth()];c.appendChild(lbl);const act=items.filter(it=>!it.done);const dn=items.filter(it=>it.done);if(!act.length&&!dn.length){c.innerHTML+='<div style="text-align:center;padding:60px 20px;color:var(--light);font-size:14px">Rien ce jour 🌿</div>';return;}act.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')).forEach((it,i)=>{const el=mkItem(it);el.style.animationDelay=(i*.05)+'s';c.appendChild(el);});appendDone(c,dn);}
-function mkItem(it){const d=document.createElement('div');d.className=`item type-${it.type}`;d.dataset.id=it.id;const tags=it.tags.map(t=>`<span class="item-tag tag-${t}">${t}</span>`).join('');d.innerHTML=`<div class="item-icon">${it.icon}</div><div class="item-body"><div class="item-title">${it.title}</div><div class="item-meta">${it.time?`<span class="item-time">${it.time}</span>`:''}${tags}</div></div><div class="item-check${it.done?' checked':''}" onclick="toggleItem(event,${it.id})">${it.done?'✓':''}</div>`;return d;}
+function mkItem(it){const d=document.createElement('div');d.className=`item type-${it.type}`;d.dataset.id=it.id;const tags=it.tags.map(t=>`<span class="item-tag tag-${t}">${t}</span>`).join('');d.innerHTML=`<div class="item-icon">${it.icon}</div><div class="item-body"><div class="item-title">${it.title}</div><div class="item-meta">${it.time?`<span class="item-time">${it.time}</span>`:''}${tags}</div></div><div class="item-check${it.done?' checked':''}" onclick="toggleItem(event,${it.id})">${it.done?'✓':''}</div>`;d.addEventListener('contextmenu',(e)=>{e.preventDefault();openAgendaModal(it.id);});return d;}
 function toggleItem(e,id){e.stopPropagation();const it=aItems.find(i=>i.id===id);if(!it)return;if(!it.done){const el=document.querySelector(`.item[data-id="${id}"]`);if(el){const c=el.querySelector('.item-check');if(c){c.classList.add('checked');c.textContent='✓';}el.classList.add('vanish');setTimeout(()=>{it.done=true;renderAgenda();updateHome();saveAgenda();},380);}}else{it.done=false;renderAgenda();saveAgenda();}}
 function appendDone(c,dn){if(!dn.length)return;const t=document.createElement('div');t.className='done-toggle';t.innerHTML=`<span>${showDone?'▲':'▼'}</span> ${dn.length} fait${dn.length>1?'s':''}`;t.onclick=()=>{showDone=!showDone;renderAgenda();};c.appendChild(t);if(showDone){const s=document.createElement('div');s.className='done-section';dn.forEach(it=>s.appendChild(mkItem(it)));c.appendChild(s);}}
 
@@ -1162,7 +1192,7 @@ let nFilter='tous',nSearch='',nType='texte',nCat='perso',nId=100;
 const CI={yasmine:'👧',marème:'👶',perso:'🌿',pro:'💼',courses:'🛒'};
 const CL={yasmine:'Yasmine',marème:'Marème',perso:'Perso',pro:'Pro',courses:'Courses'};
 function renderNotes(){const g=document.getElementById('masonry');g.innerHTML='';const data=notes.filter(n=>{if(nFilter!=='tous'&&n.cat!==nFilter)return false;if(nSearch){const q=nSearch.toLowerCase();return n.title.toLowerCase().includes(q)||(n.body||'').toLowerCase().includes(q)||(n.items||[]).some(i=>i.label.toLowerCase().includes(q));}return true;});if(!data.length){g.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--light);font-size:14px">Aucune note 🌿</div>';return;}data.forEach((n,i)=>{const c=mkCard(n);c.style.animationDelay=(i*.05)+'s';g.appendChild(c);});}
-function mkCard(n){const d=document.createElement('div');d.className=`card cat-${n.cat}`;const ti=n.type==='texte'?'📝':n.type==='checklist'?'✅':n.type==='vocale'?'🎙':'📷';let b='';if(n.type==='texte')b=`<div class="card-body">${n.body}</div>`;else if(n.type==='checklist'){const dn=n.items.filter(i=>i.done).length;b=`<div class="check-list">${n.items.map((it,idx)=>`<div class="check-item${it.done?' done':''}"><div class="check-box${it.done?' checked':''}" onclick="toggleNItem(event,${n.id},${idx})">${it.done?'✓':''}</div><span class="check-label">${it.label}</span></div>`).join('')}</div><div class="card-body" style="margin-top:6px;font-size:11px">${dn}/${n.items.length} faits</div>`;}else if(n.type==='vocale'){const bars=Array.from({length:16},(_,i)=>`<div class="wave-bar" style="height:${4+Math.sin(i*.8)*7+Math.random()*5}px"></div>`).join('');b=`<div class="voice-bar"><div class="voice-play">▶</div><div class="voice-wave">${bars}</div><span class="voice-dur">${n.duration}</span></div>`;}else b=`<div class="card-photo">${n.emoji||'🖼️'}</div>`;d.innerHTML=`<div class="card-header"><div class="card-cat"><span>${CI[n.cat]}</span>${CL[n.cat]}</div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px">${ti}</span><span onclick="deleteNote(event,${n.id})" style="font-size:14px;cursor:pointer;opacity:.4;line-height:1" title="Supprimer">🗑️</span></div></div><div class="card-title">${n.title}</div>${b}<div class="card-date">${n.date}</div>`;return d;}
+function mkCard(n){const d=document.createElement('div');d.className=`card cat-${n.cat}`;const ti=n.type==='texte'?'📝':n.type==='checklist'?'✅':n.type==='vocale'?'🎙':'📷';let b='';if(n.type==='texte')b=`<div class="card-body">${n.body}</div>`;else if(n.type==='checklist'){const dn=n.items.filter(i=>i.done).length;b=`<div class="check-list">${n.items.map((it,idx)=>`<div class="check-item${it.done?' done':''}"><div class="check-box${it.done?' checked':''}" onclick="toggleNItem(event,${n.id},${idx})">${it.done?'✓':''}</div><span class="check-label">${it.label}</span></div>`).join('')}</div><div class="card-body" style="margin-top:6px;font-size:11px">${dn}/${n.items.length} faits</div>`;}else if(n.type==='vocale'){const bars=Array.from({length:16},(_,i)=>`<div class="wave-bar" style="height:${4+Math.sin(i*.8)*7+Math.random()*5}px"></div>`).join('');b=`<div class="voice-bar"><div class="voice-play">▶</div><div class="voice-wave">${bars}</div><span class="voice-dur">${n.duration}</span></div>`;}else b=`<div class="card-photo">${n.emoji||'🖼️'}</div>`;d.innerHTML=`<div class="card-header"><div class="card-cat"><span>${CI[n.cat]}</span>${CL[n.cat]}</div><span style="font-size:12px">${ti}</span></div><div class="card-title">${n.title}</div>${b}<div class="card-date">${n.date}</div>`;bindLongPress(d, n.id);return d;}
 function toggleNItem(e,nid,idx){e.stopPropagation();const n=notes.find(x=>x.id===nid);if(n&&n.items){n.items[idx].done=!n.items[idx].done;saveNotes();renderNotes();}}
 function deleteNote(e,id){e.stopPropagation();const el=e.target.closest('.card');if(el){el.style.transition='opacity .25s,transform .25s';el.style.opacity='0';el.style.transform='scale(.95)';setTimeout(()=>{const i=notes.findIndex(n=>n.id===id);if(i>=0){notes.splice(i,1);saveNotes();renderNotes();updateHome();}},260);}}
 function setNFilter(el,f){nFilter=f;document.querySelectorAll('#screen-notes .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderNotes();}
@@ -1658,6 +1688,7 @@ function renderProfilEnfants() {
 // Charger profil au démarrage
 let obEnfants = [];
 (function loadProfile() {
+  try { if(localStorage.getItem('alima_cycleBanner')==='0') showCycleBanner=false; } catch(e) {}
   try {
     const saved = localStorage.getItem('alima_profile');
     if (saved) {
@@ -1824,6 +1855,191 @@ function loadAgendaNotes() {
     if (n) { const parsed = JSON.parse(n); parsed.forEach(i=>notes.push(i)); }
   } catch(e) {}
 }
+
+// ── BANDEAU CYCLE AGENDA ──
+let showCycleBanner = true;
+
+function renderCycleBanner() {
+  const banner = document.getElementById('cycleBanner');
+  if (!banner) return;
+  if (!showCycleBanner || !profile || !profile.cycleStart) {
+    banner.style.display = 'none';
+    return;
+  }
+  const p = profile;
+  const cycleDay = p.cycleStart
+    ? Math.max(1, Math.min(28, Math.round((new Date() - new Date(p.cycleStart)) / 86400000) + 1))
+    : CYCLE_DAY;
+  const ph = getPhaseInfo(cycleDay);
+  const colors = { menstruelle:'#8B2252', folliculaire:'#2E7D8C', ovulatoire:'#B8860B', lutéale:'#5D4037' };
+  const icons  = { menstruelle:'🌑', folliculaire:'🌱', ovulatoire:'🌕', lutéale:'🍂' };
+  const bg = colors[ph.phase] || '#3B1152';
+  banner.style.display = 'flex';
+  banner.style.background = bg;
+  banner.innerHTML = `
+    <span class="cb-icon">${icons[ph.phase]||'🌸'}</span>
+    <div class="cb-text">Phase ${ph.label} · J${cycleDay} · ${ph.conseil.split('.')[0]}</div>
+    <div class="cb-toggle" onclick="hideCycleBanner()">Masquer</div>`;
+}
+
+function hideCycleBanner() {
+  showCycleBanner = false;
+  try { localStorage.setItem('alima_cycleBanner', '0'); } catch(e) {}
+  document.getElementById('cycleBanner').style.display = 'none';
+}
+
+// ── MODAL AJOUT ÉVÉNEMENT AGENDA ──
+let editingAgendaId = null;
+
+function openAgendaModal(id) {
+  editingAgendaId = id || null;
+  const modal = document.getElementById('agendaModal');
+  const title = document.getElementById('agendaModalTitle');
+  if (id) {
+    const it = aItems.find(i => i.id === id);
+    if (!it) return;
+    title.textContent = "Modifier l'événement";
+    document.getElementById('am-title').value = it.title || '';
+    document.getElementById('am-date').value = it.date || selDay;
+    document.getElementById('am-time').value = it.time ? it.time.replace('h',':') : '';
+    document.getElementById('am-type').value = it.type || 'event';
+    document.getElementById('am-tag').value = (it.tags && it.tags[0]) || '';
+  } else {
+    title.textContent = 'Nouvel événement';
+    document.getElementById('am-title').value = '';
+    document.getElementById('am-date').value = selDay;
+    document.getElementById('am-time').value = '';
+    document.getElementById('am-type').value = 'event';
+    document.getElementById('am-tag').value = '';
+  }
+  // Peupler les tags enfants dans le select
+  const sel = document.getElementById('am-tag');
+  // Garder les 3 premières options, ajouter enfants
+  while (sel.options.length > 3) sel.remove(3);
+  if (profile && profile.enfants) {
+    profile.enfants.forEach(e => {
+      const opt = document.createElement('option');
+      opt.value = e.prenom.toLowerCase();
+      opt.textContent = '👶 ' + e.prenom;
+      sel.appendChild(opt);
+    });
+  }
+  modal.classList.add('open');
+}
+
+function closeAgendaModal() {
+  document.getElementById('agendaModal').classList.remove('open');
+  editingAgendaId = null;
+}
+
+function saveAgendaItem() {
+  const t = document.getElementById('am-title').value.trim();
+  if (!t) { document.getElementById('am-title').focus(); return; }
+  const date = document.getElementById('am-date').value || selDay;
+  const timeRaw = document.getElementById('am-time').value;
+  const time = timeRaw ? timeRaw.replace(':','h') : '';
+  const type = document.getElementById('am-type').value;
+  const tag = document.getElementById('am-tag').value;
+  const icons = { event:'📅', rappel:'⏰', tache:'✅', recurrent:'🔁' };
+  if (editingAgendaId) {
+    const it = aItems.find(i => i.id === editingAgendaId);
+    if (it) {
+      it.title = t; it.date = date; it.time = time;
+      it.type = type; it.tags = tag ? [tag] : [];
+      it.icon = icons[type] || '📅';
+    }
+  } else {
+    aItems.push({ id: Date.now(), date, time, title: t,
+      type, icon: icons[type]||'📅', tags: tag ? [tag] : [], done: false });
+  }
+  saveAgenda(); renderAgenda(); updateHome(); closeAgendaModal();
+}
+
+// Swipe pour supprimer un item agenda (tap long → option)
+function openAgendaItemMenu(e, id) {
+  e.preventDefault(); e.stopPropagation();
+  if (confirm('Supprimer cet événement ?')) {
+    const i = aItems.findIndex(x => x.id === id);
+    if (i >= 0) { aItems.splice(i, 1); saveAgenda(); renderAgenda(); updateHome(); }
+  }
+}
+
+// ── MENU CONTEXTUEL NOTE (tap long) ──
+let ctxNoteId = null;
+let longPressTimer = null;
+
+function bindLongPress(el, id) {
+  el.addEventListener('pointerdown', () => {
+    longPressTimer = setTimeout(() => openNoteCtx(el, id), 500);
+  });
+  el.addEventListener('pointerup', () => clearTimeout(longPressTimer));
+  el.addEventListener('pointermove', () => clearTimeout(longPressTimer));
+  el.addEventListener('pointercancel', () => clearTimeout(longPressTimer));
+}
+
+function openNoteCtx(el, id) {
+  ctxNoteId = id;
+  const overlay = document.getElementById('noteCtxOverlay');
+  const menu = document.getElementById('noteCtxMenu');
+  overlay.style.display = 'block';
+  // Positionner le menu près de la carte
+  const rect = el.getBoundingClientRect();
+  const phone = el.closest('.phone') || document.body;
+  const pr = phone.getBoundingClientRect();
+  const top = Math.min(rect.bottom - pr.top + 4, pr.height - 130);
+  const left = Math.min(rect.left - pr.left, pr.width - 196);
+  menu.style.top = top + 'px';
+  menu.style.left = left + 'px';
+}
+
+function closeNoteCtx() {
+  document.getElementById('noteCtxOverlay').style.display = 'none';
+  ctxNoteId = null;
+}
+
+function editNoteFromCtx() {
+  closeNoteCtx();
+  if (!ctxNoteId) return;
+  openEditNote(ctxNoteId);
+}
+
+function deleteNoteFromCtx() {
+  closeNoteCtx();
+  if (!ctxNoteId) return;
+  const i = notes.findIndex(n => n.id === ctxNoteId);
+  if (i >= 0) { notes.splice(i, 1); saveNotes(); renderNotes(); updateHome(); }
+}
+
+// ── MODAL ÉDITION NOTE ──
+let editingNoteId = null;
+
+function openEditNote(id) {
+  editingNoteId = id;
+  const n = notes.find(x => x.id === id);
+  if (!n) return;
+  document.getElementById('en-title').value = n.title || '';
+  document.getElementById('en-body').value = n.body || (n.items ? n.items.map(i=>i.label).join('\n') : '');
+  document.getElementById('editNoteModal').classList.add('open');
+}
+
+function closeEditNote() {
+  document.getElementById('editNoteModal').classList.remove('open');
+  editingNoteId = null;
+}
+
+function saveEditNote() {
+  const n = notes.find(x => x.id === editingNoteId);
+  if (!n) return;
+  const title = document.getElementById('en-title').value.trim();
+  const body  = document.getElementById('en-body').value.trim();
+  if (title) n.title = title;
+  if (n.type === 'checklist' && body) {
+    n.items = body.split('\n').filter(l=>l.trim()).map(l => ({ label: l.trim(), done: false }));
+  } else if (body) {
+    n.body = body;
+  }
+  saveNotes(); closeEditNote(); renderNotes();
+}
 </script>
 
 <!-- ══ MODAL ÉDITION PROFIL ══ -->
@@ -1860,6 +2076,57 @@ function loadAgendaNotes() {
     <!-- Boutons -->
     <button onclick="saveEditProfil()" style="width:100%;height:50px;border-radius:16px;background:linear-gradient(135deg,#3B1152,#5A1E80);border:none;color:#fff;font-size:16px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;margin-bottom:10px">Enregistrer</button>
     <div onclick="closeEditProfil()" style="text-align:center;font-size:13px;color:#9A80AA;cursor:pointer;padding:8px">Annuler</div>
+  </div>
+</div>
+
+<!-- ══ MODAL AJOUT ÉVÉNEMENT AGENDA ══ -->
+<div id="agendaModal">
+  <div class="amodal">
+    <div style="width:40px;height:4px;background:rgba(59,17,82,.15);border-radius:4px;margin:0 auto 18px"></div>
+    <div id="agendaModalTitle" style="font-family:'Fraunces',serif;font-size:19px;color:#1E0630;margin-bottom:16px">Nouvel événement</div>
+    <input id="am-title" type="text" placeholder="Titre de l'événement">
+    <input id="am-date" type="date">
+    <div style="display:flex;gap:10px">
+      <input id="am-time" type="time" style="flex:1">
+      <select id="am-type" style="flex:1">
+        <option value="event">📅 Événement</option>
+        <option value="rappel">⏰ Rappel</option>
+        <option value="tache">✅ Tâche</option>
+        <option value="recurrent">🔁 Récurrent</option>
+      </select>
+    </div>
+    <select id="am-tag">
+      <option value="">Sans catégorie</option>
+      <option value="pro">💼 Pro</option>
+      <option value="perso">🌿 Perso</option>
+    </select>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button onclick="closeAgendaModal()" style="flex:1;height:48px;border-radius:14px;background:#EDE8F4;border:none;font-size:15px;font-weight:600;color:#3B1152;font-family:'DM Sans',sans-serif;cursor:pointer">Annuler</button>
+      <button onclick="saveAgendaItem()" style="flex:2;height:48px;border-radius:14px;background:linear-gradient(135deg,#3B1152,#5A1E80);border:none;font-size:15px;font-weight:600;color:#fff;font-family:'DM Sans',sans-serif;cursor:pointer">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL ÉDITION NOTE ══ -->
+<div id="editNoteModal">
+  <div class="enmodal">
+    <div style="width:40px;height:4px;background:rgba(59,17,82,.15);border-radius:4px;margin:0 auto 18px"></div>
+    <div style="font-family:'Fraunces',serif;font-size:19px;color:#1E0630;margin-bottom:16px">Modifier la note</div>
+    <input id="en-title" type="text" placeholder="Titre">
+    <textarea id="en-body" rows="4" placeholder="Contenu..."></textarea>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button onclick="closeEditNote()" style="flex:1;height:48px;border-radius:14px;background:#EDE8F4;border:none;font-size:15px;font-weight:600;color:#3B1152;font-family:'DM Sans',sans-serif;cursor:pointer">Annuler</button>
+      <button onclick="saveEditNote()" style="flex:2;height:48px;border-radius:14px;background:linear-gradient(135deg,#3B1152,#5A1E80);border:none;font-size:15px;font-weight:600;color:#fff;font-family:'DM Sans',sans-serif;cursor:pointer">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MENU CONTEXTUEL NOTE ══ -->
+<div id="noteCtxOverlay" onclick="closeNoteCtx()">
+  <div id="noteCtxMenu">
+    <div class="ctx-btn" onclick="editNoteFromCtx()">✏️ &nbsp;Modifier</div>
+    <div style="height:1px;background:#F0EBF8;margin:4px 8px"></div>
+    <div class="ctx-btn danger" onclick="deleteNoteFromCtx()">🗑️ &nbsp;Supprimer</div>
   </div>
 </div>
 </body>
