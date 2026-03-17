@@ -94,7 +94,7 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'DM Sa
 .view-btn{padding:6px 16px;border-radius:9px;font-size:12.5px;font-weight:500;color:var(--light);cursor:pointer;transition:all .18s}
 .view-btn.active{background:var(--prune);color:#fff;box-shadow:0 2px 8px rgba(59,17,82,.25)}
 /* DAYS STRIP */
-.days-strip{display:none;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:14px;margin:0 -22px;padding-left:22px;padding-right:22px}
+.days-strip{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:14px;margin:0 -22px;padding-left:22px;padding-right:22px}
 .days-strip::-webkit-scrollbar{display:none}
 .days-strip.visible{display:flex}
 .day-pill{display:flex;flex-direction:column;align-items:center;min-width:46px;padding:8px 6px;border-radius:14px;cursor:pointer;transition:all .15s}
@@ -709,6 +709,22 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'DM Sa
   .urgence-item-action{font-size:11px;font-weight:600;color:var(--u-color);
     cursor:pointer;white-space:nowrap}
   .urgence-thinking{text-align:center;padding:20px;color:var(--light);font-size:13px}
+
+  /* ── Récurrence badge ── */
+  .item-recur{font-size:9px;color:var(--gold);font-weight:700;
+    background:rgba(201,148,58,.12);padding:1px 6px;border-radius:8px;margin-left:4px}
+  /* ── Vue semaine ── */
+  .week-header{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:10px}
+  .week-col{text-align:center}
+  .week-day-name{font-size:9px;font-weight:700;color:var(--light);
+    text-transform:uppercase;margin-bottom:4px}
+  .week-day-num{width:32px;height:32px;border-radius:10px;margin:0 auto;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:600;color:var(--prune-dark);cursor:pointer}
+  .week-day-num.today{background:var(--prune);color:#fff}
+  .week-day-num.selected{background:var(--cream-dk);color:var(--prune)}
+  .week-day-num.has-ev::after{content:'';display:block;width:4px;height:4px;
+    border-radius:50%;background:var(--gold);margin:1px auto 0}
 </style>
 
 <script>
@@ -900,7 +916,7 @@ if('serviceWorker' in navigator) {
       <div style="display:flex;align-items:center;gap:8px">
         <div class="view-switch">
           <div class="view-btn active" id="btnListe" onclick="switchView('liste')">Liste</div>
-          <div class="view-btn" id="btnJour" onclick="switchView('jour')">Jours</div>
+          <div class="view-btn" id="btnJour" onclick="switchView('semaine')">Semaine</div>
           <div class="view-btn" id="btnMois" onclick="switchView('mois')">Mois</div>
         </div>
 
@@ -1265,7 +1281,7 @@ function nav(id) {
   document.getElementById('screen-'+id).classList.add('active');
   const vtBtn=document.getElementById('vtBtn');
   if(vtBtn) vtBtn.style.display=(id==='chat')?'none':'';
-  if(id==='agenda'){buildStrip();renderAgenda();renderCycleBanner();document.getElementById('btnMois').style.display='';}
+  if(id==='agenda'){buildStrip();const strip=document.getElementById('daysStrip');if(strip)strip.style.display='flex';renderAgenda();renderCycleBanner();}
   if(id==='profil'){renderProfilEnfants();updateNotifBadge();}
   if(id==='notes')renderNotes();
   if(id==='cycle'){drawWheel();renderPhaseCard(selPhase);}
@@ -1523,12 +1539,13 @@ const MM=['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','
 const aItems=[]
 let aView='liste',aFilter='tous',selDay=fmt(today),showDone=false,aId=200;
 function buildStrip(){const s=document.getElementById('daysStrip');s.innerHTML='';for(let i=0;i<14;i++){const dt=D(i);const k=fmt(dt);const has=aItems.some(it=>it.date===k);const p=document.createElement('div');p.className='day-pill'+(k===selDay?' active':'')+(has?' has-events':'');p.dataset.date=k;p.innerHTML=`<div class="day-name">${JJ[dt.getDay()]}</div><div class="day-num">${dt.getDate()}</div><div class="day-dot"></div>`;p.onclick=()=>{selDay=k;buildStrip();renderAgenda();};s.appendChild(p);}}
-function switchView(v){aView=v;document.getElementById('btnListe').classList.toggle('active',v==='liste');document.getElementById('btnJour').classList.toggle('active',v==='jour');document.getElementById('daysStrip').classList.toggle('visible',v==='jour');renderAgenda();}
+// switchView v1 supprimée
 function setAFilter(el,f){aFilter=f;document.querySelectorAll('#screen-agenda .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderAgenda();}
 function renderAgenda(){const c=document.getElementById('agendaContent');c.innerHTML='';let data=aItems.filter(it=>{if(aFilter==='tous')return true;if(aFilter==='rappel')return it.type==='rappel';return it.tags.includes(aFilter);});if(aView==='liste')renderAListe(c,data);else renderAJour(c,data);}
 function renderAListe(c,data){const g={};data.forEach(it=>{if(!g[it.date])g[it.date]=[];g[it.date].push(it);});const s=Object.keys(g).sort();if(!s.length){c.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--light);font-size:14px">Rien ici 🌿</div>';return;}s.forEach((k,i)=>{const act=g[k].filter(it=>!it.done);const dn=g[k].filter(it=>it.done);const sec=document.createElement('div');sec.className='date-section';const dt=new Date(k+'T00:00:00');const isT=k===fmt(today),isTm=k===fmt(D(1));const lbl=isT?"Aujourd'hui":isTm?'Demain':JJ[dt.getDay()]+' '+dt.getDate()+' '+MM[dt.getMonth()];sec.innerHTML=`<div class="date-label${isT?' today':''}">${lbl}</div>`;act.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')).forEach((it,j)=>{const el=mkItem(it);el.style.animationDelay=(i*.04+j*.04)+'s';sec.appendChild(el);});appendDone(sec,dn);c.appendChild(sec);});}
 function renderAJour(c,data){const items=data.filter(it=>it.date===selDay);const dt=new Date(selDay+'T00:00:00');const isT=selDay===fmt(today);const lbl=document.createElement('div');lbl.className='date-label'+(isT?' today':'');lbl.textContent=isT?"Aujourd'hui":JJ[dt.getDay()]+' '+dt.getDate()+' '+MM[dt.getMonth()];c.appendChild(lbl);const act=items.filter(it=>!it.done);const dn=items.filter(it=>it.done);if(!act.length&&!dn.length){c.innerHTML+='<div style="text-align:center;padding:60px 20px;color:var(--light);font-size:14px">Rien ce jour 🌿</div>';return;}act.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')).forEach((it,i)=>{const el=mkItem(it);el.style.animationDelay=(i*.05)+'s';c.appendChild(el);});appendDone(c,dn);}
-function mkItem(it){const d=document.createElement('div');d.className=`item type-${it.type}`;d.dataset.id=it.id;const tags=it.tags.map(t=>`<span class="item-tag tag-${t}">${t}</span>`).join('');d.innerHTML=`<div class="item-icon">${it.icon}</div><div class="item-body"><div class="item-title">${it.title}</div><div class="item-meta">${it.time?`<span class="item-time">${it.time}</span>`:''}${tags}</div></div><div class="item-check${it.done?' checked':''}" onclick="toggleItem(event,${it.id})">${it.done?'✓':''}</div>`;d.addEventListener('contextmenu',(e)=>{e.preventDefault();openAgendaModal(it.id);});return d;}
+function mkItem(it){const d=document.createElement('div');d.className=`item type-${it.type}`;d.dataset.id=it.id;const tags=it.tags.map(t=>`<span class="item-tag tag-${t}">${t}</span>`).join('');const recurBadge = it.recur && it.recur!=='none' ? `<span class="item-recur">🔁 ${it.recur}</span>` : '';
+d.innerHTML=`<div class="item-icon">${it.icon}</div><div class="item-body"><div class="item-title">${it.title}${recurBadge}</div><div class="item-meta">${it.time?`<span class="item-time">${it.time}</span>`:''}${tags}</div></div><div class="item-check${it.done?' checked':''}" onclick="toggleItem(event,${it.id})">${it.done?'✓':''}</div>`;d.addEventListener('contextmenu',(e)=>{e.preventDefault();openAgendaModal(it.id);});return d;}
 function toggleItem(e,id){e.stopPropagation();const it=aItems.find(i=>i.id===id);if(!it)return;if(!it.done){const el=document.querySelector(`.item[data-id="${id}"]`);if(el){const c=el.querySelector('.item-check');if(c){c.classList.add('checked');c.textContent='✓';}el.classList.add('vanish');setTimeout(()=>{it.done=true;renderAgenda();updateHome();saveAgenda();},380);}}else{it.done=false;renderAgenda();saveAgenda();}}
 function appendDone(c,dn){if(!dn.length)return;const t=document.createElement('div');t.className='done-toggle';t.innerHTML=`<span>${showDone?'▲':'▼'}</span> ${dn.length} fait${dn.length>1?'s':''}`;t.onclick=()=>{showDone=!showDone;renderAgenda();};c.appendChild(t);if(showDone){const s=document.createElement('div');s.className='done-section';dn.forEach(it=>s.appendChild(mkItem(it)));c.appendChild(s);}}
 
@@ -2240,16 +2257,21 @@ function saveAgendaItem() {
   const type = document.getElementById('am-type').value;
   const tag = document.getElementById('am-tag').value;
   const icons = { event:'📅', rappel:'⏰', tache:'✅', recurrent:'🔁' };
+  const recur = type === 'recurrent' ? (recurValue || 'hebdo') : 'none';
   if (editingAgendaId) {
     const it = aItems.find(i => i.id === editingAgendaId);
     if (it) {
       it.title = t; it.date = date; it.time = time;
-      it.type = type; it.tags = tag ? [tag] : [];
+      it.type = type === 'recurrent' ? 'recurrent' : type;
+      it.tags = tag ? [tag] : [];
       it.icon = icons[type] || '📅';
+      it.recur = recur;
     }
   } else {
     aItems.push({ id: Date.now(), date, time, title: t,
-      type, icon: icons[type]||'📅', tags: tag ? [tag] : [], done: false });
+      type: type === 'recurrent' ? 'recurrent' : type,
+      icon: icons[type]||'📅', tags: tag ? [tag] : [],
+      done: false, recur });
   }
   saveAgenda(); renderAgenda(); updateHome(); closeAgendaModal();
 }
@@ -3315,20 +3337,7 @@ function selectMonthDay(iso) {
 }
 
 // Patcher switchView pour gérer 'mois'
-const _origSwitchView = typeof switchView === 'function' ? switchView : null;
-function switchView(v) {
-  document.getElementById('btnListe').classList.toggle('active', v==='liste');
-  document.getElementById('btnJour').classList.toggle('active', v==='jour');
-  document.getElementById('btnMois').classList.toggle('active', v==='mois');
-  document.getElementById('btnMois').style.display = '';
-  if (v === 'mois') {
-    currentMonth = new Date().getMonth();
-    currentYear  = new Date().getFullYear();
-    renderMonthView();
-  } else if (_origSwitchView) {
-    _origSwitchView(v);
-  }
-}
+// switchView v2 supprimée
 
 // ══ FEATURE 5 — MODE URGENCE ══
 function openUrgence() {
@@ -3422,6 +3431,134 @@ function renderUrgenceResults(items) {
 
   content.innerHTML = html;
 }
+
+// ══ AGENDA — LOGIQUE COMPLÈTE ══
+
+// switchView unique et propre
+function switchView(v) {
+  aView = v;
+  document.getElementById('btnListe').classList.toggle('active', v === 'liste');
+  document.getElementById('btnJour').classList.toggle('active', v === 'semaine');
+  document.getElementById('btnMois').classList.toggle('active', v === 'mois');
+  // Strip : visible en liste et semaine, masqué en mois
+  const strip = document.getElementById('daysStrip');
+  if (strip) strip.style.display = (v === 'mois') ? 'none' : 'flex';
+  if (v === 'semaine') { buildStrip(); }
+  renderAgenda();
+}
+
+// renderAgenda unifié (3 vues)
+function renderAgenda() {
+  const c = document.getElementById('agendaContent');
+  if (!c) return;
+  c.innerHTML = '';
+  let data = aItems.filter(it => {
+    if (aFilter === 'tous') return true;
+    if (aFilter === 'rappel') return it.type === 'rappel';
+    return it.tags && it.tags.includes(aFilter);
+  });
+  // Injecter les récurrents générés
+  data = [...data, ...generateRecurItems()].filter((v,i,a) => a.findIndex(x=>x.id===v.id)===i);
+
+  if (aView === 'semaine') {
+    renderASemaine(c, data);
+  } else if (aView === 'mois') {
+    renderMonthView();
+  } else {
+    renderAListe(c, data);
+  }
+}
+
+// ── Génération des events récurrents ──
+function generateRecurItems() {
+  const result = [];
+  const recurring = aItems.filter(i => i.recur && i.recur !== 'none');
+  const now = new Date();
+
+  recurring.forEach(base => {
+    for (let i = 1; i <= 30; i++) {
+      const d = new Date(base.date + 'T00:00:00');
+      if (isNaN(d.getTime())) continue;
+      if (base.recur === 'quotidien') d.setDate(d.getDate() + i);
+      else if (base.recur === 'hebdo')  d.setDate(d.getDate() + i * 7);
+      else if (base.recur === 'mensuel') d.setMonth(d.getMonth() + i);
+      else continue;
+      if (d - now > 90 * 86400000) break; // max 90 jours
+      result.push({
+        ...base,
+        id: base.id + i * 100000,  // ID virtuel unique
+        date: fmt(d),
+        _virtual: true
+      });
+    }
+  });
+  return result;
+}
+
+// ── Vue Semaine ──
+function renderASemaine(c, data) {
+  // Strip de 7 jours centré sur aujourd'hui
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = D(i);
+    days.push({ date: fmt(d), d });
+  }
+
+  // Header semaine visuel
+  const header = document.createElement('div');
+  header.className = 'week-header';
+  days.forEach(({ date, d }) => {
+    const isT = date === fmt(today);
+    const isSel = date === selDay;
+    const hasEv = aItems.some(it => it.date === date && !it.done);
+    const col = document.createElement('div');
+    col.className = 'week-col';
+    col.innerHTML = `
+      <div class="week-day-name">${JJ[d.getDay()]}</div>
+      <div class="week-day-num${isT?' today':isSel?' selected':''}" 
+           onclick="selDay='${date}';buildStrip();renderAgenda()">
+        ${d.getDate()}${hasEv ? '<span style="display:block;width:4px;height:4px;border-radius:50%;background:var(--gold);margin:2px auto 0"></span>' : ''}
+      </div>`;
+    header.appendChild(col);
+  });
+  c.appendChild(header);
+
+  // Events du jour sélectionné
+  const items = data.filter(it => it.date === selDay && !it.done);
+  const done  = data.filter(it => it.date === selDay && it.done);
+  const dt = new Date(selDay + 'T00:00:00');
+  const isT = selDay === fmt(today);
+  const lbl = document.createElement('div');
+  lbl.className = 'date-label' + (isT ? ' today' : '');
+  lbl.textContent = isT ? "Aujourd'hui" : JJ[dt.getDay()] + ' ' + dt.getDate() + ' ' + MM[dt.getMonth()];
+  c.appendChild(lbl);
+
+  if (!items.length && !done.length) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'text-align:center;padding:40px 20px;color:var(--light);font-size:14px';
+    empty.textContent = 'Rien ce jour 🌿';
+    c.appendChild(empty);
+    return;
+  }
+  items.sort((a, b) => (a.time||'99:99').localeCompare(b.time||'99:99'))
+       .forEach((it, i) => { const el = mkItem(it); el.style.animationDelay = (i*.05)+'s'; c.appendChild(el); });
+  appendDone(c, done);
+}
+
+// ── toggleRecur (modal) ──
+var recurValue = 'none';
+
+function toggleRecurOptions() {
+  const type = document.getElementById('am-type').value;
+  const opts = document.getElementById('recurOptions');
+  if (opts) opts.style.display = type === 'recurrent' ? 'block' : 'none';
+}
+
+function selectRecur(el, val) {
+  recurValue = val;
+  document.querySelectorAll('#recurGrid .freq-opt').forEach(f => f.classList.remove('selected'));
+  el.classList.add('selected');
+}
 </script>
 
 <!-- ══ MODAL AJOUT ÉVÉNEMENT AGENDA ══ -->
@@ -3433,7 +3570,7 @@ function renderUrgenceResults(items) {
     <input id="am-date" type="date">
     <div style="display:flex;gap:10px">
       <input id="am-time" type="time" style="flex:1">
-      <select id="am-type" style="flex:1">
+      <select id="am-type" style="flex:1" onchange="toggleRecurOptions()">
         <option value="event">📅 Événement</option>
         <option value="rappel">⏰ Rappel</option>
         <option value="tache">✅ Tâche</option>
@@ -3445,6 +3582,15 @@ function renderUrgenceResults(items) {
       <option value="pro">💼 Pro</option>
       <option value="perso">🌿 Perso</option>
     </select>
+    <!-- Options récurrence (masqué par défaut) -->
+    <div id="recurOptions" style="display:none">
+      <div style="font-size:11px;font-weight:600;color:var(--mid);margin-bottom:8px">Répéter</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px" id="recurGrid">
+        <div class="freq-opt" onclick="selectRecur(this,'quotidien')"><div class="freq-opt-icon">📆</div><div class="freq-opt-label" style="font-size:11px">Chaque jour</div></div>
+        <div class="freq-opt" onclick="selectRecur(this,'hebdo')"><div class="freq-opt-icon">📅</div><div class="freq-opt-label" style="font-size:11px">Chaque semaine</div></div>
+        <div class="freq-opt" onclick="selectRecur(this,'mensuel')"><div class="freq-opt-icon">🗓</div><div class="freq-opt-label" style="font-size:11px">Chaque mois</div></div>
+      </div>
+    </div>
     <div style="display:flex;gap:10px;margin-top:4px">
       <button onclick="closeAgendaModal()" style="flex:1;height:48px;border-radius:14px;background:#EDE8F4;border:none;font-size:15px;font-weight:600;color:#3B1152;font-family:'DM Sans',sans-serif;cursor:pointer">Annuler</button>
       <button onclick="saveAgendaItem()" style="flex:2;height:48px;border-radius:14px;background:linear-gradient(135deg,#3B1152,#5A1E80);border:none;font-size:15px;font-weight:600;color:#fff;font-family:'DM Sans',sans-serif;cursor:pointer">Enregistrer</button>
