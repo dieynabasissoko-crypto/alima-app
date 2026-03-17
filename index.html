@@ -454,6 +454,120 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'DM Sa
     border-radius:12px;padding:10px 14px;margin:12px 0 0;cursor:pointer}
 
   #homeWelcomeMsg{animation:fadeUp .4s ease both;animation-delay:.2s}
+
+  /* ── Notes liste ── */
+  .note-card{background:#fff;border-radius:18px;padding:14px 16px;margin-bottom:10px;
+    cursor:pointer;border:1.5px solid transparent;
+    border-left:4px solid var(--nc-color,#EDE8F4);
+    transition:transform .15s,box-shadow .15s;animation:fadeUp .3s ease both;
+    position:relative}
+  .note-card:active{transform:scale(.98)}
+  .note-card-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
+  .note-card-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+  .note-card-title{font-family:'Fraunces',serif;font-size:14px;font-weight:600;
+    color:var(--prune-dark);flex:1;line-height:1.3}
+  .note-card-menu{font-size:15px;color:var(--light);cursor:pointer;padding:0 4px;
+    letter-spacing:1px;flex-shrink:0;-webkit-user-select:none;user-select:none}
+  .note-card-menu:active{background:rgba(59,17,82,.06);border-radius:6px}
+  .note-card-body{font-size:12.5px;color:var(--mid);line-height:1.5;
+    margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;
+    -webkit-box-orient:vertical;overflow:hidden}
+  .note-card-footer{display:flex;align-items:center;gap:8px}
+  .note-cat-badge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;
+    background:var(--nc-bg,#EDE8F4);color:var(--nc-color,#5A1E80)}
+  .note-date{font-size:10px;color:var(--light);margin-left:auto}
+  /* Checklist aperçu */
+  .note-check-preview{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+  .ncp-item{font-size:11px;color:var(--mid);display:flex;align-items:center;gap:4px}
+  .ncp-item.done{text-decoration:line-through;opacity:.5}
+  /* Empty state */
+  .notes-empty{text-align:center;padding:60px 20px 20px;color:var(--light)}
+  .notes-empty-icon{font-size:40px;margin-bottom:12px}
+  .notes-empty-txt{font-size:14px;line-height:1.5}
+  /* Badge IA suggestion */
+  #aiCatBadge{animation:fadeUp .2s ease both}
+  #aiThinking{display:none!important}
+  #aiThinking.visible{display:flex!important}
+
+  /* ── Bouton capture rapide ── */
+  .capture-btn{
+    position:absolute;right:18px;bottom:152px;z-index:61;
+    width:48px;height:48px;border-radius:16px;
+    background:linear-gradient(135deg,#C9943A,#E8B85A);
+    border:none;color:#fff;font-size:22px;
+    box-shadow:0 4px 18px rgba(201,148,58,.45);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:transform .15s;
+  }
+  .capture-btn:active{transform:scale(.91)}
+
+  /* ── Overlay capture ── */
+  #captureOverlay{
+    display:none;position:absolute;inset:0;z-index:300;
+    background:rgba(20,6,36,.65);backdrop-filter:blur(5px);
+    align-items:flex-end;
+  }
+  #captureOverlay.open{display:flex}
+
+  /* ── Sheet capture ── */
+  #captureSheet{
+    background:#FAF8F2;border-radius:28px 28px 0 0;
+    width:100%;padding:20px 20px 32px;
+    animation:slideUp .3s cubic-bezier(.34,1.2,.64,1) both;
+  }
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+  .capture-handle{width:40px;height:4px;background:rgba(59,17,82,.15);
+    border-radius:4px;margin:0 auto 16px}
+
+  .capture-input{
+    width:100%;min-height:80px;max-height:160px;
+    background:#fff;border:1.5px solid rgba(59,17,82,.1);
+    border-radius:18px;padding:14px 16px;
+    font-size:15px;color:#1E0630;font-family:'DM Sans',sans-serif;
+    outline:none;resize:none;line-height:1.5;
+    transition:border-color .2s;
+  }
+  .capture-input:focus{border-color:rgba(59,17,82,.35)}
+  .capture-input::placeholder{color:#C4B5D4}
+
+  .capture-toolbar{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .capture-hint{font-size:11px;color:#9A80AA;flex:1;line-height:1.4}
+  .capture-send{
+    height:44px;padding:0 20px;border-radius:14px;
+    background:linear-gradient(135deg,#3B1152,#5A1E80);
+    border:none;color:#fff;font-size:14px;font-weight:600;
+    font-family:'DM Sans',sans-serif;cursor:pointer;
+    transition:transform .15s;white-space:nowrap;
+  }
+  .capture-send:active{transform:scale(.95)}
+  .capture-send:disabled{opacity:.5}
+
+  /* ── Résultat capture ── */
+  #captureResult{display:none;margin-top:14px}
+  .capture-card{
+    background:#fff;border-radius:18px;padding:14px 16px;
+    border-left:4px solid var(--prune-med,#3B1152);
+  }
+  .capture-card-type{font-size:10px;font-weight:700;color:var(--light);
+    text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+  .capture-card-title{font-family:'Fraunces',serif;font-size:15px;color:#1E0630;
+    margin-bottom:4px;font-weight:600}
+  .capture-card-body{font-size:12.5px;color:#5C4B6B;line-height:1.5;margin-bottom:10px}
+  .capture-card-advice{font-size:12px;color:#C9943A;line-height:1.4;
+    background:rgba(201,148,58,.08);border-radius:10px;
+    padding:8px 12px;margin-bottom:10px}
+  .capture-card-question{font-size:12.5px;color:#3B1152;font-style:italic;
+    margin-bottom:10px}
+  .capture-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .cap-action-btn{
+    height:34px;padding:0 14px;border-radius:11px;font-size:12px;
+    font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;
+    border:none;transition:transform .12s;
+  }
+  .cap-action-btn:active{transform:scale(.95)}
+  .cap-action-primary{background:linear-gradient(135deg,#3B1152,#5A1E80);color:#fff}
+  .cap-action-secondary{background:#EDE8F4;color:#3B1152}
 </style>
 
 <script>
@@ -675,14 +789,19 @@ if('serviceWorker' in navigator) {
   <div style="padding:16px 22px 0;flex-shrink:0">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <div class="page-title">Notes<span>.</span></div>
-      <div style="width:34px;height:34px;border-radius:11px;background:var(--prune);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:20px" onclick="openNModal()">+</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div id="notesSortBtn" onclick="cycleNSort()" style="height:34px;padding:0 12px;border-radius:11px;background:#fff;border:1.5px solid rgba(59,17,82,.08);display:flex;align-items:center;font-size:11px;font-weight:600;color:var(--mid);cursor:pointer;gap:5px">
+          <span id="notesSortIcon">📅</span><span id="notesSortLabel">Récent</span>
+        </div>
+        <div onclick="openNModal()" style="width:34px;height:34px;border-radius:11px;background:var(--prune);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:20px">+</div>
+      </div>
     </div>
     <!-- Recherche -->
     <div style="background:#fff;border-radius:14px;border:1.5px solid rgba(59,17,82,.08);display:flex;align-items:center;padding:9px 14px;gap:8px;margin-bottom:12px">
       <span style="color:var(--light)">🔍</span>
       <input style="flex:1;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--prune-dark);background:none" placeholder="Rechercher une note…" oninput="setNSearch(this.value)"/>
     </div>
-    <!-- Filtres -->
+    <!-- Filtres dynamiques -->
     <div class="filter-bar" id="notesFilterBar">
       <div class="filter-chip active" onclick="setNFilter(this,'tous')">Tout</div>
       <div class="filter-chip" onclick="setNFilter(this,'perso')">🌿 Perso</div>
@@ -690,10 +809,8 @@ if('serviceWorker' in navigator) {
       <div class="filter-chip" onclick="setNFilter(this,'courses')">🛒 Courses</div>
     </div>
   </div>
-  <!-- Grille masonry -->
-  <div class="scroll" style="padding:14px 22px 90px">
-    <div class="masonry" id="masonry"></div>
-  </div>
+  <!-- Liste notes -->
+  <div class="scroll" style="padding:10px 16px 90px" id="notesList"></div>
 </div>
 
 <!-- ══ SCREEN : PROFIL ══ -->
@@ -898,24 +1015,23 @@ if('serviceWorker' in navigator) {
 <div class="modal-bg" id="noteModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">Nouvelle note</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="modal-title" style="margin:0">Nouvelle note</div>
+      <div id="aiCatBadge" style="display:none;background:linear-gradient(135deg,#3B1152,#5A1E80);color:#fff;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;cursor:pointer" onclick="acceptAiCat()">✨ <span id="aiCatLabel">...</span> ✓</div>
+    </div>
     <!-- Type -->
     <div class="type-options">
       <div class="type-opt active" onclick="setNType(this,'texte')">
-        <div class="type-opt-icon">📝</div>
-        <div class="type-opt-label">Texte</div>
+        <div class="type-opt-icon">📝</div><div class="type-opt-label">Texte</div>
       </div>
       <div class="type-opt" onclick="setNType(this,'checklist')">
-        <div class="type-opt-icon">✅</div>
-        <div class="type-opt-label">Liste</div>
+        <div class="type-opt-icon">✅</div><div class="type-opt-label">Liste</div>
       </div>
       <div class="type-opt" onclick="setNType(this,'vocale')">
-        <div class="type-opt-icon">🎙</div>
-        <div class="type-opt-label">Voix</div>
+        <div class="type-opt-icon">🎙</div><div class="type-opt-label">Voix</div>
       </div>
       <div class="type-opt" onclick="setNType(this,'photo')">
-        <div class="type-opt-icon">📷</div>
-        <div class="type-opt-label">Photo</div>
+        <div class="type-opt-icon">📷</div><div class="type-opt-label">Photo</div>
       </div>
     </div>
     <!-- Catégorie -->
@@ -924,7 +1040,12 @@ if('serviceWorker' in navigator) {
       <div class="cat-opt" onclick="setNCat(this,'pro')">💼 Pro</div>
       <div class="cat-opt" onclick="setNCat(this,'courses')">🛒 Courses</div>
     </div>
-    <textarea class="modal-textarea" id="noteText" placeholder="Ta note, liste ou idée…" rows="4"></textarea>
+    <!-- Saisie -->
+    <textarea class="modal-textarea" id="noteText" placeholder="Ta note, liste ou idée…" rows="4" oninput="onNoteTextInput(this.value)"></textarea>
+    <!-- Indicateur IA -->
+    <div id="aiThinking" style="display:none;font-size:11px;color:var(--light);margin:-10px 0 8px;display:flex;align-items:center;gap:6px">
+      <span style="animation:vt-dot 1s infinite">●</span> Alima analyse…
+    </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeNModal()">Annuler</button>
       <button class="btn-save" onclick="saveNote()">Enregistrer</button>
@@ -932,19 +1053,20 @@ if('serviceWorker' in navigator) {
   </div>
 </div>
 
-<!-- ══ VIDE-TÊTE GLOBAL ══ -->
+<!-- ══ BOUTON CAPTURE UNIFIÉ ══ -->
 <button class="vt-btn" id="vtBtn" onclick="openVT()">
   <div class="vt-pulse"></div>
-  🧠
+  ⚡
 </button>
 
 <div class="vt-overlay" id="vtOverlay" onclick="closeVTIfOutside(event)">
   <div class="vt-sheet" id="vtSheet">
     <div class="vt-handle"></div>
-    <div class="vt-sheet-title">Vide ta tête 🧠</div>
-    <div class="vt-sheet-sub">Tape tout ce qui t'occupe l'esprit — en vrac, sans ordre.<br>Alima trie pour toi.</div>
+    <div class="vt-sheet-title">Dis-moi tout ⚡</div>
+    <div class="vt-sheet-sub">Un truc ou tout ce qui t'occupe — en vrac.<br>Alima trie, classe et conseille.</div>
     <div id="vtInput">
-      <textarea class="vt-textarea" id="vtText" placeholder="Ex: appeler la maîtresse, commander chaussures Marème, préparer réunion jeudi, acheter paracétamol…"></textarea>
+      <textarea class="vt-textarea" id="vtText"
+        placeholder="Ex: RDV dentiste Yasmine vendredi 14h · acheter paracétamol · idée pour le livre · Yasmine a de la fièvre…"></textarea>
       <div class="vt-actions">
         <button class="vt-mic" id="vtMic" onclick="toggleVTMic()">🎙</button>
         <button class="vt-send" id="vtSendBtn" onclick="analyseVT()">Analyser avec Alima →</button>
@@ -955,10 +1077,12 @@ if('serviceWorker' in navigator) {
         <div class="vt-result-title">Alima a compris :</div>
         <div id="vtItems"></div>
       </div>
-      <button class="vt-confirm" onclick="confirmVT()">✓ Confirmer tout et classer</button>
+      <button class="vt-confirm" onclick="confirmVT()">✓ Tout enregistrer</button>
     </div>
   </div>
 </div>
+
+
 
 <!-- ══ BOTTOM NAV ══ -->
 
@@ -1271,9 +1395,8 @@ function appendDone(c,dn){if(!dn.length)return;const t=document.createElement('d
 // ── NOTES ──
 let notes=[];
 let nFilter='tous',nSearch='',nType='texte',nCat='perso',nId=100;
-const CI={yasmine:'👧',marème:'👶',perso:'🌿',pro:'💼',courses:'🛒'};
-const CL={yasmine:'Yasmine',marème:'Marème',perso:'Perso',pro:'Pro',courses:'Courses'};
-function renderNotes(){const g=document.getElementById('masonry');g.innerHTML='';const data=notes.filter(n=>{if(nFilter!=='tous'&&n.cat!==nFilter)return false;if(nSearch){const q=nSearch.toLowerCase();return n.title.toLowerCase().includes(q)||(n.body||'').toLowerCase().includes(q)||(n.items||[]).some(i=>i.label.toLowerCase().includes(q));}return true;});if(!data.length){g.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--light);font-size:14px">Aucune note 🌿</div>';return;}data.forEach((n,i)=>{const c=mkCard(n);c.style.animationDelay=(i*.05)+'s';g.appendChild(c);});}
+// CI/CL now dynamic — see getCatMeta()
+function _oldRenderNotes_REPLACED(){const g=document.getElementById('masonry_OLD_UNUSED');g.innerHTML='';const data=notes.filter(n=>{if(nFilter!=='tous'&&n.cat!==nFilter)return false;if(nSearch){const q=nSearch.toLowerCase();return n.title.toLowerCase().includes(q)||(n.body||'').toLowerCase().includes(q)||(n.items||[]).some(i=>i.label.toLowerCase().includes(q));}return true;});if(!data.length){g.innerHTML='<div style="text-align:center;padding:50px 20px;color:var(--light);font-size:14px">Aucune note 🌿</div>';return;}data.forEach((n,i)=>{const c=mkCard(n);c.style.animationDelay=(i*.05)+'s';g.appendChild(c);});}
 function mkCard(n){const d=document.createElement('div');d.className=`card cat-${n.cat}`;const ti=n.type==='texte'?'📝':n.type==='checklist'?'✅':n.type==='vocale'?'🎙':'📷';let b='';if(n.type==='texte')b=`<div class="card-body">${n.body}</div>`;else if(n.type==='checklist'){const dn=n.items.filter(i=>i.done).length;b=`<div class="check-list">${n.items.map((it,idx)=>`<div class="check-item${it.done?' done':''}"><div class="check-box${it.done?' checked':''}" onclick="toggleNItem(event,${n.id},${idx})">${it.done?'✓':''}</div><span class="check-label">${it.label}</span></div>`).join('')}</div><div class="card-body" style="margin-top:6px;font-size:11px">${dn}/${n.items.length} faits</div>`;}else if(n.type==='vocale'){const bars=Array.from({length:16},(_,i)=>`<div class="wave-bar" style="height:${4+Math.sin(i*.8)*7+Math.random()*5}px"></div>`).join('');b=`<div class="voice-bar"><div class="voice-play">▶</div><div class="voice-wave">${bars}</div><span class="voice-dur">${n.duration}</span></div>`;}else b=`<div class="card-photo">${n.emoji||'🖼️'}</div>`;d.innerHTML=`<div class="card-header"><div class="card-cat"><span>${CI[n.cat]}</span>${CL[n.cat]}</div><div style="display:flex;align-items:center;gap:6px"><span style="font-size:12px">${ti}</span><span class="card-menu-btn" data-nid="${n.id}">···</span></div></div><div class="card-title">${n.title}</div>${b}<div class="card-date">${n.date}</div>`;
   d.querySelector('.card-menu-btn').addEventListener('click', function(e){e.stopPropagation();openNoteCtx(this, n.id);});
   return d;}
@@ -1447,76 +1570,103 @@ async function analyseVT() {
 
   const btn = document.getElementById('vtSendBtn');
   btn.disabled = true;
+  btn.textContent = '✨ Alima analyse…';
 
-  // Afficher loading
-  document.getElementById('vtInput').style.display = 'none';
-  document.getElementById('vtResultsWrap').style.display = '';
-  document.getElementById('vtItems').innerHTML = `
-    <div class="vt-loading">
-      <div class="vt-dots">
-        <span>●</span><span>●</span><span>●</span>
-      </div>
-      <div style="margin-top:8px">Alima analyse...</div>
-    </div>`;
+  const enfants = (profile && profile.enfants) ? profile.enfants : [];
+  const enfantsStr = enfants.length
+    ? enfants.map(e => `"${e.prenom.toLowerCase()}" pour ${e.prenom}`).join(', ')
+    : 'aucun enfant';
 
-  const systemPrompt = `Tu es Alima, assistante familiale. L'utilisatrice vient de vider sa tête en vrac.
-Analyse le texte et extrais chaque élément distinct.
-Pour chaque élément, détermine :
-- type : "agenda" (événement avec date/heure), "rappel" (chose à faire sans date précise), "note" (info à retenir), "courses" (achat à faire)
-- icon : emoji adapté (1 seul)
-- title : reformulé en action claire et courte (max 6 mots)
-- detail : contexte ou précision utile (max 10 mots, optionnel)
-- cat : "yasmine", "marème", "pro", "perso", "courses" selon le contexte
+  const now = new Date();
+  const joursNoms = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  let prochainsjours = '';
+  for (let i = 0; i <= 6; i++) {
+    const d = new Date(now); d.setDate(d.getDate() + i);
+    const nom = i===0?'aujourd\'hui':i===1?'demain':joursNoms[d.getDay()];
+    prochainsjours += `${nom} = ${d.toISOString().split('T')[0]}\n`;
+  }
 
-Réponds UNIQUEMENT en JSON valide, sans texte avant ni après :
-{"items": [{"type":"rappel","icon":"📞","title":"Appeler la maîtresse","detail":"école Jules Ferry","cat":"yasmine"}]}`;
+  const systemPrompt = `Tu es Alima, assistante familiale pour ${profile ? profile.prenom : 'une maman'}.
+Tu reçois un texte libre avec un ou plusieurs éléments.
+Retourne UNIQUEMENT un JSON valide, sans markdown.
 
-  try {
-    const resp = await fetch('/.netlify/functions/claude', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        system: systemPrompt,
-        messages: [{ role: 'user', content: text }],
-      })
-    });
+PROCHAINS JOURS :
+${prochainsjours}
+ENFANTS : ${enfantsStr}
 
-    const data = await resp.json();
-    const raw = data.content?.[0]?.text || '{"items":[]}';
+Format :
+{"items": [
+  {
+    "type": "event" | "rappel" | "note" | "shopping" | "info_enfant" | "idea",
+    "title": "titre court",
+    "body": "détail si utile ou null",
+    "date": "YYYY-MM-DD ou null",
+    "time": "HHhMM ou null",
+    "cat": "perso | pro | courses | ${enfants.map(e=>e.prenom.toLowerCase()).join(' | ')}",
+    "advice": "conseil pertinent max 1 phrase ou null",
+    "icon": "emoji"
+  }
+]}
+
+Règles : achat → shopping+courses, enfant mentionné → cat=prénom, pro → cat=pro.
+Découpe proprement si plusieurs éléments distincts.`;
+
+  fetch('/.netlify/functions/claude', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system: systemPrompt,
+      messages: [{ role: 'user', content: text }]
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    const raw = data.content && data.content[0] ? data.content[0].text : '';
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
     vtParsed = parsed.items || [];
-    renderVTItems();
-
-  } catch(err) {
-    // Fallback si API pas disponible : parsing basique
-    vtParsed = text.split(/[,\.\n]+/)
-      .map(s => s.trim()).filter(s => s.length > 2)
-      .map(s => ({ type: 'rappel', icon: '📌', title: s, detail: '', cat: 'perso' }));
-    renderVTItems();
-  }
-
-  btn.disabled = false;
+    renderVTResults(vtParsed);
+  })
+  .catch(() => {
+    // Fallback : sauvegarder tel quel
+    vtParsed = [{ type:'note', title: text.slice(0,60), body: text, cat:'perso', icon:'📝' }];
+    renderVTResults(vtParsed);
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.textContent = 'Analyser avec Alima →';
+  });
 }
 
-function renderVTItems() {
+function renderVTItems(items) { renderVTResults(items); }
+function renderVTResults(items) {
   const container = document.getElementById('vtItems');
-  if (!vtParsed.length) {
-    container.innerHTML = '<div class="vt-loading">Rien détecté — reformule ?</div>';
-    return;
-  }
-  const typeLabel = { agenda:'Agenda', rappel:'Rappel', note:'Note', courses:'Courses' };
-  const catLabel = { yasmine:'Yasmine', marème:'Marème', pro:'Pro', perso:'Perso', courses:'Courses' };
-  container.innerHTML = vtParsed.map((item, i) => `
-    <div class="vt-item" id="vt-item-${i}">
-      <div class="vt-item-icon">${item.icon}</div>
-      <div class="vt-item-body">
-        <div class="vt-item-text">${item.title}</div>
-        <div class="vt-item-cat">${typeLabel[item.type]||item.type}${item.detail ? ' · ' + item.detail : ''}${item.cat ? ' · ' + (catLabel[item.cat]||item.cat) : ''}</div>
+  const typeLabels = {
+    event:'📅 Agenda', rappel:'⏰ Rappel', note:'📝 Note',
+    shopping:'🛒 Courses', info_enfant:'👶 Enfant', idea:'💡 Idée'
+  };
+  container.innerHTML = '';
+  items.forEach((item, idx) => {
+    const meta = getCatMeta(item.cat || 'perso');
+    const tl = typeLabels[item.type] || '📝 Note';
+    const el = document.createElement('div');
+    el.style.cssText = `background:#fff;border-radius:16px;padding:12px 14px;
+      margin-bottom:8px;border-left:3px solid ${meta.color};animation:fadeUp .25s ease both`;
+    el.style.animationDelay = (idx * 0.06) + 's';
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:10px;font-weight:700;color:${meta.color};text-transform:uppercase;letter-spacing:.06em">${tl}</span>
+        <span style="font-size:10px;background:${meta.bg};color:${meta.color};padding:2px 7px;border-radius:10px;font-weight:600">${meta.emoji} ${meta.label}</span>
+        ${item.date ? `<span style="font-size:10px;color:var(--light);margin-left:auto">📅 ${item.date}${item.time ? ' ' + item.time : ''}</span>` : ''}
       </div>
-      <div class="vt-item-del" onclick="removeVTItem(${i})">✕</div>
-    </div>
-  `).join('');
+      <div style="font-size:13.5px;font-weight:600;color:#1E0630;font-family:'Fraunces',serif">${item.icon || ''} ${item.title}</div>
+      ${item.body ? `<div style="font-size:11.5px;color:var(--mid);margin-top:3px">${item.body}</div>` : ''}
+      ${item.advice ? `<div style="font-size:11px;color:#C9943A;background:rgba(201,148,58,.08);border-radius:8px;padding:6px 10px;margin-top:6px">💡 ${item.advice}</div>` : ''}
+    `;
+    container.appendChild(el);
+  });
+  document.getElementById('vtInput').style.display = 'none';
+  document.getElementById('vtResultsWrap').style.display = '';
 }
 
 function removeVTItem(i) {
@@ -1526,50 +1676,32 @@ function removeVTItem(i) {
 
 function confirmVT() {
   let added = 0;
-  const today = fmt(new Date());
-
   vtParsed.forEach(item => {
-    if (item.type === 'agenda' || item.type === 'rappel') {
+    if (item.type === 'event' || item.type === 'rappel') {
       aItems.unshift({
-        id: aId++,
-        type: item.type === 'agenda' ? 'event' : 'rappel',
-        icon: item.icon,
-        title: item.title,
-        date: today,
-        time: null,
-        tags: item.cat && item.cat !== 'perso' && item.cat !== 'courses' ? [item.cat] : [],
+        id: aId++, type: item.type === 'rappel' ? 'rappel' : 'event',
+        icon: item.icon || '📅', title: item.title,
+        date: item.date || fmt(new Date()),
+        time: item.time || null,
+        tags: item.cat && !['perso','pro','courses'].includes(item.cat) ? [item.cat] : [],
         done: false,
       });
-      added++;
     } else {
-      // note ou courses
       notes.unshift({
         id: nId++,
-        type: item.type === 'courses' ? 'checklist' : 'texte',
+        type: item.type === 'shopping' ? 'checklist' : 'texte',
         cat: item.cat || 'perso',
         title: item.title,
-        body: item.detail || '',
-        items: item.type === 'courses' ? [{ label: item.title, done: false }] : undefined,
+        body: item.body || '',
+        items: item.type === 'shopping' ? [{ label: item.title, done: false }] : undefined,
         date: "Aujourd'hui",
       });
-      added++;
     }
+    added++;
   });
-
   saveAgenda(); saveNotes(); closeVT();
-
-  // Toast
-  const t = document.createElement('div');
-  t.style.cssText = 'position:absolute;bottom:100px;left:50%;transform:translateX(-50%);background:var(--prune);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;white-space:nowrap;box-shadow:0 4px 20px rgba(30,6,48,.4)';
-  t.textContent = `✓ ${added} élément${added>1?'s':''} classé${added>1?'s':''} par Alima`;
-  document.querySelector('.phone').appendChild(t);
-  setTimeout(() => t.remove(), 3000);
-
-  // Refresh écran courant
-  const active = document.querySelector('.screen.active')?.id;
-  if (active === 'screen-agenda') { buildStrip(); renderAgenda(); }
-  if (active === 'screen-notes') renderNotes();
-  updateHome();
+  renderAgenda(); renderNotes(); updateHome();
+  showActionToast(`✓ ${added} élément${added>1?'s':''} classé${added>1?'s':''} par Alima`);
 }
 
 
@@ -2454,94 +2586,231 @@ Réponds en français, ton chaleureux et personnel. Pas de formatage markdown.`;
     if (welcomeEl) welcomeEl.style.display = 'none';
   }
 }
-</script>
 
-<!-- ══ MODAL ÉDITION PROFIL ══ -->
-<div id="editProfilModal" style="display:none;position:absolute;inset:0;z-index:300;background:rgba(20,6,36,0.7);backdrop-filter:blur(4px);overflow-y:auto">
-  <div style="background:#FAF8F2;border-radius:28px 28px 0 0;position:absolute;bottom:0;left:0;right:0;max-height:92%;overflow-y:auto;padding:24px 22px 40px">
-    <!-- Handle -->
-    <div style="width:40px;height:4px;background:rgba(59,17,82,0.15);border-radius:4px;margin:0 auto 20px"></div>
-    <div style="font-family:'Fraunces',serif;font-size:20px;color:#1E0630;margin-bottom:20px">Mon profil</div>
+// ══ NOTES — LOGIQUE COMPLÈTE v3 ══
 
-    <!-- Prénom -->
-    <div style="margin-bottom:18px">
-      <div style="font-size:11px;color:#9A80AA;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Mon prénom</div>
-      <input id="ep-prenom" type="text" placeholder="Ton prénom"
-        style="width:100%;background:#fff;border:1.5px solid rgba(59,17,82,0.12);border-radius:14px;padding:12px 16px;font-size:15px;color:#1E0630;font-family:'DM Sans',sans-serif;outline:none">
+// Métadonnées de catégorie (dynamique depuis le profil)
+function getCatMeta(cat) {
+  const enfants = (profile && profile.enfants) ? profile.enfants : [];
+  const emojis  = ['👧','👦','👧🏾','👦🏾'];
+  const colors  = ['#8B5CF6','#3B82F6','#EC4899','#F59E0B'];
+  const bgs     = ['#F3EEFF','#EFF6FF','#FDF2F8','#FFFBEB'];
+
+  // Vérifier si c'est un enfant
+  for (let i = 0; i < enfants.length; i++) {
+    if (enfants[i].prenom.toLowerCase() === cat) {
+      return { emoji: emojis[i]||'👶', label: enfants[i].prenom,
+               color: colors[i]||'#8B5CF6', bg: bgs[i]||'#F3EEFF' };
+    }
+  }
+  const fixed = {
+    perso:   { emoji:'🌿', label:'Perso',   color:'#10B981', bg:'#ECFDF5' },
+    pro:     { emoji:'💼', label:'Pro',     color:'#3B1152', bg:'#EDE8F4' },
+    courses: { emoji:'🛒', label:'Courses', color:'#F59E0B', bg:'#FFFBEB' },
+  };
+  return fixed[cat] || { emoji:'📝', label: cat || 'Perso', color:'#9A80AA', bg:'#F4F0F9' };
+}
+
+// Tri des notes
+var nSort = 'recent'; // 'recent' | 'cat' | 'type'
+var SORTS = ['recent','cat','type'];
+var SORT_LABELS = { recent:'Récent', cat:'Catégorie', type:'Type' };
+var SORT_ICONS  = { recent:'📅', cat:'🏷', type:'📋' };
+
+function cycleNSort() {
+  const idx = SORTS.indexOf(nSort);
+  nSort = SORTS[(idx + 1) % SORTS.length];
+  document.getElementById('notesSortLabel').textContent = SORT_LABELS[nSort];
+  document.getElementById('notesSortIcon').textContent  = SORT_ICONS[nSort];
+  renderNotes();
+}
+
+// Rendu liste notes
+function renderNotes() {
+  const g = document.getElementById('notesList');
+  if (!g) return;
+
+  // Filtrer
+  let data = notes.filter(n => {
+    if (nFilter !== 'tous' && n.cat !== nFilter) return false;
+    if (nSearch) {
+      const q = nSearch.toLowerCase();
+      return n.title.toLowerCase().includes(q)
+        || (n.body||'').toLowerCase().includes(q)
+        || (n.items||[]).some(i => i.label.toLowerCase().includes(q));
+    }
+    return true;
+  });
+
+  // Trier
+  if (nSort === 'cat') {
+    data = [...data].sort((a, b) => (a.cat||'').localeCompare(b.cat||''));
+  } else if (nSort === 'type') {
+    data = [...data].sort((a, b) => (a.type||'').localeCompare(b.type||''));
+  }
+  // 'recent' = ordre naturel (unshift = plus récent en premier)
+
+  if (!data.length) {
+    g.innerHTML = `<div class="notes-empty">
+      <div class="notes-empty-icon">${nSearch ? '🔍' : '🌿'}</div>
+      <div class="notes-empty-txt">${nSearch ? 'Aucune note trouvée' : 'Aucune note pour l\'instant.<br>Appuie sur + pour cr\u00e9er.'}</div>
+    </div>`;
+    return;
+  }
+
+  g.innerHTML = '';
+  data.forEach((n, i) => {
+    const card = mkNoteCard(n);
+    card.style.animationDelay = (i * 0.04) + 's';
+    g.appendChild(card);
+  });
+}
+
+// Créer une carte note
+function mkNoteCard(n) {
+  const meta = getCatMeta(n.cat);
+  const typeIcons = { texte:'📝', checklist:'✅', vocale:'🎙', photo:'📷' };
+  const ti = typeIcons[n.type] || '📝';
+
+  // Corps selon type
+  let bodyHTML = '';
+  if (n.type === 'texte' && n.body) {
+    bodyHTML = `<div class="note-card-body">${n.body}</div>`;
+  } else if (n.type === 'checklist' && n.items && n.items.length) {
+    const preview = n.items.slice(0, 4);
+    bodyHTML = `<div class="note-check-preview">${
+      preview.map((it, idx) => `
+        <div class="ncp-item${it.done?' done':''}">
+          <span onclick="toggleNItem(event,${n.id},${idx})" style="width:14px;height:14px;border-radius:4px;border:1.5px solid ${it.done?meta.color:'#ccc'};background:${it.done?meta.color:'#fff'};display:inline-flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0">${it.done?'✓':''}</span>
+          ${it.label}
+        </div>`).join('')
+    }${n.items.length > 4 ? `<div style="font-size:10px;color:var(--light)">+${n.items.length-4} autres</div>` : ''}
+    </div>`;
+  } else if (n.type === 'vocale') {
+    bodyHTML = `<div class="note-card-body" style="color:var(--light)">🎵 Note vocale · ${n.duration||'–'}</div>`;
+  } else if (n.type === 'photo') {
+    bodyHTML = `<div class="note-card-body" style="color:var(--light)">🖼️ Photo</div>`;
+  }
+
+  const d = document.createElement('div');
+  d.className = 'note-card';
+  d.style.setProperty('--nc-color', meta.color);
+  d.style.setProperty('--nc-bg', meta.bg);
+  d.innerHTML = `
+    <div class="note-card-top">
+      <div class="note-card-icon">${ti}</div>
+      <div class="note-card-title">${n.title}</div>
+      <div class="note-card-menu" data-nid="${n.id}">···</div>
     </div>
+    ${bodyHTML}
+    <div class="note-card-footer">
+      <div class="note-cat-badge" style="background:${meta.bg};color:${meta.color}">${meta.emoji} ${meta.label}</div>
+      <div class="note-date">${n.date||''}</div>
+    </div>`;
 
-    <!-- Cycle -->
-    <div style="margin-bottom:22px">
-      <div style="font-size:11px;color:#9A80AA;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Date de début de mon dernier cycle (J1)</div>
-      <input id="ep-cycle" type="date"
-        style="width:100%;background:#fff;border:1.5px solid rgba(59,17,82,0.12);border-radius:14px;padding:12px 16px;font-size:15px;color:#1E0630;font-family:'DM Sans',sans-serif;outline:none">
-    </div>
+  d.querySelector('.note-card-menu').addEventListener('click', function(e) {
+    e.stopPropagation();
+    openNoteCtx(this, n.id);
+  });
+  return d;
+}
 
-    <!-- Enfants -->
-    <div style="font-size:11px;color:#9A80AA;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Mes enfants</div>
-    <div id="ep-enfants"></div>
+// ── Classification IA ──
+var aiClassifyTimer = null;
+var aiSuggestedCat  = null;
 
-    <!-- Ajouter enfant -->
-    <div onclick="epAddEnfant()" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px dashed rgba(59,17,82,0.15);border-radius:14px;cursor:pointer;margin-bottom:24px">
-      <div style="width:32px;height:32px;border-radius:10px;background:rgba(59,17,82,0.07);display:flex;align-items:center;justify-content:center;font-size:18px">+</div>
-      <span style="font-size:13px;color:#9A80AA">Ajouter un enfant</span>
-    </div>
+function onNoteTextInput(val) {
+  // Réinitialiser le badge
+  const badge = document.getElementById('aiCatBadge');
+  const thinking = document.getElementById('aiThinking');
+  if (badge) badge.style.display = 'none';
+  aiSuggestedCat = null;
+  clearTimeout(aiClassifyTimer);
 
-    <!-- Boutons -->
-    <button onclick="saveEditProfil()" style="width:100%;height:50px;border-radius:16px;background:linear-gradient(135deg,#3B1152,#5A1E80);border:none;color:#fff;font-size:16px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;margin-bottom:10px">Enregistrer</button>
-    <div onclick="closeEditProfil()" style="text-align:center;font-size:13px;color:#9A80AA;cursor:pointer;padding:8px">Annuler</div>
-  </div>
-</div>
+  if (val.trim().length < 8) return; // trop court
 
-<!-- ══ MODAL AJOUT ÉVÉNEMENT AGENDA ══ -->
-<div id="agendaModal">
-  <div class="amodal">
-    <div style="width:40px;height:4px;background:rgba(59,17,82,.15);border-radius:4px;margin:0 auto 18px"></div>
-    <div id="agendaModalTitle" style="font-family:'Fraunces',serif;font-size:19px;color:#1E0630;margin-bottom:16px">Nouvel événement</div>
-    <input id="am-title" type="text" placeholder="Titre de l'événement">
-    <input id="am-date" type="date">
-    <div style="display:flex;gap:10px">
-      <input id="am-time" type="time" style="flex:1">
-      <select id="am-type" style="flex:1">
-        <option value="event">📅 Événement</option>
-        <option value="rappel">⏰ Rappel</option>
-        <option value="tache">✅ Tâche</option>
-        <option value="recurrent">🔁 Récurrent</option>
-      </select>
-    </div>
-    <select id="am-tag">
-      <option value="">Sans catégorie</option>
-      <option value="pro">💼 Pro</option>
-      <option value="perso">🌿 Perso</option>
-    </select>
-    <div style="display:flex;gap:10px;margin-top:4px">
-      <button onclick="closeAgendaModal()" style="flex:1;height:48px;border-radius:14px;background:#EDE8F4;border:none;font-size:15px;font-weight:600;color:#3B1152;font-family:'DM Sans',sans-serif;cursor:pointer">Annuler</button>
-      <button onclick="saveAgendaItem()" style="flex:2;height:48px;border-radius:14px;background:linear-gradient(135deg,#3B1152,#5A1E80);border:none;font-size:15px;font-weight:600;color:#fff;font-family:'DM Sans',sans-serif;cursor:pointer">Enregistrer</button>
-    </div>
-  </div>
-</div>
+  // Debounce 1.5s
+  if (thinking) thinking.classList.add('visible');
+  aiClassifyTimer = setTimeout(() => classifyNoteWithAI(val), 1500);
+}
 
-<!-- ══ MODAL ÉDITION NOTE ══ -->
-<div id="editNoteModal">
-  <div class="enmodal">
-    <div style="width:40px;height:4px;background:rgba(59,17,82,.15);border-radius:4px;margin:0 auto 18px"></div>
-    <div style="font-family:'Fraunces',serif;font-size:19px;color:#1E0630;margin-bottom:16px">Modifier la note</div>
-    <input id="en-title" type="text" placeholder="Titre">
-    <textarea id="en-body" rows="4" placeholder="Contenu..."></textarea>
-    <div style="display:flex;gap:10px;margin-top:4px">
-      <button onclick="closeEditNote()" style="flex:1;height:48px;border-radius:14px;background:#EDE8F4;border:none;font-size:15px;font-weight:600;color:#3B1152;font-family:'DM Sans',sans-serif;cursor:pointer">Annuler</button>
-      <button onclick="saveEditNote()" style="flex:2;height:48px;border-radius:14px;background:linear-gradient(135deg,#3B1152,#5A1E80);border:none;font-size:15px;font-weight:600;color:#fff;font-family:'DM Sans',sans-serif;cursor:pointer">Enregistrer</button>
-    </div>
-  </div>
-</div>
+async function classifyNoteWithAI(text) {
+  const thinking = document.getElementById('aiThinking');
+  const badge    = document.getElementById('aiCatBadge');
+  const label    = document.getElementById('aiCatLabel');
 
-<!-- ══ MENU CONTEXTUEL NOTE ══ -->
-<div id="noteCtxOverlay" onclick="closeNoteCtx()">
-  <div id="noteCtxMenu">
-    <div class="ctx-btn" onclick="editNoteFromCtx()">✏️ &nbsp;Modifier</div>
-    <div style="height:1px;background:#F0EBF8;margin:4px 8px"></div>
-    <div class="ctx-btn danger" onclick="deleteNoteFromCtx()">🗑️ &nbsp;Supprimer</div>
-  </div>
-</div>
-</body>
-</html>
+  const enfants = (profile && profile.enfants) ? profile.enfants : [];
+  const cats = [
+    'perso', 'pro', 'courses',
+    ...enfants.map(e => e.prenom.toLowerCase())
+  ];
+  const catsStr = cats.map(c => {
+    const m = getCatMeta(c);
+    return `"${c}" (${m.emoji} ${m.label})`;
+  }).join(', ');
+
+  try {
+    const resp = await fetch('/.netlify/functions/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: `Tu es un assistant de classification de notes pour une maman. 
+Réponds UNIQUEMENT en JSON valide, sans markdown, sans explication.
+Format exact : {"cat":"nom_categorie","reason":"courte raison"}
+Catégories disponibles : ${catsStr}`,
+        messages: [{
+          role: 'user',
+          content: `Classifie cette note dans la meilleure catégorie : "${text.slice(0,200)}"`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const raw = data.content && data.content[0] ? data.content[0].text : '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+
+    if (result.cat && cats.includes(result.cat)) {
+      aiSuggestedCat = result.cat;
+      const meta = getCatMeta(result.cat);
+      if (label) label.textContent = `${meta.emoji} ${meta.label}`;
+      if (badge) badge.style.display = 'inline-flex';
+      if (badge) badge.title = result.reason || '';
+    }
+  } catch(e) {
+    // Silencieux — la classification IA est un bonus
+  } finally {
+    if (thinking) thinking.classList.remove('visible');
+  }
+}
+
+function acceptAiCat() {
+  if (!aiSuggestedCat) return;
+  // Trouver et activer le bon cat-opt
+  const container = document.getElementById('noteCatOptions');
+  if (!container) return;
+  const opts = container.querySelectorAll('.cat-opt');
+  let found = false;
+  opts.forEach(opt => {
+    opt.classList.remove('active');
+    const onclick = opt.getAttribute('onclick') || '';
+    if (onclick.includes(`'${aiSuggestedCat}'`)) {
+      opt.classList.add('active');
+      nCat = aiSuggestedCat;
+      found = true;
+    }
+  });
+  // Si c'est un chip enfant dynamique
+  if (!found) {
+    opts.forEach(opt => {
+      if (opt.textContent.toLowerCase().includes(aiSuggestedCat.toLowerCase())) {
+        opt.classList.add('active');
+        nCat = aiSuggestedCat;
+      }
+    });
+  }
+  // Masquer le badge
+  const badge = document.getElementById('aiCatBadge');
+  if (badge) badge.style.display = 'none';
+  showActionToast('✅ Catégorie appliquée');
+}
+>
