@@ -492,39 +492,77 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'DM Sa
 
   #homeWelcomeMsg{animation:fadeUp .4s ease both;animation-delay:.2s}
 
-  /* ── Notes liste ── */
-  .note-card{background:#fff;border-radius:18px;padding:14px 16px;margin-bottom:10px;
-    cursor:pointer;border:1.5px solid transparent;
-    border-left:4px solid var(--nc-color,#EDE8F4);
-    transition:transform .15s,box-shadow .15s;animation:fadeUp .3s ease both;
-    position:relative}
-  .note-card:active{transform:scale(.98)}
-  .note-card-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
-  .note-card-icon{font-size:18px;flex-shrink:0;margin-top:1px}
-  .note-card-title{font-family:'Fraunces',serif;font-size:14px;font-weight:600;
-    color:var(--prune-dark);flex:1;line-height:1.3}
-  .note-card-menu{font-size:15px;color:var(--light);cursor:pointer;padding:0 4px;
-    letter-spacing:1px;flex-shrink:0;-webkit-user-select:none;user-select:none}
-  .note-card-menu:active{background:rgba(59,17,82,.06);border-radius:6px}
-  .note-card-body{font-size:12.5px;color:var(--mid);line-height:1.5;
-    margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;
-    -webkit-box-orient:vertical;overflow:hidden}
-  .note-card-footer{display:flex;align-items:center;gap:8px}
-  .note-cat-badge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;
-    background:var(--nc-bg,#EDE8F4);color:var(--nc-color,#5A1E80)}
-  .note-date{font-size:10px;color:var(--light);margin-left:auto}
-  /* Checklist aperçu */
-  .note-check-preview{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
-  .ncp-item{font-size:11px;color:var(--mid);display:flex;align-items:center;gap:4px}
-  .ncp-item.done{text-decoration:line-through;opacity:.5}
+  /* ── Notes post-its ── */
+  #notesList{
+    column-count:2;column-gap:10px;
+    padding-bottom:90px;
+  }
+  .postit-wrap{break-inside:avoid;margin-bottom:10px;position:relative}
+  .postit{
+    border-radius:16px;padding:13px 13px 10px;
+    cursor:pointer;position:relative;
+    animation:fadeUp .3s ease both;
+    box-shadow:0 2px 8px rgba(0,0,0,.06);
+    transition:transform .15s,box-shadow .15s;
+  }
+  .postit:active{transform:scale(.97);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+  /* Couleurs post-its par catégorie */
+  .postit.cat-perso   {background:#FFF9C4}
+  .postit.cat-pro     {background:#E8EAF6}
+  .postit.cat-courses {background:#F3E5F5}
+  .postit.cat-enfant0 {background:#E8F5E9}
+  .postit.cat-enfant1 {background:#FFF3E0}
+  .postit.cat-enfant2 {background:#FCE4EC}
+  .postit.cat-enfant3 {background:#E1F5FE}
+  .postit.cat-default {background:#FFF9C4}
+  /* Ligne déco en haut */
+  .postit::before{
+    content:'';position:absolute;top:0;left:16px;right:16px;
+    height:2px;border-radius:0 0 4px 4px;
+    background:rgba(0,0,0,.08);
+  }
+  .postit-menu{
+    position:absolute;top:8px;right:8px;
+    font-size:14px;color:rgba(0,0,0,.25);
+    cursor:pointer;padding:2px 4px;border-radius:6px;
+    letter-spacing:.5px;-webkit-user-select:none;user-select:none;
+    line-height:1;
+  }
+  .postit-menu:active{background:rgba(0,0,0,.06)}
+  .postit-title{
+    font-family:'Fraunces',serif;font-size:13px;font-weight:600;
+    color:rgba(0,0,0,.75);line-height:1.35;margin-bottom:6px;
+    padding-right:18px;
+  }
+  .postit-body{
+    font-size:11.5px;color:rgba(0,0,0,.55);line-height:1.55;
+    margin-bottom:6px;
+    display:-webkit-box;-webkit-line-clamp:4;
+    -webkit-box-orient:vertical;overflow:hidden;
+  }
+  .postit-footer{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+  .postit-cat{font-size:10px;color:rgba(0,0,0,.35);font-weight:500}
+  .postit-date{font-size:9px;color:rgba(0,0,0,.3)}
+  /* Checklist dans post-it */
+  .postit-check{margin-bottom:5px}
+  .pci{display:flex;align-items:center;gap:5px;margin-bottom:3px;font-size:11px;color:rgba(0,0,0,.6)}
+  .pci.done{text-decoration:line-through;opacity:.4}
+  .pci-box{width:12px;height:12px;border-radius:3px;border:1.5px solid rgba(0,0,0,.2);
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px}
   /* Empty state */
-  .notes-empty{text-align:center;padding:60px 20px 20px;color:var(--light)}
+  .notes-empty{text-align:center;padding:60px 20px 20px;color:var(--light);column-span:all}
   .notes-empty-icon{font-size:40px;margin-bottom:12px}
   .notes-empty-txt{font-size:14px;line-height:1.5}
-  /* Badge IA suggestion */
+  /* Badge IA */
   #aiCatBadge{animation:fadeUp .2s ease both}
   #aiThinking{display:none!important}
   #aiThinking.visible{display:flex!important}
+  /* Swipe delete bg */
+  .postit-delete-reveal{
+    position:absolute;inset:0;border-radius:16px;
+    background:#EF4444;display:flex;align-items:center;justify-content:flex-end;
+    padding-right:16px;font-size:20px;z-index:0;
+  }
 
   /* ── Bouton capture rapide ── */
   .capture-btn{
@@ -786,23 +824,6 @@ if('serviceWorker' in navigator) {
         <span style="font-size:20px;cursor:pointer" onclick="event.stopPropagation();goChat(document.getElementById('homeInput').value)">→</span>
       </div>
 
-      <!-- Score de charge -->
-      <div class="charge-bar" id="chargeBar">
-        <div class="charge-top">
-          <div class="charge-label">Charge du jour</div>
-          <div class="charge-score ok" id="chargeScore">Légère</div>
-        </div>
-        <div class="charge-track">
-          <div class="charge-fill ok" id="chargeFill" style="width:20%"></div>
-        </div>
-      </div>
-
-      <!-- Zone En attente -->
-      <div class="pending-zone" id="pendingZone" style="display:none">
-        <div class="pending-title">En attente de toi</div>
-        <div id="pendingList"></div>
-      </div>
-
       <!-- Résumé cerveau -->
       <div class="brain-summary">
         <div class="brain-label">Aujourd'hui</div>
@@ -882,7 +903,7 @@ if('serviceWorker' in navigator) {
           <div class="view-btn" id="btnJour" onclick="switchView('jour')">Jours</div>
           <div class="view-btn" id="btnMois" onclick="switchView('mois')">Mois</div>
         </div>
-        <button onclick="openUrgence()" style="height:32px;padding:0 10px;border-radius:10px;background:#FEF2F2;border:1.5px solid rgba(239,68,68,.2);color:#EF4444;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap">🚨 Débordée</button>
+
       </div>
     </div>
     <!-- Days strip -->
@@ -929,7 +950,7 @@ if('serviceWorker' in navigator) {
     </div>
   </div>
   <!-- Liste notes -->
-  <div class="scroll" style="padding:10px 16px 90px" id="notesList"></div>
+  <div class="scroll" style="padding:10px 14px 0" id="notesList"></div>
 </div>
 
 <!-- ══ SCREEN : PROFIL ══ -->
@@ -1853,7 +1874,6 @@ function updateHome() {
   const pcb=document.getElementById('profilCycleBadge'); if(pcb) pcb.textContent='J'+CYCLE_DAY;
   const wd=document.getElementById('wheelDay'); if(wd) wd.textContent=CYCLE_DAY;
   // Features nouvelles
-  renderChargeScore();
   renderContextualChips();
   checkNoteReview();
 }
@@ -2795,55 +2815,64 @@ function renderNotes() {
 // Créer une carte note
 function mkNoteCard(n) {
   const meta = getCatMeta(n.cat);
-  const typeIcons = { texte:'📝', checklist:'✅', vocale:'🎙', photo:'📷' };
-  const ti = typeIcons[n.type] || '📝';
 
-  // Corps selon type
-  let bodyHTML = '';
-  if (n.type === 'texte' && n.body) {
-    bodyHTML = `<div class="note-card-body">${n.body}</div>`;
-  } else if (n.type === 'checklist' && n.items && n.items.length) {
-    const preview = n.items.slice(0, 4);
-    bodyHTML = `<div class="note-check-preview">${
-      preview.map((it, idx) => `
-        <div class="ncp-item${it.done?' done':''}">
-          <span onclick="toggleNItem(event,${n.id},${idx})" style="width:14px;height:14px;border-radius:4px;border:1.5px solid ${it.done?meta.color:'#ccc'};background:${it.done?meta.color:'#fff'};display:inline-flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0">${it.done?'✓':''}</span>
-          ${it.label}
-        </div>`).join('')
-    }${n.items.length > 4 ? `<div style="font-size:10px;color:var(--light)">+${n.items.length-4} autres</div>` : ''}
-    </div>`;
-  } else if (n.type === 'vocale') {
-    bodyHTML = `<div class="note-card-body" style="color:var(--light)">🎵 Note vocale · ${n.duration||'–'}</div>`;
-  } else if (n.type === 'photo') {
-    bodyHTML = `<div class="note-card-body" style="color:var(--light)">🖼️ Photo</div>`;
+  // Classe couleur post-it selon catégorie
+  const enfants = (profile && profile.enfants) ? profile.enfants : [];
+  let postitClass = 'cat-default';
+  if (n.cat === 'perso')   postitClass = 'cat-perso';
+  else if (n.cat === 'pro') postitClass = 'cat-pro';
+  else if (n.cat === 'courses') postitClass = 'cat-courses';
+  else {
+    const ei = enfants.findIndex(e => e.prenom.toLowerCase() === n.cat);
+    if (ei >= 0) postitClass = 'cat-enfant' + ei;
   }
 
+  // Corps
+  let bodyHTML = '';
+  if (n.type === 'texte' && n.body) {
+    bodyHTML = `<div class="postit-body">${n.body}</div>`;
+  } else if (n.type === 'checklist' && n.items && n.items.length) {
+    const preview = n.items.slice(0, 5);
+    bodyHTML = `<div class="postit-check">${
+      preview.map((it, idx) => `
+        <div class="pci${it.done?' done':''}">
+          <div class="pci-box" onclick="toggleNItem(event,${n.id},${idx})">${it.done?'✓':''}</div>
+          <span>${it.label}</span>
+        </div>`).join('')
+    }${n.items.length > 5 ? `<div style="font-size:10px;color:rgba(0,0,0,.3);margin-top:2px">+${n.items.length-5} autres</div>` : ''}
+    </div>`;
+  } else if (n.type === 'vocale') {
+    bodyHTML = `<div class="postit-body">🎵 Note vocale · ${n.duration||'–'}</div>`;
+  } else if (n.type === 'photo') {
+    bodyHTML = `<div class="postit-body">🖼️ Photo</div>`;
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'postit-wrap';
+
+  // Fond rouge swipe
+  const deleteBg = document.createElement('div');
+  deleteBg.className = 'postit-delete-reveal';
+  deleteBg.textContent = '🗑️';
+
   const d = document.createElement('div');
-  d.className = 'note-card';
-  d.style.setProperty('--nc-color', meta.color);
-  d.style.setProperty('--nc-bg', meta.bg);
+  d.className = `postit ${postitClass}`;
+  d.style.position = 'relative';
+  d.style.zIndex = '1';
   d.innerHTML = `
-    <div class="note-card-top">
-      <div class="note-card-icon">${ti}</div>
-      <div class="note-card-title">${n.title}</div>
-      <div class="note-card-menu" data-nid="${n.id}">···</div>
-    </div>
+    <div class="postit-menu" data-nid="${n.id}">···</div>
+    <div class="postit-title">${n.title}</div>
     ${bodyHTML}
-    <div class="note-card-footer">
-      <div class="note-cat-badge" style="background:${meta.bg};color:${meta.color}">${meta.emoji} ${meta.label}</div>
-      <div class="note-date">${n.date||''}</div>
+    <div class="postit-footer">
+      <span class="postit-cat">${meta.emoji} ${meta.label}</span>
+      <span class="postit-date">${n.date||''}</span>
     </div>`;
 
-  d.querySelector('.note-card-menu').addEventListener('click', function(e) {
+  d.querySelector('.postit-menu').addEventListener('click', function(e) {
     e.stopPropagation();
     openNoteCtx(this, n.id);
   });
-  // Swipe gauche pour supprimer
-  const wrap = document.createElement('div');
-  wrap.className = 'note-card-wrap';
-  const deleteBg = document.createElement('div');
-  deleteBg.className = 'note-card-delete-bg';
-  deleteBg.textContent = '🗑️';
+
   wrap.appendChild(deleteBg);
   wrap.appendChild(d);
   bindNoteSwipe(d, n.id);
