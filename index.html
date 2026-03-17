@@ -605,6 +605,72 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'DM Sa
   .cap-action-btn:active{transform:scale(.95)}
   .cap-action-primary{background:linear-gradient(135deg,#3B1152,#5A1E80);color:#fff}
   .cap-action-secondary{background:#EDE8F4;color:#3B1152}
+
+  /* ── Score de charge ── */
+  .charge-bar{margin:0 0 10px;background:#fff;border-radius:16px;padding:12px 14px;
+    border:1.5px solid rgba(59,17,82,.07)}
+  .charge-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .charge-label{font-size:11px;font-weight:700;color:var(--light);text-transform:uppercase;letter-spacing:.06em}
+  .charge-score{font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px}
+  .charge-score.ok{background:#ECFDF5;color:#10B981}
+  .charge-score.warn{background:#FFFBEB;color:#D97706}
+  .charge-score.danger{background:#FEF2F2;color:#EF4444}
+  .charge-track{height:6px;background:rgba(59,17,82,.08);border-radius:10px;overflow:hidden}
+  .charge-fill{height:100%;border-radius:10px;transition:width .6s ease}
+  .charge-fill.ok{background:linear-gradient(90deg,#10B981,#34D399)}
+  .charge-fill.warn{background:linear-gradient(90deg,#F59E0B,#FCD34D)}
+  .charge-fill.danger{background:linear-gradient(90deg,#EF4444,#F87171)}
+
+  /* ── Zone En attente ── */
+  .pending-zone{margin:0 0 10px}
+  .pending-title{font-size:11px;font-weight:700;color:var(--light);
+    text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+  .pending-item{display:flex;align-items:center;gap:10px;background:#fff;
+    border-radius:13px;padding:9px 12px;margin-bottom:6px;
+    border:1.5px solid rgba(59,17,82,.06);cursor:pointer;animation:fadeUp .3s ease both}
+  .pending-item:active{background:var(--cream)}
+  .pending-icon{font-size:16px;flex-shrink:0}
+  .pending-text{flex:1;font-size:13px;color:var(--prune-dark);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pending-age{font-size:10px;color:var(--light);flex-shrink:0}
+  .pending-arrow{color:var(--light);font-size:12px;flex-shrink:0}
+
+  /* ── Chips contextuelles ── */
+  #homeChipsWrap{transition:opacity .3s}
+
+  /* ── Vue mois agenda ── */
+  .month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:14px}
+  .month-day-label{font-size:9px;font-weight:700;color:var(--light);
+    text-align:center;padding:4px 0;text-transform:uppercase}
+  .month-cell{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;cursor:pointer;position:relative;
+    transition:background .15s}
+  .month-cell:active{background:var(--cream)}
+  .month-cell.today{background:var(--prune);}
+  .month-cell.today .month-num{color:#fff;font-weight:700}
+  .month-cell.selected{background:var(--cream);border:1.5px solid var(--prune)}
+  .month-cell.other-month .month-num{color:rgba(59,17,82,.2)}
+  .month-num{font-size:12px;color:var(--prune-dark);line-height:1}
+  .month-dot{width:4px;height:4px;border-radius:50%;margin-top:2px}
+  .month-dot.has-event{background:var(--gold)}
+  .month-dot.has-rappel{background:#EF4444}
+  #btnMois{display:none}
+
+  /* ── Mode urgence ── */
+  #urgenceOverlay{display:none;position:absolute;inset:0;z-index:280;
+    background:rgba(20,6,36,.7);backdrop-filter:blur(5px);align-items:flex-end}
+  #urgenceOverlay.open{display:flex}
+  #urgenceSheet{background:#FAF8F2;border-radius:28px 28px 0 0;
+    width:100%;padding:20px 20px 36px;max-height:80%}
+  .urgence-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .urgence-title{font-family:'Fraunces',serif;font-size:19px;color:#EF4444;flex:1}
+  .urgence-item{background:#fff;border-radius:14px;padding:11px 14px;
+    margin-bottom:8px;border-left:3px solid var(--u-color,#ccc);
+    display:flex;align-items:center;gap:10px;animation:fadeUp .25s ease both}
+  .urgence-item-text{flex:1;font-size:13px;color:var(--prune-dark)}
+  .urgence-item-action{font-size:11px;font-weight:600;color:var(--u-color);
+    cursor:pointer;white-space:nowrap}
+  .urgence-thinking{text-align:center;padding:20px;color:var(--light);font-size:13px}
 </style>
 
 <script>
@@ -720,12 +786,29 @@ if('serviceWorker' in navigator) {
         <span style="font-size:20px;cursor:pointer" onclick="event.stopPropagation();goChat(document.getElementById('homeInput').value)">→</span>
       </div>
 
+      <!-- Score de charge -->
+      <div class="charge-bar" id="chargeBar">
+        <div class="charge-top">
+          <div class="charge-label">Charge du jour</div>
+          <div class="charge-score ok" id="chargeScore">Légère</div>
+        </div>
+        <div class="charge-track">
+          <div class="charge-fill ok" id="chargeFill" style="width:20%"></div>
+        </div>
+      </div>
+
+      <!-- Zone En attente -->
+      <div class="pending-zone" id="pendingZone" style="display:none">
+        <div class="pending-title">En attente de toi</div>
+        <div id="pendingList"></div>
+      </div>
+
       <!-- Résumé cerveau -->
       <div class="brain-summary">
-        <div class="brain-label">Ton cerveau du jour</div>
+        <div class="brain-label">Aujourd'hui</div>
         <div class="brain-row" onclick="navTo('agenda')">
           <span class="brain-icon">📅</span>
-          <span class="brain-text" id="brainAgenda"><strong>4 événements</strong> aujourd'hui</span>
+          <span class="brain-text" id="brainAgenda"><strong>0 événement</strong></span>
           <div class="brain-dot"></div>
         </div>
         <div class="brain-row" onclick="navTo('notes')">
@@ -735,18 +818,13 @@ if('serviceWorker' in navigator) {
         </div>
         <div class="brain-row" onclick="nav('profil')">
           <span class="brain-icon">🌙</span>
-          <span class="brain-text" id="homePhaseText">Phase folliculaire · J8 · Énergie montante</span>
+          <span class="brain-text" id="homePhaseText">Phase folliculaire · J8</span>
           <div class="brain-dot" style="background:#27AE60"></div>
         </div>
       </div>
 
-      <!-- Chips rapides -->
-      <div class="home-chips">
-        <div class="chip" onclick="goChat('Qu\'est-ce que j\'ai aujourd\'hui ?')">📅 Mon planning</div>
-        <div class="chip" onclick="goChat('Rappelle-moi mes notes')">📝 Mes notes</div>
-        <div class="chip" onclick="goChat('Ajoute un rappel')">⏰ Rappel</div>
-        <div class="chip" onclick="goChat('Conseil pour ma phase de cycle')">🌙 Mon cycle</div>
-      </div>
+      <!-- Chips contextuelles dynamiques -->
+      <div id="homeChipsWrap" class="home-chips"></div>
     </div>
   </div>
 </div>
@@ -798,9 +876,13 @@ if('serviceWorker' in navigator) {
   <div style="padding:16px 22px 0;flex-shrink:0">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
       <div class="page-title">Agenda<span>.</span></div>
-      <div class="view-switch">
-        <div class="view-btn active" id="btnListe" onclick="switchView('liste')">Liste</div>
-        <div class="view-btn" id="btnJour" onclick="switchView('jour')">Jours</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="view-switch">
+          <div class="view-btn active" id="btnListe" onclick="switchView('liste')">Liste</div>
+          <div class="view-btn" id="btnJour" onclick="switchView('jour')">Jours</div>
+          <div class="view-btn" id="btnMois" onclick="switchView('mois')">Mois</div>
+        </div>
+        <button onclick="openUrgence()" style="height:32px;padding:0 10px;border-radius:10px;background:#FEF2F2;border:1.5px solid rgba(239,68,68,.2);color:#EF4444;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap">🚨 Débordée</button>
       </div>
     </div>
     <!-- Days strip -->
@@ -1162,7 +1244,7 @@ function nav(id) {
   document.getElementById('screen-'+id).classList.add('active');
   const vtBtn=document.getElementById('vtBtn');
   if(vtBtn) vtBtn.style.display=(id==='chat')?'none':'';
-  if(id==='agenda'){buildStrip();renderAgenda();renderCycleBanner();}
+  if(id==='agenda'){buildStrip();renderAgenda();renderCycleBanner();document.getElementById('btnMois').style.display='';}
   if(id==='profil'){renderProfilEnfants();updateNotifBadge();}
   if(id==='notes')renderNotes();
   if(id==='cycle'){drawWheel();renderPhaseCard(selPhase);}
@@ -1770,6 +1852,10 @@ function updateHome() {
   const ppd=document.getElementById('profilPhaseDetail'); if(ppd) ppd.textContent='Jour '+CYCLE_DAY+' · '+(ENERGIE_LABEL[phInfo.energie]||'')+' · '+conseil;
   const pcb=document.getElementById('profilCycleBadge'); if(pcb) pcb.textContent='J'+CYCLE_DAY;
   const wd=document.getElementById('wheelDay'); if(wd) wd.textContent=CYCLE_DAY;
+  // Features nouvelles
+  renderChargeScore();
+  renderContextualChips();
+  checkNoteReview();
 }
 
 // ── INIT ──
@@ -2910,6 +2996,403 @@ function bindNoteSwipe(cardEl, id) {
     }
   }, {passive:true});
 }
+
+// ══ FEATURE 1 — CHIPS CONTEXTUELLES DYNAMIQUES ══
+function renderContextualChips() {
+  const wrap = document.getElementById('homeChipsWrap');
+  if (!wrap) return;
+  const h = new Date().getHours();
+  const todayFmt = fmt(new Date());
+  const nbEvt = aItems.filter(i => !i.done && i.date === todayFmt).length;
+  const nbNotesPending = notes.filter(n => !n.treated).length;
+  const ph = getPhaseInfo(CYCLE_DAY);
+
+  let chips = [];
+
+  // Matin (5h–10h)
+  if (h >= 5 && h < 10) {
+    chips = [
+      { icon:'📅', label:'Ma journée', msg:"Qu'est-ce que j'ai aujourd'hui ?" },
+      { icon:'⚡', label:'Capture rapide', action: () => openVT() },
+      { icon:'🌙', label:'Mon énergie', msg:'Quel est mon niveau d\'énergie aujourd\'hui selon mon cycle ?' },
+      { icon:'👧', label:'Préparer les enfants', msg:'Check-list matin pour préparer les enfants' },
+    ];
+  }
+  // Milieu de journée (10h–14h)
+  else if (h >= 10 && h < 14) {
+    chips = [
+      { icon:'✅', label:'Mes tâches', msg:'Quelles tâches me restent pour aujourd\'hui ?' },
+      { icon:'📝', label:'Note rapide', action: () => openNModal() },
+      { icon:'💼', label:'Mode focus', msg:'Aide-moi à prioriser mes 3 tâches pro les plus importantes' },
+      { icon:'⏰', label:'Rappel', msg:'Ajoute un rappel' },
+    ];
+  }
+  // Après-midi (14h–18h)
+  else if (h >= 14 && h < 18) {
+    chips = [
+      { icon:'📋', label:'Fin de journée', msg:'Qu\'est-ce qu\'il me reste à faire aujourd\'hui ?' },
+      { icon:'👧', label:'Après école', msg:'Check-list après école pour les enfants' },
+      { icon:'🛒', label:'Courses', msg:'Qu\'est-ce que j\'ai à acheter ?' },
+      { icon:'📅', label:'Demain', msg:'Qu\'est-ce que j\'ai demain ?' },
+    ];
+  }
+  // Soir (18h–23h)
+  else {
+    chips = [
+      { icon:'🌙', label:'Bilan du jour', msg:'Bilan de ma journée et préparation de demain' },
+      { icon:'📅', label:'Demain', msg:'Qu\'est-ce que j\'ai demain ?' },
+      { icon:'💤', label:'Décompresser', msg:'Donne-moi un conseil pour décompresser ce soir selon ma phase de cycle' },
+      { icon:'⚡', label:'Vide-tête', action: () => openVT() },
+    ];
+  }
+
+  // Chip contextuelle bonus selon situation
+  if (nbEvt >= 4) chips[0] = { icon:'🚨', label:'Journée chargée', action: () => openUrgence() };
+  if (nbNotesPending >= 5) chips[chips.length-1] = { icon:'📝', label:`${nbNotesPending} notes`, action: () => navTo('notes') };
+
+  wrap.innerHTML = '';
+  chips.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'chip';
+    el.textContent = c.icon + ' ' + c.label;
+    el.onclick = c.action ? c.action : () => goChat(c.msg);
+    wrap.appendChild(el);
+  });
+}
+
+// ══ FEATURE 2 — SCORE DE CHARGE + ZONE EN ATTENTE ══
+function renderChargeScore() {
+  const todayFmt = fmt(new Date());
+  const todayISO = new Date().toISOString().split('T')[0];
+  const ph = getPhaseInfo(CYCLE_DAY);
+
+  // Calcul score (0-100)
+  const evtAujourd = aItems.filter(i => !i.done && (i.date === todayFmt || i.date === todayISO));
+  let score = 0;
+  score += Math.min(evtAujourd.length * 15, 45);  // max 45 pts pour les events
+  score += Math.min(notes.filter(n => !n.treated).length * 5, 20); // notes en attente
+  if (ph.phase === 'menstruelle' || ph.phase === 'luteale') score += 15; // phase basse énergie
+  if (evtAujourd.some(e => e.type === 'rappel')) score += 10;
+  score = Math.min(score, 100);
+
+  const level = score < 35 ? 'ok' : score < 65 ? 'warn' : 'danger';
+  const labels = { ok:'Légère ✓', warn:'Chargée', danger:'Surchargée ⚠' };
+
+  const bar = document.getElementById('chargeBar');
+  const fill = document.getElementById('chargeFill');
+  const scoreEl = document.getElementById('chargeScore');
+  if (!bar || !fill || !scoreEl) return;
+
+  fill.style.width = score + '%';
+  fill.className = 'charge-fill ' + level;
+  scoreEl.textContent = labels[level];
+  scoreEl.className = 'charge-score ' + level;
+
+  // Zone En attente
+  renderPendingZone();
+}
+
+function renderPendingZone() {
+  const list = document.getElementById('pendingList');
+  const zone = document.getElementById('pendingZone');
+  if (!list || !zone) return;
+
+  const now = new Date();
+  const todayFmt = fmt(now);
+  const todayISO = now.toISOString().split('T')[0];
+
+  const pending = [];
+
+  // Events sans heure aujourd'hui
+  aItems.filter(i => !i.done && !i.time && (i.date === todayFmt || i.date === todayISO))
+    .slice(0, 2).forEach(i => pending.push({
+      icon: i.icon || '📅', text: i.title,
+      age: 'Sans heure', color: '#F59E0B',
+      action: () => { navTo('agenda'); }
+    }));
+
+  // Notes capturées il y a plus de 3 jours non traitées
+  notes.filter(n => !n.treated).slice(0, 3).forEach(n => pending.push({
+    icon: '📝', text: n.title,
+    age: n.date || '', color: '#8B5CF6',
+    action: () => { navTo('notes'); }
+  }));
+
+  if (!pending.length) { zone.style.display = 'none'; return; }
+  zone.style.display = 'block';
+  list.innerHTML = '';
+  pending.slice(0, 4).forEach((p, idx) => {
+    const el = document.createElement('div');
+    el.className = 'pending-item';
+    el.style.animationDelay = (idx * 0.05) + 's';
+    el.style.borderLeftColor = p.color;
+    el.innerHTML = `
+      <span class="pending-icon">${p.icon}</span>
+      <span class="pending-text">${p.text}</span>
+      <span class="pending-age">${p.age}</span>
+      <span class="pending-arrow">›</span>`;
+    el.onclick = p.action;
+    list.appendChild(el);
+  });
+}
+
+// ══ FEATURE 3 — REVUE NOTES AUTOMATIQUE ══
+var NOTE_REVIEW_KEY = 'alima_lastNoteReview';
+
+function checkNoteReview() {
+  // Lancer le vendredi soir ou si > 5 notes non traitées depuis > 7 jours
+  const now = new Date();
+  const dayOfWeek = now.getDay(); // 5 = vendredi
+  const hour = now.getHours();
+  const lastReview = localStorage.getItem(NOTE_REVIEW_KEY);
+  const today = now.toISOString().split('T')[0];
+
+  if (lastReview === today) return; // déjà fait aujourd'hui
+
+  const oldNotes = notes.filter(n => !n.treated && n.date && n.date !== "Aujourd'hui");
+  const shouldReview = (dayOfWeek === 5 && hour >= 18) || oldNotes.length >= 7;
+
+  if (shouldReview && notes.length >= 3) {
+    localStorage.setItem(NOTE_REVIEW_KEY, today);
+    setTimeout(() => triggerNoteReview(oldNotes), 2000);
+  }
+}
+
+async function triggerNoteReview(oldNotes) {
+  const nb = oldNotes.length;
+  if (!nb) return;
+
+  const titles = oldNotes.slice(0, 6).map(n => `- ${n.title}`).join('\n');
+  showActionToast(`📝 ${nb} note${nb>1?'s':''} en attente — Alima les analyse`);
+
+  try {
+    const resp = await fetch('/.netlify/functions/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: `Tu es Alima. Réponds en 1 phrase max, en français, directement à ${profile?.prenom || 'elle'}.`,
+        messages: [{ role: 'user', content:
+          `J'ai ${nb} notes non traitées depuis plusieurs jours :\n${titles}\nDis-moi en 1 phrase si je dois agir maintenant ou si ça peut attendre.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const msg = data.content?.[0]?.text;
+    if (msg) showActionToast('💡 ' + msg.slice(0, 80));
+  } catch(e) {}
+}
+
+// ══ FEATURE 4 — VUE MOIS AGENDA ══
+var currentMonth = new Date().getMonth();
+var currentYear  = new Date().getFullYear();
+
+function renderMonthView() {
+  const content = document.getElementById('agendaContent');
+  if (!content) return;
+
+  const now = new Date();
+  const firstDay = new Date(currentYear, currentMonth, 1);
+  const lastDay  = new Date(currentYear, currentMonth + 1, 0);
+  const startDow = (firstDay.getDay() + 6) % 7; // Lundi = 0
+  const monthName = firstDay.toLocaleDateString('fr-FR', { month:'long', year:'numeric' });
+
+  // Compter events par jour
+  const eventMap = {};
+  aItems.forEach(item => {
+    if (!item.date) return;
+    const d = item.date.replace(/\//g, '-');
+    if (!eventMap[d]) eventMap[d] = { events:0, rappels:0 };
+    if (item.type === 'rappel') eventMap[d].rappels++;
+    else eventMap[d].events++;
+  });
+
+  let html = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 4px">
+      <button onclick="shiftMonth(-1)" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--prune);padding:4px 8px">‹</button>
+      <div style="font-family:'Fraunces',serif;font-size:15px;color:var(--prune);font-weight:600;text-transform:capitalize">${monthName}</div>
+      <button onclick="shiftMonth(1)" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--prune);padding:4px 8px">›</button>
+    </div>
+    <div class="month-grid">`;
+
+  // Headers jours
+  ['L','M','M','J','V','S','D'].forEach(d => {
+    html += `<div class="month-day-label">${d}</div>`;
+  });
+
+  // Cellules vides avant le 1er
+  for (let i = 0; i < startDow; i++) {
+    html += `<div class="month-cell other-month"><span class="month-num"></span></div>`;
+  }
+
+  // Jours du mois
+  for (let day = 1; day <= lastDay.getDate(); day++) {
+    const d = new Date(currentYear, currentMonth, day);
+    const iso = d.toISOString().split('T')[0];
+    const dd = String(day).padStart(2,'0');
+    const mm = String(currentMonth+1).padStart(2,'0');
+    const fmtDate = `${dd}/${mm}/${currentYear}`;
+    const isToday = d.toDateString() === now.toDateString();
+    const sel = iso === selDay || fmtDate === selDay;
+    const ev = eventMap[iso] || eventMap[fmtDate] || {};
+    const hasDot = ev.events > 0 || ev.rappels > 0;
+    const dotClass = ev.rappels > 0 ? 'has-rappel' : 'has-event';
+
+    html += `<div class="month-cell${isToday?' today':''}${sel?' selected':''}"
+      onclick="selectMonthDay('${iso}')">
+      <span class="month-num">${day}</span>
+      <div class="month-dot ${hasDot ? dotClass : ''}"></div>
+    </div>`;
+  }
+
+  html += `</div>`;
+
+  // Events du jour sélectionné
+  const selItems = aItems.filter(i => {
+    if (i.done) return false;
+    const d = new Date(selDay || new Date().toISOString().split('T')[0]);
+    const fmtD = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    return i.date === (selDay || new Date().toISOString().split('T')[0]) || i.date === fmtD;
+  });
+
+  if (selItems.length) {
+    html += `<div style="margin-top:4px">`;
+    selItems.forEach(it => {
+      html += `<div style="background:#fff;border-radius:14px;padding:10px 14px;
+        margin-bottom:6px;display:flex;align-items:center;gap:10px;
+        border-left:3px solid ${it.type==='rappel'?'#EF4444':'var(--gold)'}">
+        <span>${it.icon||'📅'}</span>
+        <div style="flex:1;font-size:13px;color:var(--prune-dark)">${it.title}</div>
+        ${it.time ? `<span style="font-size:11px;color:var(--light)">${it.time}</span>` : ''}
+      </div>`;
+    });
+    html += `</div>`;
+  } else {
+    html += `<div style="text-align:center;padding:20px;color:var(--light);font-size:13px">Aucun événement ce jour</div>`;
+  }
+
+  content.innerHTML = html;
+}
+
+function shiftMonth(delta) {
+  currentMonth += delta;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  if (currentMonth < 0)  { currentMonth = 11; currentYear--; }
+  renderMonthView();
+}
+
+function selectMonthDay(iso) {
+  selDay = iso;
+  renderMonthView();
+}
+
+// Patcher switchView pour gérer 'mois'
+const _origSwitchView = typeof switchView === 'function' ? switchView : null;
+function switchView(v) {
+  document.getElementById('btnListe').classList.toggle('active', v==='liste');
+  document.getElementById('btnJour').classList.toggle('active', v==='jour');
+  document.getElementById('btnMois').classList.toggle('active', v==='mois');
+  document.getElementById('btnMois').style.display = '';
+  if (v === 'mois') {
+    currentMonth = new Date().getMonth();
+    currentYear  = new Date().getFullYear();
+    renderMonthView();
+  } else if (_origSwitchView) {
+    _origSwitchView(v);
+  }
+}
+
+// ══ FEATURE 5 — MODE URGENCE ══
+function openUrgence() {
+  const overlay = document.getElementById('urgenceOverlay');
+  overlay.classList.add('open');
+  analyseUrgence();
+}
+
+function closeUrgence() {
+  document.getElementById('urgenceOverlay').classList.remove('open');
+}
+
+function closeUrgenceIfOutside(e) {
+  if (e.target === document.getElementById('urgenceOverlay')) closeUrgence();
+}
+
+async function analyseUrgence() {
+  const content = document.getElementById('urgenceContent');
+  content.innerHTML = '<div class="urgence-thinking">🔍 Alima analyse ta semaine…</div>';
+
+  const now = new Date();
+  const week = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now); d.setDate(d.getDate() + i);
+    const iso = d.toISOString().split('T')[0];
+    const fmtD = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    const evts = aItems.filter(it => !it.done && (it.date === iso || it.date === fmtD));
+    if (evts.length) week.push(`${iso} (${evts.length} events): ${evts.map(e=>e.title).join(', ')}`);
+  }
+
+  const prenom = profile?.prenom || 'toi';
+  const ph = getPhaseInfo(CYCLE_DAY);
+
+  try {
+    const resp = await fetch('/.netlify/functions/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: `Tu es Alima. Réponds UNIQUEMENT en JSON valide sans markdown.
+Format : {"items":[{"title":"string","action":"reporter|déléguer|supprimer|garder","reason":"max 8 mots","color":"#hex"}]}
+Maximum 4 items. Priorité : ce qui peut être reporté ou supprimé.`,
+        messages: [{ role:'user', content:
+          `${prenom} est débordée. Phase cycle: ${ph.label} (énergie ${ph.energie}).
+Agenda cette semaine:\n${week.join('\n') || 'Agenda vide'}
+Notes en attente: ${notes.filter(n=>!n.treated).length}
+Dis-moi quoi couper, reporter ou déléguer.`
+        }]
+      })
+    });
+    const data = await resp.json();
+    const raw = data.content?.[0]?.text || '';
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    renderUrgenceResults(parsed.items || []);
+  } catch(e) {
+    content.innerHTML = `<div style="padding:16px;font-size:13px;color:var(--mid)">
+      Impossible d'analyser pour le moment. Voici ce que je vois :<br><br>
+      • ${aItems.filter(i=>!i.done).length} événements à venir<br>
+      • ${notes.filter(n=>!n.treated).length} notes en attente<br><br>
+      <b>Conseil :</b> Commence par identifier 1 chose que tu peux déléguer aujourd'hui.
+    </div>`;
+  }
+}
+
+function renderUrgenceResults(items) {
+  const content = document.getElementById('urgenceContent');
+  const actionColors = { reporter:'#F59E0B', déléguer:'#3B82F6', supprimer:'#EF4444', garder:'#10B981' };
+  const actionLabels = { reporter:'Reporter', déléguer:'Déléguer', supprimer:'Supprimer', garder:'Garder' };
+
+  if (!items.length) {
+    content.innerHTML = '<div style="padding:20px;text-align:center;color:var(--light)">Ta semaine semble gérable 💚</div>';
+    return;
+  }
+
+  let html = `<div style="font-size:12px;color:var(--light);margin-bottom:12px">
+    Alima a identifié ${items.length} action${items.length>1?'s':''} pour alléger ta semaine :</div>`;
+
+  items.forEach((item, i) => {
+    const color = actionColors[item.action] || '#9A80AA';
+    html += `<div class="urgence-item" style="--u-color:${color};animation-delay:${i*.08}s">
+      <div class="urgence-item-text">
+        <div style="font-weight:600;font-size:13px">${item.title}</div>
+        <div style="font-size:11px;color:var(--light);margin-top:2px">${item.reason || ''}</div>
+      </div>
+      <div class="urgence-item-action" style="color:${color}">${actionLabels[item.action] || item.action}</div>
+    </div>`;
+  });
+
+  html += `<button onclick="closeUrgence()" style="width:100%;height:46px;margin-top:8px;
+    border-radius:16px;background:var(--prune);border:none;color:#fff;font-size:14px;
+    font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer">Compris, merci Alima</button>`;
+
+  content.innerHTML = html;
+}
 </script>
 
 <!-- ══ MODAL AJOUT ÉVÉNEMENT AGENDA ══ -->
@@ -2972,5 +3455,19 @@ function bindNoteSwipe(cardEl, id) {
   </div>
 </div>
 
+
+<!-- ══ OVERLAY URGENCE ══ -->
+<div id="urgenceOverlay" onclick="closeUrgenceIfOutside(event)">
+  <div id="urgenceSheet">
+    <div class="urgence-header">
+      <div style="font-size:28px">🚨</div>
+      <div class="urgence-title">Mode urgence</div>
+      <div onclick="closeUrgence()" style="font-size:18px;color:var(--light);cursor:pointer">✕</div>
+    </div>
+    <div id="urgenceContent">
+      <div class="urgence-thinking">Alima analyse ton agenda…</div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
