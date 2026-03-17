@@ -1623,30 +1623,25 @@ async function analyseVT() {
     prochainsjours += `${nom} = ${d.toISOString().split('T')[0]}\n`;
   }
 
-  const systemPrompt = `Tu es Alima, assistante familiale pour ${profile ? profile.prenom : 'une maman'}.
-Tu reçois un texte libre avec un ou plusieurs éléments.
-Retourne UNIQUEMENT un JSON valide, sans markdown.
+  const systemPrompt = `Tu es un moteur de classification pour Alima.
+RÔLE UNIQUE : analyser le texte et retourner un JSON. RIEN D'AUTRE.
 
-PROCHAINS JOURS :
+RÈGLES (dans l'ordre) :
+1. Date/heure → type "event" ou "rappel", extraire date ISO et heure HHhMM
+2. Achat/acheter/courses → type "shopping", cat "courses"
+3. Prénom enfant présent → cat = prénom en minuscules
+4. pro/travail/réunion/client → cat "pro", type "note"
+5. idée/projet → type "idea"
+6. info santé/école enfant → type "info_enfant"
+7. Reste → type "note", cat "perso"
+8. Plusieurs éléments distincts → plusieurs items séparés
+
+DATES EXACTES :
 ${prochainsjours}
-ENFANTS : ${enfantsStr}
+ENFANTS : ${enfantsStr || 'aucun'}
 
-Format :
-{"items": [
-  {
-    "type": "event" | "rappel" | "note" | "shopping" | "info_enfant" | "idea",
-    "title": "titre court",
-    "body": "détail si utile ou null",
-    "date": "YYYY-MM-DD ou null",
-    "time": "HHhMM ou null",
-    "cat": "perso | pro | courses | ${enfants.map(e=>e.prenom.toLowerCase()).join(' | ')}",
-    "advice": "conseil pertinent max 1 phrase ou null",
-    "icon": "emoji"
-  }
-]}
-
-Règles : achat → shopping+courses, enfant mentionné → cat=prénom, pro → cat=pro.
-Découpe proprement si plusieurs éléments distincts.`;
+JSON PUR UNIQUEMENT — aucun texte, aucun markdown :
+{"items":[{"type":"string","title":"string","body":"string|null","date":"YYYY-MM-DD|null","time":"HHhMM|null","cat":"string","advice":"string|null","icon":"emoji"}]}`;
 
   fetch('/.netlify/functions/claude', {
     method: 'POST',
@@ -2184,16 +2179,30 @@ function closeNoteCtx() {
 }
 
 function editNoteFromCtx() {
+  const id = ctxNoteId;  // sauvegarder AVANT closeNoteCtx
   closeNoteCtx();
-  if (!ctxNoteId) return;
-  openEditNote(ctxNoteId);
+  if (!id) return;
+  openEditNote(id);
 }
 
 function deleteNoteFromCtx() {
+  const id = ctxNoteId;  // sauvegarder AVANT closeNoteCtx
   closeNoteCtx();
-  if (!ctxNoteId) return;
-  const i = notes.findIndex(n => n.id === ctxNoteId);
-  if (i >= 0) { notes.splice(i, 1); saveNotes(); renderNotes(); updateHome(); }
+  if (!id) return;
+  const i = notes.findIndex(n => n.id === id);
+  if (i < 0) return;
+  // Animation fade
+  const card = document.querySelector(`[data-nid="${id}"]`);
+  const wrap = card ? card.closest('.note-card-wrap') || card.closest('.note-card') : null;
+  if (wrap) {
+    wrap.style.transition = 'opacity .2s,transform .2s';
+    wrap.style.opacity = '0';
+    wrap.style.transform = 'scale(.95)';
+    setTimeout(() => { notes.splice(i,1); saveNotes(); renderNotes(); updateHome(); }, 220);
+  } else {
+    notes.splice(i, 1); saveNotes(); renderNotes(); updateHome();
+  }
+  showActionToast('🗑️ Note supprimée');
 }
 
 // ── MODAL ÉDITION NOTE ──
@@ -2856,14 +2865,15 @@ function acceptAiCat() {
 
 
 function duplicateNoteFromCtx() {
+  const id = ctxNoteId;
   closeNoteCtx();
-  if (!ctxNoteId) return;
-  const n = notes.find(x => x.id === ctxNoteId);
+  if (!id) return;
+  const n = notes.find(x => x.id === id);
   if (!n) return;
   const copy = JSON.parse(JSON.stringify(n));
   copy.id = Date.now();
   copy.title = copy.title + ' (copie)';
-  copy.date = "Aujourd'hui";
+  copy.date = "Aujourd\'hui";
   notes.unshift(copy);
   saveNotes(); renderNotes();
   showActionToast('📋 Note dupliquée');
