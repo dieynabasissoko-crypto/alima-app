@@ -677,22 +677,25 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'DM Sa
   #homeChipsWrap{transition:opacity .3s}
 
   /* ── Vue mois agenda ── */
-  .month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:14px}
+  .month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px}
   .month-day-label{font-size:9px;font-weight:700;color:var(--light);
-    text-align:center;padding:4px 0;text-transform:uppercase}
-  .month-cell{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;
+    text-align:center;padding:6px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+  .month-cell{aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;
     align-items:center;justify-content:center;cursor:pointer;position:relative;
-    transition:background .15s}
+    transition:background .15s;min-height:36px}
   .month-cell:active{background:var(--cream)}
-  .month-cell.today{background:var(--prune);}
+  .month-cell.today{background:var(--prune)}
   .month-cell.today .month-num{color:#fff;font-weight:700}
-  .month-cell.selected{background:var(--cream);border:1.5px solid var(--prune)}
-  .month-cell.other-month .month-num{color:rgba(59,17,82,.2)}
-  .month-num{font-size:12px;color:var(--prune-dark);line-height:1}
-  .month-dot{width:4px;height:4px;border-radius:50%;margin-top:2px}
+  .month-cell.has-ev-cell{background:rgba(201,148,58,.08)}
+  .month-cell.selected{background:var(--cream-dk);border:1.5px solid var(--prune-med)}
+  .month-cell.other-month .month-num{color:rgba(59,17,82,.15)}
+  .month-num{font-size:13px;color:var(--prune-dark);line-height:1;font-weight:500}
+  .month-cell.today .month-num{color:#fff}
+  .month-dots{display:flex;gap:2px;margin-top:3px;justify-content:center}
+  .month-dot{width:4px;height:4px;border-radius:50%}
   .month-dot.has-event{background:var(--gold)}
   .month-dot.has-rappel{background:#EF4444}
-  #btnMois{display:none}
+  .month-dot.has-ics{background:#3B82F6}
 
   /* ── Mode urgence ── */
   #urgenceOverlay{display:none;position:absolute;inset:0;z-index:280;
@@ -725,6 +728,38 @@ html,body{height:100%;overflow:hidden;background:var(--cream);font-family:'DM Sa
   .week-day-num.selected{background:var(--cream-dk);color:var(--prune)}
   .week-day-num.has-ev::after{content:'';display:block;width:4px;height:4px;
     border-radius:50%;background:var(--gold);margin:1px auto 0}
+
+  /* ── Import ICS ── */
+  #icsOverlay{display:none;position:absolute;inset:0;z-index:310;
+    background:rgba(20,6,36,.7);backdrop-filter:blur(5px);align-items:flex-end}
+  #icsOverlay.open{display:flex}
+  #icsSheet{background:#FAF8F2;border-radius:28px 28px 0 0;
+    width:100%;padding:20px 20px 36px;max-height:85%;overflow-y:auto}
+  .ics-drop{border:2px dashed rgba(59,17,82,.2);border-radius:18px;
+    padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px}
+  .ics-drop:hover,.ics-drop.drag{border-color:var(--prune-med);background:rgba(59,17,82,.03)}
+  .ics-drop-icon{font-size:32px;margin-bottom:8px}
+  .ics-drop-text{font-size:13px;color:var(--mid);line-height:1.5}
+  .ics-drop-sub{font-size:11px;color:var(--light);margin-top:4px}
+  /* Conflits */
+  .conflict-card{background:#fff;border-radius:16px;padding:12px 14px;
+    margin-bottom:8px;border-left:3px solid #EF4444;animation:fadeUp .25s ease both}
+  .conflict-title{font-size:13px;font-weight:600;color:var(--prune);margin-bottom:4px}
+  .conflict-detail{font-size:11.5px;color:var(--mid);line-height:1.5}
+  .conflict-badge{display:inline-block;background:#FEF2F2;color:#EF4444;
+    font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-bottom:6px}
+  /* Events importés */
+  .ics-event-item{display:flex;align-items:center;gap:10px;padding:9px 0;
+    border-bottom:1px solid rgba(59,17,82,.05)}
+  .ics-event-item:last-child{border:none}
+  .ics-evt-check{width:18px;height:18px;border-radius:6px;border:1.5px solid rgba(59,17,82,.2);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:10px}
+  .ics-evt-check.checked{background:var(--prune-med);border-color:var(--prune-med);color:#fff}
+  .ics-evt-info{flex:1;min-width:0}
+  .ics-evt-title{font-size:13px;font-weight:500;color:var(--prune);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ics-evt-date{font-size:11px;color:var(--light);margin-top:1px}
+  .ics-evt-conflict{font-size:10px;color:#EF4444;font-weight:600}
 </style>
 
 <script>
@@ -840,23 +875,37 @@ if('serviceWorker' in navigator) {
         <span style="font-size:20px;cursor:pointer" onclick="event.stopPropagation();goChat(document.getElementById('homeInput').value)">→</span>
       </div>
 
-      <!-- Résumé cerveau -->
-      <div class="brain-summary">
-        <div class="brain-label">Aujourd'hui</div>
-        <div class="brain-row" onclick="navTo('agenda')">
-          <span class="brain-icon">📅</span>
-          <span class="brain-text" id="brainAgenda"><strong>0 événement</strong></span>
-          <div class="brain-dot"></div>
+      <!-- Widget aujourd'hui -->
+      <div id="todayWidget" onclick="navTo('agenda')" style="background:#fff;border-radius:20px;padding:14px 16px;margin-bottom:10px;border:1.5px solid rgba(59,17,82,.06);cursor:pointer;animation:fadeUp .4s ease .1s both">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:11px;font-weight:700;color:var(--light);text-transform:uppercase;letter-spacing:.06em" id="todayLabel">Aujourd'hui</div>
+          <div style="font-size:11px;color:var(--light)" id="todayDate"></div>
         </div>
-        <div class="brain-row" onclick="navTo('notes')">
-          <span class="brain-icon">📝</span>
-          <span class="brain-text" id="brainNotes">0 note</span>
-          <div class="brain-dot"></div>
+        <div id="todayEventsList" style="margin-bottom:8px"></div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="flex:1;height:3px;background:rgba(59,17,82,.06);border-radius:10px;overflow:hidden">
+            <div id="todayProgress" style="height:100%;background:linear-gradient(90deg,var(--prune-med),var(--gold));border-radius:10px;transition:width .5s ease;width:0%"></div>
+          </div>
+          <div style="font-size:10px;color:var(--light)" id="todayProgressLabel">0 fait</div>
         </div>
-        <div class="brain-row" onclick="nav('profil')">
-          <span class="brain-icon">🌙</span>
-          <span class="brain-text" id="homePhaseText">Phase folliculaire · J8</span>
-          <div class="brain-dot" style="background:#27AE60"></div>
+      </div>
+
+      <!-- Résumé compact -->
+      <div style="display:flex;gap:8px;margin-bottom:10px;animation:fadeUp .4s ease .15s both">
+        <div onclick="navTo('notes')" style="flex:1;background:#fff;border-radius:16px;padding:11px 13px;border:1.5px solid rgba(59,17,82,.06);cursor:pointer">
+          <div style="font-size:18px;margin-bottom:2px">📝</div>
+          <div style="font-size:18px;font-family:'Fraunces',serif;font-weight:600;color:var(--prune)" id="brainNotes">0</div>
+          <div style="font-size:10px;color:var(--light)">notes</div>
+        </div>
+        <div onclick="nav('profil')" style="flex:1;background:#fff;border-radius:16px;padding:11px 13px;border:1.5px solid rgba(59,17,82,.06);cursor:pointer">
+          <div style="font-size:18px;margin-bottom:2px" id="brainCycleIcon">🌙</div>
+          <div style="font-size:13px;font-weight:600;color:var(--prune);font-family:'Fraunces',serif" id="homePhaseText">J8</div>
+          <div style="font-size:10px;color:var(--light)">cycle</div>
+        </div>
+        <div onclick="navTo('agenda')" style="flex:1;background:#fff;border-radius:16px;padding:11px 13px;border:1.5px solid rgba(59,17,82,.06);cursor:pointer">
+          <div style="font-size:18px;margin-bottom:2px">📅</div>
+          <div style="font-size:18px;font-family:'Fraunces',serif;font-weight:600;color:var(--prune)" id="brainAgenda">0</div>
+          <div style="font-size:10px;color:var(--light)">events</div>
         </div>
       </div>
 
@@ -915,9 +964,9 @@ if('serviceWorker' in navigator) {
       <div class="page-title">Agenda<span>.</span></div>
       <div style="display:flex;align-items:center;gap:8px">
         <div class="view-switch">
-          <div class="view-btn active" id="btnListe" onclick="switchView('liste')">Liste</div>
+          <div class="view-btn" id="btnListe" onclick="switchView('liste')">Liste</div>
           <div class="view-btn" id="btnJour" onclick="switchView('semaine')">Semaine</div>
-          <div class="view-btn" id="btnMois" onclick="switchView('mois')">Mois</div>
+          <div class="view-btn active" id="btnMois" onclick="switchView('mois')">Mois</div>
         </div>
 
       </div>
@@ -1281,7 +1330,7 @@ function nav(id) {
   document.getElementById('screen-'+id).classList.add('active');
   const vtBtn=document.getElementById('vtBtn');
   if(vtBtn) vtBtn.style.display=(id==='chat')?'none':'';
-  if(id==='agenda'){buildStrip();const strip=document.getElementById('daysStrip');if(strip)strip.style.display='flex';renderAgenda();renderCycleBanner();}
+  if(id==='agenda'){buildStrip();const strip=document.getElementById('daysStrip');if(strip)strip.style.display=aView==='liste'?'flex':'none';renderAgenda();renderCycleBanner();}
   if(id==='profil'){renderProfilEnfants();updateNotifBadge();}
   if(id==='notes')renderNotes();
   if(id==='cycle'){drawWheel();renderPhaseCard(selPhase);}
@@ -1376,9 +1425,10 @@ MÉMOIRE DES CONVERSATIONS RÉCENTES :
 PROCHAINS ÉVÉNEMENTS AGENDA :
 \${upcoming || '(aucun)'}
 
-RÈGLES :
-- Réponds en français, chaleur et concision (2-3 phrases max sauf si demandé plus)
-- Appelle l'utilisatrice par son prénom : ${prenom}
+RÈGLES STRICTES :
+- MAXIMUM 2 phrases dans ta réponse. Jamais plus, sauf si elle demande explicitement plus.
+- 1 phrase si c'est une confirmation d'action. Sois directe, pas bavarde.
+- Appelle-la par son prénom : ${prenom}
 - Pour toute date mentionnée (lundi, jeudi, vendredi...) utilise TOUJOURS la liste "PROCHAINS JOURS" ci-dessus pour trouver la bonne date ISO YYYY-MM-DD
 - Quand tu détectes une intention, agis et termine par :
   ACTION:{"type":"add_event","title":"...","date":"YYYY-MM-DD","time":"HHhMM ou null","tags":[],"icon":"emoji"}
@@ -1537,12 +1587,66 @@ const fmt=dt=>dt.toISOString().split('T')[0];
 const JJ=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 const MM=['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
 const aItems=[]
-let aView='liste',aFilter='tous',selDay=fmt(today),showDone=false,aId=200;
+let aView='mois',aFilter='tous',selDay=fmt(today),showDone=false,aId=200;
 function buildStrip(){const s=document.getElementById('daysStrip');s.innerHTML='';for(let i=0;i<14;i++){const dt=D(i);const k=fmt(dt);const has=aItems.some(it=>it.date===k);const p=document.createElement('div');p.className='day-pill'+(k===selDay?' active':'')+(has?' has-events':'');p.dataset.date=k;p.innerHTML=`<div class="day-name">${JJ[dt.getDay()]}</div><div class="day-num">${dt.getDate()}</div><div class="day-dot"></div>`;p.onclick=()=>{selDay=k;buildStrip();renderAgenda();};s.appendChild(p);}}
-// switchView v1 supprimée
 function setAFilter(el,f){aFilter=f;document.querySelectorAll('#screen-agenda .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderAgenda();}
-function renderAgenda(){const c=document.getElementById('agendaContent');c.innerHTML='';let data=aItems.filter(it=>{if(aFilter==='tous')return true;if(aFilter==='rappel')return it.type==='rappel';return it.tags.includes(aFilter);});if(aView==='liste')renderAListe(c,data);else renderAJour(c,data);}
-function renderAListe(c,data){const g={};data.forEach(it=>{if(!g[it.date])g[it.date]=[];g[it.date].push(it);});const s=Object.keys(g).sort();if(!s.length){c.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--light);font-size:14px">Rien ici 🌿</div>';return;}s.forEach((k,i)=>{const act=g[k].filter(it=>!it.done);const dn=g[k].filter(it=>it.done);const sec=document.createElement('div');sec.className='date-section';const dt=new Date(k+'T00:00:00');const isT=k===fmt(today),isTm=k===fmt(D(1));const lbl=isT?"Aujourd'hui":isTm?'Demain':JJ[dt.getDay()]+' '+dt.getDate()+' '+MM[dt.getMonth()];sec.innerHTML=`<div class="date-label${isT?' today':''}">${lbl}</div>`;act.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')).forEach((it,j)=>{const el=mkItem(it);el.style.animationDelay=(i*.04+j*.04)+'s';sec.appendChild(el);});appendDone(sec,dn);c.appendChild(sec);});}
+// renderAgenda v1 supprimée
+function renderAListe(c, data) {
+  const now = new Date();
+  const todayISO = fmt(now);
+  const limit = new Date(now.getTime() + 60 * 86400000);
+
+  // Filtrer : valides, pas passés, dans les 60 jours
+  const valid = data.filter(it => {
+    if (!it.date || it.date.includes('hui')) return false;
+    try {
+      const dt = new Date(it.date + 'T00:00:00');
+      return dt >= new Date(todayISO + 'T00:00:00') && dt <= limit;
+    } catch(e) { return false; }
+  });
+
+  if (!valid.length) {
+    c.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--light);font-size:14px">Rien à venir 🌿</div>';
+    return;
+  }
+
+  // Grouper par catégorie
+  const enfants = (profile && profile.enfants) ? profile.enfants : [];
+  const cats = [
+    { key: 'today',   label: "Aujourd'hui",  filter: it => it.date === todayISO },
+    { key: 'demain',  label: 'Demain',        filter: it => it.date === fmt(D(1)) },
+    { key: 'pro',     label: '💼 Pro',        filter: it => it.date !== todayISO && it.date !== fmt(D(1)) && it.tags && it.tags.includes('pro') },
+    ...enfants.map((e, i) => ({
+      key: e.prenom.toLowerCase(),
+      label: ['👧','👦','👧🏾','👦🏾'][i] + ' ' + e.prenom,
+      filter: it => it.date !== todayISO && it.date !== fmt(D(1)) && it.tags && it.tags.includes(e.prenom.toLowerCase())
+    })),
+    { key: 'perso',   label: '🌿 Perso',     filter: it => it.date !== todayISO && it.date !== fmt(D(1)) && (!it.tags || (!it.tags.includes('pro') && !enfants.some(e => it.tags.includes(e.prenom.toLowerCase())))) },
+  ];
+
+  let hasAny = false;
+  cats.forEach((cat, ci) => {
+    const items = valid.filter(cat.filter).filter(it => !it.done)
+      .sort((a, b) => a.date.localeCompare(b.date) || (a.time||'99:99').localeCompare(b.time||'99:99'));
+    if (!items.length) return;
+    hasAny = true;
+
+    const sec = document.createElement('div');
+    sec.className = 'date-section';
+    const isToday = cat.key === 'today';
+    sec.innerHTML = `<div class="date-label${isToday?' today':''}">${cat.label}</div>`;
+    items.forEach((it, j) => {
+      const el = mkItem(it);
+      el.style.animationDelay = (ci * 0.03 + j * 0.03) + 's';
+      sec.appendChild(el);
+    });
+    c.appendChild(sec);
+  });
+
+  if (!hasAny) {
+    c.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--light);font-size:14px">Rien à venir 🌿</div>';
+  }
+}
 function renderAJour(c,data){const items=data.filter(it=>it.date===selDay);const dt=new Date(selDay+'T00:00:00');const isT=selDay===fmt(today);const lbl=document.createElement('div');lbl.className='date-label'+(isT?' today':'');lbl.textContent=isT?"Aujourd'hui":JJ[dt.getDay()]+' '+dt.getDate()+' '+MM[dt.getMonth()];c.appendChild(lbl);const act=items.filter(it=>!it.done);const dn=items.filter(it=>it.done);if(!act.length&&!dn.length){c.innerHTML+='<div style="text-align:center;padding:60px 20px;color:var(--light);font-size:14px">Rien ce jour 🌿</div>';return;}act.sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99')).forEach((it,i)=>{const el=mkItem(it);el.style.animationDelay=(i*.05)+'s';c.appendChild(el);});appendDone(c,dn);}
 function mkItem(it){const d=document.createElement('div');d.className=`item type-${it.type}`;d.dataset.id=it.id;const tags=it.tags.map(t=>`<span class="item-tag tag-${t}">${t}</span>`).join('');const recurBadge = it.recur && it.recur!=='none' ? `<span class="item-recur">🔁 ${it.recur}</span>` : '';
 d.innerHTML=`<div class="item-icon">${it.icon}</div><div class="item-body"><div class="item-title">${it.title}${recurBadge}</div><div class="item-meta">${it.time?`<span class="item-time">${it.time}</span>`:''}${tags}</div></div><div class="item-check${it.done?' checked':''}" onclick="toggleItem(event,${it.id})">${it.done?'✓':''}</div>`;d.addEventListener('contextmenu',(e)=>{e.preventDefault();openAgendaModal(it.id);});return d;}
@@ -1565,7 +1669,7 @@ function openNModal(){document.getElementById('noteModal').classList.add('open')
 function closeNModal(){document.getElementById('noteModal').classList.remove('open');document.getElementById('noteText').value='';}
 function setNType(el,t){nType=t;document.querySelectorAll('.type-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
 function setNCat(el,c){nCat=c;document.querySelectorAll('.cat-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
-function saveNote(){const t=document.getElementById('noteText').value.trim();if(!t)return;let n={id:nId++,cat:nCat,date:"Aujourd'hui"};if(nType==='checklist'){n.type='checklist';n.title='Ma liste';n.items=t.split('\n').filter(l=>l.trim()).map(l=>({label:l.trim(),done:false}));}else if(nType==='vocale'){n.type='vocale';n.title=t;n.duration='0:00';}else if(nType==='photo'){n.type='photo';n.title=t;n.emoji='🖼️';}else{const ls=t.split('\n');n.type='texte';n.title=ls[0];n.body=ls.slice(1).join(' ')||t;}notes.unshift(n);saveNotes();closeNModal();renderNotes();updateHome();}
+function saveNote(){const t=document.getElementById('noteText').value.trim();if(!t)return;let n={id:nId++,cat:nCat,date:fmt(new Date())};if(nType==='checklist'){n.type='checklist';n.title='Ma liste';n.items=t.split('\n').filter(l=>l.trim()).map(l=>({label:l.trim(),done:false}));}else if(nType==='vocale'){n.type='vocale';n.title=t;n.duration='0:00';}else if(nType==='photo'){n.type='photo';n.title=t;n.emoji='🖼️';}else{const ls=t.split('\n');n.type='texte';n.title=ls[0];n.body=ls.slice(1).join(' ')||t;}notes.unshift(n);saveNotes();closeNModal();renderNotes();updateHome();}
 
 // ── CYCLE ──
 const CP='folliculaire',CD=8;
@@ -1877,10 +1981,52 @@ function updateHome() {
   const hp=document.getElementById('homePrenom'); if(hp) hp.textContent=prenom;
   const todayFmt=fmt(today);
   const nbT=aItems.filter(it=>!it.done&&it.date===todayFmt).length;
-  const ba=document.getElementById('brainAgenda');
-  if(ba) ba.innerHTML='<strong>'+nbT+' événement'+(nbT>1?'s':'')+'</strong> aujourd\'hui';
-  const bn=document.getElementById('brainNotes');
-  if(bn) bn.innerHTML='<strong>'+notes.length+' note'+(notes.length>1?'s':'')+'</strong> enregistrée'+(notes.length>1?'s':'');
+  // Widget aujourd'hui
+  const todayISO = new Date().toISOString().split('T')[0];
+  const todayEvts = aItems.filter(it => it.date === todayISO && !it.done);
+  const todayDone = aItems.filter(it => it.date === todayISO && it.done).length;
+  const todayTotal = todayEvts.length + todayDone;
+
+  const ba = document.getElementById('brainAgenda');
+  if(ba) ba.textContent = nbT;
+  const bn = document.getElementById('brainNotes');
+  if(bn) bn.textContent = notes.length;
+
+  // Label date
+  const tl = document.getElementById('todayLabel');
+  const td = document.getElementById('todayDate');
+  const now2 = new Date();
+  if(tl) tl.textContent = "Aujourd'hui";
+  if(td) td.textContent = now2.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+
+  // Liste events du jour
+  const tel = document.getElementById('todayEventsList');
+  if(tel) {
+    if(!todayEvts.length && !todayDone) {
+      tel.innerHTML = '<div style="font-size:12px;color:var(--light);font-style:italic">Journée libre 🌿</div>';
+    } else {
+      tel.innerHTML = todayEvts.slice(0,3).map(e =>
+        `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+          <span style="font-size:14px">${e.icon||'📅'}</span>
+          <span style="font-size:13px;font-weight:500;color:var(--prune-dark);flex:1">${e.title}</span>
+          ${e.time ? `<span style="font-size:11px;color:var(--light)">${e.time}</span>` : ''}
+        </div>`).join('') +
+        (todayEvts.length > 3 ? `<div style="font-size:11px;color:var(--light)">+${todayEvts.length-3} autres</div>` : '');
+    }
+  }
+
+  // Barre progression
+  const pct = todayTotal > 0 ? Math.round((todayDone / todayTotal) * 100) : 0;
+  const tp = document.getElementById('todayProgress');
+  const tpl = document.getElementById('todayProgressLabel');
+  if(tp) tp.style.width = pct + '%';
+  if(tpl) tpl.textContent = todayDone + ' fait' + (todayDone > 1 ? 's' : '');
+
+  // Icône cycle
+  const ph2 = getPhaseInfo(CYCLE_DAY);
+  const cycleIcons = {menstruelle:'🌑', folliculaire:'🌱', ovulatoire:'✨', luteale:'🍂'};
+  const bci = document.getElementById('brainCycleIcon');
+  if(bci) bci.textContent = cycleIcons[ph2.phase] || '🌙';
   const hp2=document.getElementById('homePhaseText');
   if(hp2) hp2.textContent='Phase '+phInfo.label+' · J'+CYCLE_DAY+' · '+(ENERGIE_LABEL[phInfo.energie]||'');
   // Profil
@@ -2170,6 +2316,7 @@ function loadAgendaNotes() {
     const n = localStorage.getItem('alima_notes');
     if (n) { const parsed = JSON.parse(n); parsed.forEach(i=>notes.push(i)); }
   } catch(e) {}
+  normalizeDates();
 }
 
 // ── BANDEAU CYCLE AGENDA ──
@@ -3285,13 +3432,19 @@ function renderMonthView() {
     const isToday = d.toDateString() === now.toDateString();
     const sel = iso === selDay || fmtDate === selDay;
     const ev = eventMap[iso] || eventMap[fmtDate] || {};
-    const hasDot = ev.events > 0 || ev.rappels > 0;
-    const dotClass = ev.rappels > 0 ? 'has-rappel' : 'has-event';
+    const hasEv = ev.events > 0;
+    const hasRap = ev.rappels > 0;
+    const hasIcs = aItems.some(i => i.date === iso && i._ics);
+    const hasAny = hasEv || hasRap || hasIcs;
+    let dots = '';
+    if (hasEv)  dots += '<div class="month-dot has-event"></div>';
+    if (hasRap) dots += '<div class="month-dot has-rappel"></div>';
+    if (hasIcs) dots += '<div class="month-dot has-ics"></div>';
 
-    html += `<div class="month-cell${isToday?' today':''}${sel?' selected':''}"
+    html += `<div class="month-cell${isToday?' today':''}${sel?' selected':''}${hasAny&&!isToday?' has-ev-cell':''}"
       onclick="selectMonthDay('${iso}')">
       <span class="month-num">${day}</span>
-      <div class="month-dot ${hasDot ? dotClass : ''}"></div>
+      ${dots ? `<div class="month-dots">${dots}</div>` : ''}
     </div>`;
   }
 
@@ -3305,21 +3458,48 @@ function renderMonthView() {
     return i.date === (selDay || new Date().toISOString().split('T')[0]) || i.date === fmtD;
   });
 
-  if (selItems.length) {
-    html += `<div style="margin-top:4px">`;
-    selItems.forEach(it => {
-      html += `<div style="background:#fff;border-radius:14px;padding:10px 14px;
-        margin-bottom:6px;display:flex;align-items:center;gap:10px;
-        border-left:3px solid ${it.type==='rappel'?'#EF4444':'var(--gold)'}">
-        <span>${it.icon||'📅'}</span>
-        <div style="flex:1;font-size:13px;color:var(--prune-dark)">${it.title}</div>
-        ${it.time ? `<span style="font-size:11px;color:var(--light)">${it.time}</span>` : ''}
-      </div>`;
-    });
-    html += `</div>`;
-  } else {
-    html += `<div style="text-align:center;padding:20px;color:var(--light);font-size:13px">Aucun événement ce jour</div>`;
+  // Label jour sélectionné
+  if (selDay) {
+    try {
+      const sd = new Date(selDay + 'T00:00:00');
+      const sdLabel = sd.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+      html += `<div style="font-size:12px;font-weight:700;color:var(--mid);
+        text-transform:capitalize;margin-bottom:10px;padding:0 2px">${sdLabel}</div>`;
+    } catch(e) {}
   }
+
+  if (selItems.length) {
+    selItems
+      .sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'))
+      .forEach(it => {
+        const color = it.type==='rappel' ? '#EF4444' : it._ics ? '#3B82F6' : 'var(--gold)';
+        html += `<div onclick="openAgendaModal(${it.id})" style="background:#fff;border-radius:14px;
+          padding:11px 14px;margin-bottom:6px;display:flex;align-items:center;gap:10px;
+          border-left:3px solid ${color};cursor:pointer;transition:background .15s"
+          onmouseenter="this.style.background='var(--cream)'" onmouseleave="this.style.background='#fff'">
+          <span style="font-size:16px">${it.icon||'📅'}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:500;color:var(--prune-dark);
+              white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.title}</div>
+            ${it.time ? `<div style="font-size:11px;color:var(--light);margin-top:1px">${it.time}${it._ics?' · 💼 Pro':''}</div>` : ''}
+          </div>
+          <div style="font-size:12px;color:var(--light)">›</div>
+        </div>`;
+      });
+  } else {
+    html += `<div style="text-align:center;padding:28px 20px;color:var(--light);font-size:13px">
+      <div style="font-size:28px;margin-bottom:8px">🌿</div>
+      Journée libre
+    </div>`;
+  }
+  // Bouton ajouter depuis vue mois
+  html += `<div onclick="openAgendaModal()" style="display:flex;align-items:center;justify-content:center;
+    gap:8px;padding:12px;border-radius:14px;border:1.5px dashed rgba(59,17,82,.15);
+    cursor:pointer;color:var(--light);font-size:13px;margin-top:4px"
+    onmouseenter="this.style.borderColor='var(--prune-med)';this.style.color='var(--prune)'"
+    onmouseleave="this.style.borderColor='rgba(59,17,82,.15)';this.style.color='var(--light)'">
+    ＋ Ajouter un événement
+  </div>`;
 
   content.innerHTML = html;
 }
@@ -3337,7 +3517,6 @@ function selectMonthDay(iso) {
 }
 
 // Patcher switchView pour gérer 'mois'
-// switchView v2 supprimée
 
 // ══ FEATURE 5 — MODE URGENCE ══
 function openUrgence() {
@@ -3440,10 +3619,9 @@ function switchView(v) {
   document.getElementById('btnListe').classList.toggle('active', v === 'liste');
   document.getElementById('btnJour').classList.toggle('active', v === 'semaine');
   document.getElementById('btnMois').classList.toggle('active', v === 'mois');
-  // Strip : visible en liste et semaine, masqué en mois
+  // Strip masqué en mois ET semaine (semaine a son propre header)
   const strip = document.getElementById('daysStrip');
-  if (strip) strip.style.display = (v === 'mois') ? 'none' : 'flex';
-  if (v === 'semaine') { buildStrip(); }
+  if (strip) strip.style.display = (v === 'liste') ? 'flex' : 'none';
   renderAgenda();
 }
 
@@ -3559,6 +3737,305 @@ function selectRecur(el, val) {
   document.querySelectorAll('#recurGrid .freq-opt').forEach(f => f.classList.remove('selected'));
   el.classList.add('selected');
 }
+
+// ── Normalisation dates legacy ──
+function normalizeDates() {
+  const todayISO = fmt(new Date());
+  [...aItems, ...notes].forEach(item => {
+    if (!item.date || item.date === "Aujourd'hui" || item.date === "Aujourd\'hui") {
+      item.date = todayISO;
+    }
+    // Convertir dd/mm/yyyy → yyyy-mm-dd
+    const ddmm = item.date.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (ddmm) item.date = `${ddmm[3]}-${ddmm[2]}-${ddmm[1]}`;
+  });
+}
+
+// ══ IMPORT ICS — PARSEUR + DÉTECTION CONFLITS ══
+
+var icsEvents = [];       // events parsés
+var icsSelected = new Set(); // IDs cochés
+
+function openICSImport() {
+  document.getElementById('icsOverlay').classList.add('open');
+  document.getElementById('icsResults').style.display = 'none';
+  document.getElementById('icsDrop').style.display = 'block';
+  icsEvents = [];
+  icsSelected.clear();
+}
+
+function closeICS() {
+  document.getElementById('icsOverlay').classList.remove('open');
+}
+
+function closeICSIfOutside(e) {
+  if (e.target === document.getElementById('icsOverlay')) closeICS();
+}
+
+function handleICSdrop(e) {
+  e.preventDefault();
+  document.getElementById('icsDrop').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) parseICSFile(file);
+}
+
+function handleICSfile(e) {
+  const file = e.target.files[0];
+  if (file) parseICSFile(file);
+  e.target.value = '';
+}
+
+function parseICSFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      icsEvents = parseICS(e.target.result);
+      if (!icsEvents.length) {
+        showActionToast('❌ Aucun événement trouvé dans ce fichier');
+        return;
+      }
+      // Pré-sélectionner tous
+      icsEvents.forEach(ev => icsSelected.add(ev.id));
+      renderICSResults();
+    } catch(err) {
+      showActionToast('❌ Fichier .ics invalide');
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+// ── Parseur ICS ──
+function parseICS(text) {
+  const events = [];
+  // Normaliser les lignes repliées (RFC 5545)
+  const lines = text.replace(/\r\n[ \t]/g, '').replace(/\r/g, '').split('\n');
+
+  let current = null;
+  let uid = 0;
+
+  lines.forEach(line => {
+    line = line.trim();
+    if (line === 'BEGIN:VEVENT') {
+      current = { _uid: ++uid };
+    } else if (line === 'END:VEVENT' && current) {
+      if (current.title && current.date) events.push(current);
+      current = null;
+    } else if (current) {
+      // Parser chaque propriété
+      const col = line.indexOf(':');
+      if (col < 0) return;
+      const key = line.substring(0, col).toUpperCase();
+      const val = line.substring(col + 1).trim();
+
+      if (key === 'SUMMARY' || key.startsWith('SUMMARY;')) {
+        current.title = decodeICSText(val);
+      } else if (key.startsWith('DTSTART')) {
+        const parsed = parseICSDate(key, val);
+        if (parsed) { current.date = parsed.date; current.time = parsed.time; }
+      } else if (key.startsWith('DTEND')) {
+        const parsed = parseICSDate(key, val);
+        if (parsed) { current.endDate = parsed.date; current.endTime = parsed.time; }
+      } else if (key === 'LOCATION' || key.startsWith('LOCATION;')) {
+        current.location = decodeICSText(val).slice(0, 60);
+      } else if (key === 'DESCRIPTION' || key.startsWith('DESCRIPTION;')) {
+        current.description = decodeICSText(val).slice(0, 100);
+      } else if (key === 'STATUS') {
+        current.status = val;
+      } else if (key === 'RRULE') {
+        current.rrule = val;
+      }
+    }
+  });
+
+  // Filtrer : seulement les 60 prochains jours, pas les annulés
+  const now = new Date();
+  const limit = new Date(now.getTime() + 60 * 86400000);
+  return events.filter(ev => {
+    if (ev.status === 'CANCELLED') return false;
+    const d = new Date(ev.date + 'T00:00:00');
+    return d >= new Date(now.toISOString().split('T')[0]) && d <= limit;
+  }).sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function parseICSDate(key, val) {
+  // Cas 1 : DTSTART;VALUE=DATE:20260325
+  if (val.match(/^\d{8}$/) || key.includes('VALUE=DATE')) {
+    const y = val.slice(0,4), m = val.slice(4,6), d = val.slice(6,8);
+    return { date: `${y}-${m}-${d}`, time: null };
+  }
+  // Cas 2 : DTSTART:20260325T143000Z ou 20260325T143000
+  const match = val.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})/);
+  if (match) {
+    return {
+      date: `${match[1]}-${match[2]}-${match[3]}`,
+      time: `${match[4]}h${match[5]}`
+    };
+  }
+  return null;
+}
+
+function decodeICSText(val) {
+  return val
+    .replace(/\\n/g, ' ')
+    .replace(/\\,/g, ',')
+    .replace(/\\;/g, ';')
+    .replace(/\\\\/g, '\\')
+    .trim();
+}
+
+// ── Détection conflits ──
+function detectConflicts(icsEvts) {
+  const conflicts = [];
+
+  icsEvts.forEach(icsEv => {
+    if (!icsEv.time) return; // Toute la journée → pas de conflit horaire
+
+    const [ih, im] = icsEv.time.replace('h', ':').split(':').map(Number);
+    const icsStart = ih * 60 + (im || 0);
+    const icsEnd = icsEv.endTime
+      ? (() => { const [eh, em] = icsEv.endTime.replace('h',':').split(':').map(Number); return eh*60+(em||0); })()
+      : icsStart + 60; // défaut 1h
+
+    // Comparer avec les items Alima du même jour
+    const alimaSameDay = aItems.filter(it =>
+      it.date === icsEv.date && it.time && !it.done
+    );
+
+    alimaSameDay.forEach(alimaEv => {
+      const [ah, am] = alimaEv.time.replace('h', ':').split(':').map(Number);
+      const alimaStart = ah * 60 + (am || 0);
+      const alimaEnd = alimaStart + 60; // durée estimée 1h
+
+      // Chevauchement si les plages se croisent
+      if (icsStart < alimaEnd && icsEnd > alimaStart) {
+        conflicts.push({
+          icsTitle: icsEv.title,
+          icsTime: icsEv.time,
+          alimaTitle: alimaEv.title,
+          alimaTime: alimaEv.time,
+          date: icsEv.date,
+        });
+      }
+    });
+  });
+
+  return conflicts;
+}
+
+// ── Rendu résultats ──
+function renderICSResults() {
+  document.getElementById('icsDrop').style.display = 'none';
+  document.getElementById('icsResults').style.display = 'block';
+
+  const conflicts = detectConflicts(icsEvents);
+  const conflictsEl = document.getElementById('icsConflicts');
+  const listEl = document.getElementById('icsEventsList');
+  const labelEl = document.getElementById('icsEventsLabel');
+
+  // Conflits
+  if (conflicts.length) {
+    conflictsEl.innerHTML = `
+      <div style="font-size:11px;font-weight:700;color:#EF4444;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">
+        ⚠️ ${conflicts.length} conflit${conflicts.length>1?'s':''} détecté${conflicts.length>1?'s':''}
+      </div>` +
+      conflicts.map(c => `
+        <div class="conflict-card">
+          <div class="conflict-badge">CHEVAUCHEMENT</div>
+          <div class="conflict-title">📆 ${c.icsTitle} <span style="color:var(--light)">${c.icsTime}</span></div>
+          <div class="conflict-detail">chevauche → 📅 ${c.alimaTitle} <span style="font-weight:600">${c.alimaTime}</span><br>
+          <span style="color:var(--light)">${formatDateFR(c.date)}</span></div>
+        </div>`).join('');
+  } else {
+    conflictsEl.innerHTML = icsEvents.length
+      ? '<div style="background:#ECFDF5;border-radius:12px;padding:10px 14px;font-size:12px;color:#10B981;font-weight:600;margin-bottom:12px">✅ Aucun conflit avec ton agenda Alima</div>'
+      : '';
+  }
+
+  // Liste events
+  labelEl.textContent = `${icsEvents.length} événement${icsEvents.length>1?'s':''} (60 prochains jours)`;
+
+  const conflictDates = new Set(conflicts.map(c => c.icsTitle + c.date));
+
+  listEl.innerHTML = '';
+  icsEvents.forEach((ev, i) => {
+    const hasConflict = conflictDates.has(ev.title + ev.date);
+    const isChecked = icsSelected.has(ev._uid);
+    const el = document.createElement('div');
+    el.className = 'ics-event-item';
+    el.style.animationDelay = (i * 0.03) + 's';
+    el.innerHTML = `
+      <div class="ics-evt-check ${isChecked?'checked':''}" onclick="toggleICSSelect(${ev._uid}, this)">
+        ${isChecked ? '✓' : ''}
+      </div>
+      <div class="ics-evt-info">
+        <div class="ics-evt-title">${ev.title}</div>
+        <div class="ics-evt-date">
+          ${formatDateFR(ev.date)}${ev.time ? ' · ' + ev.time : ' · Toute la journée'}
+          ${ev.location ? ' · 📍' + ev.location : ''}
+        </div>
+        ${hasConflict ? '<div class="ics-evt-conflict">⚠️ Conflit détecté</div>' : ''}
+      </div>`;
+    listEl.appendChild(el);
+  });
+}
+
+function toggleICSSelect(uid, el) {
+  if (icsSelected.has(uid)) {
+    icsSelected.delete(uid);
+    el.classList.remove('checked');
+    el.textContent = '';
+  } else {
+    icsSelected.add(uid);
+    el.classList.add('checked');
+    el.textContent = '✓';
+  }
+  // Mettre à jour le bouton
+  const btn = document.getElementById('icsImportBtn');
+  if (btn) btn.textContent = `Importer (${icsSelected.size})`;
+}
+
+function importSelectedICS() {
+  const toImport = icsEvents.filter(ev => icsSelected.has(ev._uid));
+  if (!toImport.length) {
+    showActionToast('Sélectionne au moins un événement');
+    return;
+  }
+
+  let added = 0;
+  toImport.forEach(ev => {
+    // Éviter les doublons (même titre + date)
+    const exists = aItems.some(it => it.title === ev.title && it.date === ev.date);
+    if (!exists) {
+      aItems.push({
+        id: Date.now() + Math.random(),
+        date: ev.date,
+        time: ev.time || null,
+        title: ev.title,
+        type: 'event',
+        icon: '💼',
+        tags: ['pro'],
+        done: false,
+        recur: 'none',
+        _ics: true  // marqueur source
+      });
+      added++;
+    }
+  });
+
+  saveAgenda();
+  renderAgenda();
+  updateHome();
+  closeICS();
+  showActionToast(`✅ ${added} événement${added>1?'s':''} importé${added>1?'s':''}`);
+}
+
+function formatDateFR(iso) {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('fr-FR', { weekday:'short', day:'numeric', month:'short' });
+  } catch(e) { return iso; }
+}
 </script>
 
 <!-- ══ MODAL AJOUT ÉVÉNEMENT AGENDA ══ -->
@@ -3641,6 +4118,42 @@ function selectRecur(el, val) {
     </div>
     <div id="urgenceContent">
       <div class="urgence-thinking">Alima analyse ton agenda…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ OVERLAY IMPORT ICS ══ -->
+<div id="icsOverlay" onclick="closeICSIfOutside(event)">
+  <div id="icsSheet">
+    <div style="width:40px;height:4px;background:rgba(59,17,82,.15);border-radius:4px;margin:0 auto 18px"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-family:'Fraunces',serif;font-size:19px;color:#1E0630">Agenda pro 📆</div>
+      <div onclick="closeICS()" style="font-size:18px;color:var(--light);cursor:pointer">✕</div>
+    </div>
+
+    <!-- Zone drop / upload -->
+    <div id="icsDrop" class="ics-drop" onclick="document.getElementById('icsFile').click()"
+         ondragover="event.preventDefault();this.classList.add('drag')"
+         ondragleave="this.classList.remove('drag')"
+         ondrop="handleICSdrop(event)">
+      <div class="ics-drop-icon">📁</div>
+      <div class="ics-drop-text">Glisse ton fichier .ics ici<br>ou <u>clique pour choisir</u></div>
+      <div class="ics-drop-sub">Google Calendar → Paramètres → Exporter<br>Outlook → Fichier → Enregistrer le calendrier</div>
+    </div>
+    <input id="icsFile" type="file" accept=".ics" style="display:none" onchange="handleICSfile(event)">
+
+    <!-- Résultats -->
+    <div id="icsResults" style="display:none">
+      <!-- Conflits -->
+      <div id="icsConflicts" style="margin-bottom:14px"></div>
+      <!-- Liste events -->
+      <div style="font-size:11px;font-weight:700;color:var(--light);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px" id="icsEventsLabel">Événements trouvés</div>
+      <div id="icsEventsList"></div>
+      <!-- Actions -->
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button onclick="closeICS()" style="flex:1;height:46px;border-radius:14px;background:#EDE8F4;border:none;font-size:14px;font-weight:600;color:#3B1152;font-family:'DM Sans',sans-serif;cursor:pointer">Annuler</button>
+        <button onclick="importSelectedICS()" id="icsImportBtn" style="flex:2;height:46px;border-radius:14px;background:linear-gradient(135deg,#3B1152,#5A1E80);border:none;font-size:14px;font-weight:600;color:#fff;font-family:'DM Sans',sans-serif;cursor:pointer">Importer la sélection</button>
+      </div>
     </div>
   </div>
 </div>
